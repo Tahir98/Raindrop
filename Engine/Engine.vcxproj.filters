@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Window">
+      <UniqueIdentifier>{74C3D837-607B-1A85-C982-F3E0B559B575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\GLAD">
+      <UniqueIdentifier>{1A7667C1-862B-E0B6-0F20-DA8D7BD4D6BA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Application.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EntryPoint.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Log.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Window\Window.h">
+      <Filter>src\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OpenGL\VertexBuffer.h" />
+    <ClInclude Include="src\OpenGL\IndexBuffer.h" />
+    <ClInclude Include="src\OpenGL\VertexArray.h" />
+    <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\Input\InputHandler.h" />
+    <ClInclude Include="src\Input\InputDefines.h" />
+    <ClInclude Include="src\Events\Event.h" />
+    <ClInclude Include="src\Events\KeyEvent.h" />
+    <ClInclude Include="src\Events\MouseEvent.h" />
+    <ClInclude Include="src\Events\WindowEvent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Application.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Log.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window\Window.cpp">
+      <Filter>src\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\GLAD\glad.c">
+      <Filter>vendor\GLAD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\InputHandler.cpp" />
+  </ItemGroup>
+</Project>

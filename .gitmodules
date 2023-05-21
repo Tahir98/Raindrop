@@ -1,0 +1,6 @@
+[submodule "Dependencies/GLM"]
+	path = Dependencies/GLM
+	url = https://github.com/g-truc/glm.git
+[submodule "Dependencies/spdlog"]
+	path = Dependencies/spdlog
+	url = https://github.com/gabime/spdlog.git
