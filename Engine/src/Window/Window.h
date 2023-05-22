@@ -5,7 +5,7 @@
 #include <string>
 
 #ifndef LOG_INPUTS
-	#define LOG_INPUTS
+	//#define LOG_INPUTS
 #endif // !LOG_INPUTS
 
 

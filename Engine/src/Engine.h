@@ -11,3 +11,10 @@
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 #include "Events/WindowEvent.h"
+
+
+//Opengl Classes
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexBuffer.h"
