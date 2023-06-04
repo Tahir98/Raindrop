@@ -28,7 +28,7 @@ namespace Engine {
 			glBindBuffer(GL_ARRAY_BUFFER, id);
 		}
 
-		void unmbind() {
+		void unbind() {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 

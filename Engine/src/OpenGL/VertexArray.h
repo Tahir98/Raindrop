@@ -47,15 +47,17 @@ namespace Engine {
 				return;
 			}
 
-			bind();
+			ENG_LOG_INFO("Vertex attrib count: {0}", count);
+
 			vb->bind();
+			bind();
 
 			if (count > 0) {
 				vertexElements.push_back({ count, type });
 
 				int stride = 0;
 
-				for (int i = 0; i < vertexElements.size() && stride > 0; i++) {
+				for (int i = 0; i < vertexElements.size(); i++) {
 					stride += vertexElements[i].count * GetSize(vertexElements[i].type);
 				}
 

@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <fstream>
+#include <unordered_map>
 
 namespace Engine {
 	class Shader {
@@ -15,9 +16,12 @@ namespace Engine {
 	private:
 		uint32_t id;
 		uint32_t vs_id = -1, fs_id = -1;
+
 		uint32_t gs_id = -1, ts_id = -1, cs_id = -1;
 
 		std::vector<ShaderType> shaderTypes;
+
+		std::unordered_map<std::string, int> uniforms;
 
 	public:
 		Shader(const std::string filePath) {
@@ -240,6 +244,29 @@ namespace Engine {
 		void unbind() {
 			glUseProgram(0);
 		}
+
+		void SetUniform1f(std::string uname, float v) {
+
+			int location = -1;
+
+			if (uniforms.find(uname) == uniforms.end()) {
+				location = glGetUniformLocation(id, uname.c_str());
+
+				if (location >= 0) {
+					uniforms[uname] = location;
+				}
+				else {
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+					return;
+				}
+			}
+			else {
+				location = uniforms[uname];
+			}
+
+			glUniform1f(location, v);
+		}
+
 
 	private:
 		bool InShaderTypeList(ShaderType type) {
