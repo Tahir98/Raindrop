@@ -55,5 +55,9 @@
       <Filter>vendor\GLAD</Filter>
     </ClCompile>
     <ClCompile Include="src\Input\InputHandler.cpp" />
+    <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
+    <ClCompile Include="src\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
+    <ClCompile Include="src\OpenGL\Shader.cpp" />
   </ItemGroup>
 </Project>
