@@ -18,8 +18,10 @@ void main() {
 
 in vec3 color;
 
+uniform vec3 uColor;
+
 out vec4 oColor;
 
 void main() {
-	oColor = vec4(color, 1);
+	oColor = vec4(color * uColor , 1);
 }

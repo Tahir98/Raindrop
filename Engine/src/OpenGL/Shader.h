@@ -54,9 +54,36 @@ namespace Engine {
 		void SetUniform4ui(std::string uname, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4);
 		void SetUniform4ui(std::string uname, glm::uvec4 v);
 
-		void SetUniformArrayFloat(std::string uname, int32_t count, const float* array);
-		void SetUniformArrayInt(std::string uname, int32_t count, const int32_t* array);
-		void SetUniformArrayUInt(std::string uname, int32_t count, const uint32_t* array);
+		void SetUniformArray1f(std::string uname, int32_t count, const float* array);
+		void SetUniformArray2f(std::string uname, int32_t count, const float* array);
+		void SetUniformArray2f(std::string uname, int32_t count, const glm::vec2* array);
+		void SetUniformArray3f(std::string uname, int32_t count, const float* array);
+		void SetUniformArray3f(std::string uname, int32_t count, const glm::vec3* array);
+		void SetUniformArray4f(std::string uname, int32_t count, const float* array);
+		void SetUniformArray4f(std::string uname, int32_t count, const glm::vec4* array);
+												 		  
+		void SetUniformArray1i(std::string uname, int32_t count, const int32_t* array);
+		void SetUniformArray2i(std::string uname, int32_t count, const int32_t* array);
+		void SetUniformArray2i(std::string uname, int32_t count, const glm::ivec2* array);
+		void SetUniformArray3i(std::string uname, int32_t count, const int32_t* array);
+		void SetUniformArray3i(std::string uname, int32_t count, const glm::ivec3* array);
+		void SetUniformArray4i(std::string uname, int32_t count, const int32_t* array);
+		void SetUniformArray4i(std::string uname, int32_t count, const glm::ivec4* array);
+
+		void SetUniformArray1ui(std::string uname, int32_t count, const uint32_t* array);
+		void SetUniformArray2ui(std::string uname, int32_t count, const uint32_t* array);
+		void SetUniformArray2ui(std::string uname, int32_t count, const glm::uvec2* array);
+		void SetUniformArray3ui(std::string uname, int32_t count, const uint32_t* array);
+		void SetUniformArray3ui(std::string uname, int32_t count, const glm::uvec3* array);
+		void SetUniformArray4ui(std::string uname, int32_t count, const uint32_t* array);
+		void SetUniformArray4ui(std::string uname, int32_t count, const glm::uvec4* array);
+
+		void SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const float* array);
+		void SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const glm::mat2* array);
+		void SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const float* array);
+		void SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const glm::mat3* array);
+		void SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const float* array);
+		void SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const glm::mat4* array);
 
 	private:
 		bool InShaderTypeList(ShaderType type);

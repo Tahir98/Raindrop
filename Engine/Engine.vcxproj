@@ -151,6 +151,7 @@
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Window\Window.h" />
@@ -161,10 +162,12 @@
     <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="vendor\GLAD\glad.c" />
+    <ClCompile Include="vendor\STB\stb_image.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -47,6 +47,8 @@ public:
 			va.bind();
 			shader.bind();
 
+			shader.SetUniform3f("uColor", 1, 1,1);
+
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 
 			int error;
