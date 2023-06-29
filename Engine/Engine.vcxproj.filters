@@ -41,6 +41,13 @@
     <ClInclude Include="src\Events\MouseEvent.h" />
     <ClInclude Include="src\Events\WindowEvent.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
+    <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Scene\SceneManager.h" />
+    <ClInclude Include="src\Scene\SceneTemplate.h" />
+    <ClInclude Include="src\Camera\Camera.h" />
+    <ClInclude Include="src\Camera\PerspectiveCamera.h" />
+    <ClInclude Include="src\Camera\OrthographicCamera.h" />
+    <ClInclude Include="src\OpenGL\OpenGLUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -62,5 +69,7 @@
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="vendor\STB\stb_image.c" />
+    <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\Scene\SceneManager.cpp" />
   </ItemGroup>
 </Project>

@@ -11,14 +11,14 @@
 
 namespace Engine {
 	class Window {
-	private:
+	public:
 		struct WindowProperties {
 			std::string name;
 			uint32_t width, height;
 
 			GLFWwindow* nativeWindowPtr = nullptr;
 		};
-
+	private:
 		WindowProperties properties;
 		float deltaTime;
 		float time_prev = 0, time_now = 0;
@@ -36,6 +36,7 @@ namespace Engine {
 		float GetDeltaTime();
 		void Resize(const uint32_t width, const uint32_t height);
 		bool ShouldClose();
+		WindowProperties getWindowProperties();
 	};
 }
 

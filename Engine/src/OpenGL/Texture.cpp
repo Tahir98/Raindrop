@@ -10,6 +10,8 @@ namespace Engine {
 			return;
 		}
 
+		stbi_set_flip_vertically_on_load(true);
+
 		unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
 		
 		glGenTextures(1, &id);
@@ -43,6 +45,11 @@ namespace Engine {
 
 	void Texture::SetActiveTextureSlot(uint32_t slot) {
 		glActiveTexture(GL_TEXTURE0 + slot);
+	}
+
+	int32_t Texture::getDimension()
+	{
+		return dimension;
 	}
 
 	int32_t Texture::getWidth()

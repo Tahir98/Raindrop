@@ -140,6 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Camera\Camera.h" />
+    <ClInclude Include="src\Camera\OrthographicCamera.h" />
+    <ClInclude Include="src\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\EntryPoint.h" />
     <ClInclude Include="src\Events\Event.h" />
@@ -150,10 +153,14 @@
     <ClInclude Include="src\Input\InputHandler.h" />
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
+    <ClInclude Include="src\OpenGL\OpenGLUtility.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
+    <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Scene\SceneManager.h" />
+    <ClInclude Include="src\Scene\SceneTemplate.h" />
     <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +172,8 @@
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
+    <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="vendor\GLAD\glad.c" />
     <ClCompile Include="vendor\STB\stb_image.c" />
