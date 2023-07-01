@@ -30,8 +30,12 @@ private:
 	float camSpeed = 3.0;
 	float camSensivity = 0.075f;
 
+	Engine::SpherecalSkybox skybox;
+	glm::vec3 skyboxRotation;
+
+	Engine::FrameBuffer fb;
 public:
-	ExampleScene(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100) {
+	ExampleScene(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100), skybox("Textures/rooitou_park.jpg"), fb(800,600) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -83,7 +87,7 @@ public:
 		position3 = glm::vec3(1.5f, -0.2f, -1.7f);
 
 		scale = glm::vec3(1, 1, 1);
-		rotation = glm::vec3(glm::radians(20.0f), 0, 0);
+		rotation = glm::vec3(0, 0, 0);
 
 		projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
@@ -91,15 +95,21 @@ public:
 
 		model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);
 
+		glEnable(GL_CULL_FACE);
+
+		skyboxRotation = glm::vec3(0,0,0);
 	}
 
-	void OnUpate(float delta) override {
+	void OnUpdate(float delta) override {
 		//APP_LOG_INFO("Scene OnUpdate method is called, name: {0}, id: {1}, delta time: ", name, id, delta);
-
 		inputControl(delta);
 
 		camera.update();
 
+		fb.bind();
+		fb.clear();
+
+		skybox.draw(camera);
 		rotation.y += delta * 1.3f;
 
 		va.bind();
@@ -128,20 +138,44 @@ public:
 
 
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+		fb.unbind();
+
+		ImGui::Begin("Properties");
+		ImGui::Text("Fps: %.2f, frame time: %.2fms", (1.0f / delta), delta * 1000.0f);
+
+		ImGui::End();
+
+		skybox.setRotation(skyboxRotation);
+
+		//Frame buffer to screen via ImGui
+		ImGui::Begin("Scene");
+
+		ImVec2 PanelSize = ImGui::GetContentRegionAvail();
+		glm::vec2 fb_size = { (float)fb.getWidth(),(float)fb.getHeight() };
+
+		if (PanelSize.x != fb_size.x || PanelSize.y != fb_size.y) {
+			fb.resize(PanelSize.x, PanelSize.y);
+			ImVec2 size = ImGui::GetWindowSize();
+			camera.setAspectRatio((float)PanelSize.x / (float)PanelSize.y);
+		}
+
+		ImGui::Image((ImTextureID)fb.getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
 	}
 
 	void inputControl(float delta) {
 		if (Engine::InputHandler::Key(KEY_W)) {
 			glm::vec3 forward = camera.getForward();
 
-			APP_LOG_INFO("Camera forward: {0},{1},{2}", forward.x, forward.y, forward.z);
+			//APP_LOG_INFO("Camera forward: {0},{1},{2}", forward.x, forward.y, forward.z);
 
 			camera.translate(forward * camSpeed * delta);
 		}
 		if (Engine::InputHandler::Key(KEY_S)) {
 			glm::vec3 forward = camera.getForward();
 
-			APP_LOG_INFO("Camera forward: {0},{1},{2}", forward.x, forward.y, forward.z);
+			//APP_LOG_INFO("Camera forward: {0},{1},{2}", forward.x, forward.y, forward.z);
 
 			camera.translate(forward * camSpeed * delta * -1.0f);
 		}
@@ -149,7 +183,7 @@ public:
 		if (Engine::InputHandler::Key(KEY_A)) {
 			glm::vec3 right = camera.getRight();
 
-			APP_LOG_INFO("Camera right: {0},{1},{2}", right.x, right.y, right.z );
+			//APP_LOG_INFO("Camera right: {0},{1},{2}", right.x, right.y, right.z );
 
 			camera.translate(right * camSpeed * delta * -1.0f);
 		}
@@ -157,20 +191,20 @@ public:
 		if (Engine::InputHandler::Key(KEY_D)) {
 			glm::vec3 right = camera.getRight();
 
-			APP_LOG_INFO("Camera right: {0},{1},{2}", right.x, right.y, right.z);
+			//APP_LOG_INFO("Camera right: {0},{1},{2}", right.x, right.y, right.z);
 
 			camera.translate(right * camSpeed * delta);
 		}
 
 		if (Engine::InputHandler::Key(KEY_SPACE)) {
 			glm::vec3 up = camera.getUp();
-			APP_LOG_INFO("Camera up: {0},{1},{2}", up.x, up.y, up.z);
+			//APP_LOG_INFO("Camera up: {0},{1},{2}", up.x, up.y, up.z);
 
 			camera.translate(glm::vec3(0, 1, 0) * camSpeed * delta);
 		}
 		if (Engine::InputHandler::Key(KEY_LEFT_SHIFT)) {
 			glm::vec3 up = camera.getUp();
-			APP_LOG_INFO("Camera up: {0},{1},{2}", up.x, up.y, up.z);
+			//APP_LOG_INFO("Camera up: {0},{1},{2}", up.x, up.y, up.z);
 
 			camera.translate(glm::vec3(0, 1, 0) * camSpeed * delta * -1.0f);
 		}

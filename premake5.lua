@@ -65,7 +65,7 @@ project "Sandbox"
         "Dependencies/GLM",
         "Engine",
         "Engine/src",
-        "Edge3D/vendor/ImGui"
+        "Engine/vendor/ImGui"
     }
 
     libdirs { 

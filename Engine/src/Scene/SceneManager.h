@@ -14,7 +14,7 @@ namespace Engine {
 			SceneManager::delta = delta;
 
 			if (scenes.size() > 0) {
-				scenes[scenes.size() - 1]->OnUpate(delta);
+				scenes[scenes.size() - 1]->OnUpdate(delta);
 			}
 		}
 

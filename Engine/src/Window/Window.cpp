@@ -6,11 +6,16 @@
 #include "Events/MouseEvent.h"
 #include "Events/WindowEvent.h"
 #include "Scene/SceneManager.h"
+#include "GUI/ImGuiLayer.h"
+#include "GUI/DockSpace.h"
 
-Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool fullscreen) {
+Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool fullscreen, bool vsync, bool dockspaceEnabled) {
 	properties.name = name;
 	properties.width = width;
 	properties.height = height;
+	properties.vsync = vsync;
+	properties.fullscreen = fullscreen;
+	properties.dockspaceEnabled = dockspaceEnabled;
 
 	if (glfwInit() != GLFW_TRUE) {
 		ENG_LOG_ERROR("Failed to initialize GLFW");
@@ -54,11 +59,20 @@ Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool f
 
 	glViewport(0, 0, properties.width, properties.height);
 
+	if (vsync) 
+		glfwSwapInterval(1);
+	else 
+		glfwSwapInterval(0);
+
 	glEnable(GL_DEPTH_TEST);
 
 	InputHandler::Init();
 
 	AddCallbackFunctions();
+
+	glDepthFunc(GL_LEQUAL);
+
+	ImGuiLayer::InitImGui(*this);
 
 	time_now = (float)glfwGetTime();
 }
@@ -145,18 +159,21 @@ void Engine::Window::AddCallbackFunctions() {
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const  GLchar* message, const void* userParam) {
 
-		ENG_LOG_INFO("OpenGL Debug Message:");
-		ENG_LOG_INFO("Source: {0}", source);
-		ENG_LOG_INFO("Type: {0}", type);
-		ENG_LOG_INFO("ID: {0}", id);
-		ENG_LOG_INFO("Severity: {0}", severity);
-		ENG_LOG_INFO("Message: {0}", message);
-		ENG_LOG_INFO("------------------------");
-
+		if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM) {
+			ENG_LOG_ERROR("OpenGL Debug Message:");
+			ENG_LOG_ERROR("Source: {0}", source);
+			ENG_LOG_ERROR("Type: {0}", type);
+			ENG_LOG_ERROR("ID: {0}", id);
+			ENG_LOG_ERROR("Severity: {0}", severity);
+			ENG_LOG_ERROR("Message: {0}", message);
+			ENG_LOG_ERROR("------------------------");
+		}
 		}, nullptr);
 }
 
 Engine::Window::~Window() {
+	ImGuiLayer::Shutdown();
+
 	glfwDestroyWindow(properties.nativeWindowPtr);
 	ENG_LOG_INFO("Window is destoryed: {0}, ({1},{2})", properties.name, properties.width, properties.height);
 	glfwTerminate();
@@ -178,11 +195,18 @@ void Engine::Window::Update() {
 	deltaTime = time_now - time_prev;
 
 	glfwPollEvents();
+	ImGuiLayer::StartNewFrame();
 
+	if (properties.dockspaceEnabled)
+		Dockspace::begin(*this);
 	SceneManager::update(deltaTime);
 }
 
 void Engine::Window::PostEvents() {
+	if (properties.dockspaceEnabled)
+		Dockspace::end();
+	ImGuiLayer::RenderNewFrame();
+
 	glfwSwapBuffers(properties.nativeWindowPtr);
 
 	InputHandler::UpdateTemporaryBuffers();

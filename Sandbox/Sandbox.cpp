@@ -13,7 +13,7 @@ public:
 	}
 
 	void run() override {
-		Engine::Window window("App",1600,900,false);
+		Engine::Window window("App",1600,900,false,false, true);
 
 		ExampleScene scene("Example Scene", window);
 

@@ -15,7 +15,7 @@ namespace Engine {
 		virtual ~Scene();
 
 		virtual void OnCreate() = 0;
-		virtual void OnUpate(float delta) = 0;
+		virtual void OnUpdate(float delta) = 0;
 		virtual void OnSuspend() = 0;
 		virtual void OnResume() = 0;
 		virtual void OnDestroy() = 0;

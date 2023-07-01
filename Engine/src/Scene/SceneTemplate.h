@@ -17,8 +17,8 @@ public:
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 	}
 
-	void OnUpate(float delta) override {
-		APP_LOG_INFO("Scene OnUpdate method is called, name: {0}, id: {1}, delta time: ", name, id, delta);
+	void OnUpdate(float delta) override {
+		APP_LOG_INFO("Scene OnUpdate method is called, name: {0}, id: {1}, delta time: {2}", name, id, delta);
 	}
 
 	void OnSuspend() override {

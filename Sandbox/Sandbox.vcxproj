@@ -78,7 +78,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Edge3D\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Engine\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -96,7 +96,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Edge3D\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Engine\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -118,7 +118,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Edge3D\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\STB;..\Dependencies\GLM;..\Engine;..\Engine\src;..\Engine\vendor\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -136,18 +136,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scenes\ExampleScene.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Sandbox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\Basic.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Scenes\ExampleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
