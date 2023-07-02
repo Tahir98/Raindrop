@@ -43,3 +43,14 @@
 #include "Random/MultiplyWithCarry.h"
 #include "Random/Xorshift.h"
 #include "Random/Xorshift64.h"
+
+//Noise
+#include "Noise/PerlinNoise2D.h"
+#include "Noise/PerlinNoise3D.h"
+
+
+//Utility
+#include "Utility.h"
+
+
+

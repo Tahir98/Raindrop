@@ -1,5 +1,6 @@
 #include <Engine.h>
 #include "Scenes/ExampleScene.h"
+#include "Scenes/VolumeRendering.h"
 
 
 class SandboxApp : public Engine::Application {
@@ -15,7 +16,7 @@ public:
 	void run() override {
 		Engine::Window window("App",1600,900,false,false, true);
 
-		ExampleScene scene("Example Scene", window);
+		VolumeRendering scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);
 

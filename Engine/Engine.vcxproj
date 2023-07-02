@@ -178,6 +178,7 @@
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\SceneTemplate.h" />
     <ClInclude Include="src\Skybox\SpherecalSkybox.h" />
+    <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="vendor\ImGui\imconfig.h" />
     <ClInclude Include="vendor\ImGui\imgui.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="src\GUI\ImGuiLayer.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Log.cpp" />
+    <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\OpenGL\FremaBuffer.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />

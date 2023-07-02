@@ -9,6 +9,7 @@
     <ClInclude Include="Scenes\ExampleScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Scenes\VolumeRendering.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sandbox.cpp" />

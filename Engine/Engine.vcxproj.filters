@@ -154,6 +154,7 @@
     <ClInclude Include="src\Random\Random.h" />
     <ClInclude Include="src\Random\Xorshift.h" />
     <ClInclude Include="src\Random\Xorshift64.h" />
+    <ClInclude Include="src\Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -220,5 +221,6 @@
     <ClCompile Include="src\OpenGL\FremaBuffer.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\Random\BitConverter.cpp" />
+    <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
   </ItemGroup>
 </Project>
