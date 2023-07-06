@@ -18,9 +18,15 @@ private:
 	Engine::IndexBuffer* ib = nullptr;
 	Engine::Shader* shader = nullptr;
 
-	uint32_t texID;
+	Engine::Texture* densityTex = nullptr;
+	int32_t texSize = 128;
+
 	Bound bound;
 	std::vector<Engine::PerlinNoise3DLayer> noiseLayers;
+
+	glm::mat4 model;
+
+	uint32_t stepCount = 1000;
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100), 
@@ -46,9 +52,9 @@ public:
 			glm::vec3(0,0,1)
 		};
 
-		for (int i = 0; i < vertices.size() / 2; i++) {
-			vertices[i * 2] += glm::vec3(-0.5f, -0.5f, -0.5f);
-			vertices[i * 2] *= glm::vec3(1, 1, -1);
+		for (int i = 0; i < vertices.size(); i++) {
+			vertices[i] += glm::vec3(-0.5f, -0.5f, -0.5f);
+			vertices[i] *= glm::vec3(1, 1, -1);
 		}
 
 		std::vector<uint32_t> indices = {
@@ -68,7 +74,6 @@ public:
 		ib = new Engine::IndexBuffer(indices.data(), sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW);
 		shader = new Engine::Shader("Shaders/VolumeRenderer.shader");
 
-		uint32_t texSize = 128;
 		glm::vec3 boundSize = bound.size();
 		glm::vec3 boundCenter = bound.center();
 
@@ -96,10 +101,15 @@ public:
 
 						density += Engine::PerlinNoise3D::value(corner.x, corner.y, corner.z, noiseLayers[i].smoothness);
 					}
+
+					densityArray[x + y * texSize + z * texSize * texSize] = density;
 				}
 			}
 		}
 
+		densityTex = new Engine::Texture(texSize, texSize, texSize, densityArray);
+
+		camera.setPosition(glm::vec3(0,0,2));
 	}
 
 	void OnUpdate(float delta) override {
@@ -112,7 +122,42 @@ public:
 		fb.bind();
 		fb.clear();
 
+		Engine::OpenGLUtility::EnableBlend();
+		Engine::OpenGLUtility::SetBlendFunction(Engine::SRC_ALPHA, Engine::ONE_MINUS_SRC_ALPHA);
+
+		Engine::OpenGLUtility::EnableCulling();
+		Engine::OpenGLUtility::EnableDepthTest();
+
 		skybox.draw(camera);
+
+		////////////////////////////////////////////////
+
+		model = glm::mat4(1.0f);
+
+		shader->bind();
+		va.bind();
+		ib->bind();
+		densityTex->bind();
+		densityTex->SetActiveTextureSlot(0);
+
+		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
+		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
+		shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
+
+		//shader->SetUniform1i("screenWidth", window.getWindowProperties().width);
+		//shader->SetUniform1i("screenHeight", window.getWindowProperties().height);
+
+		//shader->SetUniform3i("texSize", texSize, texSize, texSize);
+		shader->SetUniform3f("cameraPos", camera.getPosition());
+		shader->SetUniform1i("densityTex", 0);
+
+		shader->SetUniform1f("stepSize", 1.0f / (float) stepCount);
+		shader->SetUniform3f("boundMin", bound.min);
+		shader->SetUniform3f("boundMax", bound.min);
+
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		////////////////////////////////////////////////
 
 		fb.unbind();
 

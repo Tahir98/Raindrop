@@ -30,17 +30,43 @@ namespace Engine {
 		else {
 			ENG_LOG_ERROR("Failed to load image: {0}", filePath);
 		}
+
+		dimension = 2;
+	}
+
+	Texture::Texture(int32_t width, int32_t height, int32_t depth, const float* pixels) : width(width), height(height), depth(depth){
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_3D, id);
+
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		if (pixels) {
+			glTexImage3D(GL_TEXTURE_3D,0, GL_R32F, width, height, depth, 0, GL_RED, GL_UNSIGNED_INT, pixels);
+		}
+
+		dimension = 3;
 	}
 
 	Texture::~Texture() {
 		glDeleteTextures(1, &id);
 	}
 	void Texture::bind() {
-		glBindTexture(GL_TEXTURE_2D, id);
+		if(dimension == 2)
+			glBindTexture(GL_TEXTURE_2D, id);
+		else if(dimension == 3)
+			glBindTexture(GL_TEXTURE_3D, id);
 	}
 
 	void Texture::unbind() {
-		glBindTexture(GL_TEXTURE_2D, 0);
+		if (dimension == 2)
+			glBindTexture(GL_TEXTURE_2D, 0);
+		else if (dimension == 3)
+			glBindTexture(GL_TEXTURE_3D, 0);
 	}
 
 	void Texture::SetActiveTextureSlot(uint32_t slot) {
@@ -56,10 +82,17 @@ namespace Engine {
 	{
 		return width;
 	}
+
 	int32_t Texture::getHeight()
 	{
 		return height;
 	}
+
+	int32_t Texture::getDepth()
+	{
+		return depth;
+	}
+
 	int32_t Texture::getChannels()
 	{
 		return channels;

@@ -19,6 +19,7 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/Texture.h"
 #include "OpenGL/FrameBuffer.h"
+#include "OpenGL/OpenGLUtility.h"
 
 //Scene system
 #include "Scene/Scene.h"

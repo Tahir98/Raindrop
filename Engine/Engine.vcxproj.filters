@@ -218,7 +218,6 @@
       <Filter>vendor\STB</Filter>
     </ClCompile>
     <ClCompile Include="src\GUI\ImGuiLayer.cpp" />
-    <ClCompile Include="src\OpenGL\FremaBuffer.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\Random\BitConverter.cpp" />
     <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />

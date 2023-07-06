@@ -197,7 +197,6 @@
     <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
-    <ClCompile Include="src\OpenGL\FremaBuffer.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
