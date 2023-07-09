@@ -1,24 +1,24 @@
-#include "VertexArray.h"
+#include "OpenGLVertexArray.h"
 
 namespace Engine {
-	VertexArray::VertexArray() {
+	OpenGLVertexArray::OpenGLVertexArray() {
 		glGenVertexArrays(1, &id);
 		ENG_LOG_INFO("Vertex array created, id: {0}", id);
 	}
-	VertexArray::~VertexArray() {
+	OpenGLVertexArray::~OpenGLVertexArray() {
 		glDeleteVertexArrays(1, &id);
 		ENG_LOG_INFO("Vertex array deleted, id: {0}", id);
 	}
 
-	void VertexArray::bind() {
+	void OpenGLVertexArray::bind() {
 		glBindVertexArray(id);
 	}
 
-	void VertexArray::unbind() {
+	void OpenGLVertexArray::unbind() {
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::PushElement(VertexBuffer* vb, int count, DataType type, bool normalized) {
+	void OpenGLVertexArray::PushElement(OpenGLVertexBuffer* vb, int count, DataType type, bool normalized) {
 		if (this->vb == nullptr && vb != nullptr) {
 			this->vb = vb;
 		}
@@ -51,30 +51,30 @@ namespace Engine {
 		}
 	}
 
-	int VertexArray::GetSize(DataType type) {
+	int OpenGLVertexArray::GetSize(DataType type) {
 		switch (type) {
-		case Engine::VertexArray::FLOAT:
+		case Engine::OpenGLVertexArray::FLOAT:
 			return 4;
 			break;
-		case Engine::VertexArray::DOUBLE:
+		case Engine::OpenGLVertexArray::DOUBLE:
 			return 8;
 			break;
-		case Engine::VertexArray::INT32:
+		case Engine::OpenGLVertexArray::INT32:
 			return 4;
 			break;
-		case Engine::VertexArray::UINT32:
+		case Engine::OpenGLVertexArray::UINT32:
 			return 4;
 			break;
-		case Engine::VertexArray::INT16:
+		case Engine::OpenGLVertexArray::INT16:
 			return 2;
 			break;
-		case Engine::VertexArray::UINT16:
+		case Engine::OpenGLVertexArray::UINT16:
 			return 2;
 			break;
-		case Engine::VertexArray::INT8:
+		case Engine::OpenGLVertexArray::INT8:
 			return 1;
 			break;
-		case Engine::VertexArray::UINT8:
+		case Engine::OpenGLVertexArray::UINT8:
 			return 1;
 			break;
 		}
@@ -82,30 +82,30 @@ namespace Engine {
 		return 0;
 	}
 
-	GLenum VertexArray::GetGLType(DataType type) {
+	GLenum OpenGLVertexArray::GetGLType(DataType type) {
 		switch (type) {
-		case Engine::VertexArray::FLOAT:
+		case Engine::OpenGLVertexArray::FLOAT:
 			return GL_FLOAT;
 			break;
-		case Engine::VertexArray::DOUBLE:
+		case Engine::OpenGLVertexArray::DOUBLE:
 			return GL_DOUBLE;
 			break;
-		case Engine::VertexArray::INT32:
+		case Engine::OpenGLVertexArray::INT32:
 			return GL_INT;
 			break;
-		case Engine::VertexArray::UINT32:
+		case Engine::OpenGLVertexArray::UINT32:
 			return GL_UNSIGNED_INT;
 			break;
-		case Engine::VertexArray::INT16:
+		case Engine::OpenGLVertexArray::INT16:
 			return GL_SHORT;
 			break;
-		case Engine::VertexArray::UINT16:
+		case Engine::OpenGLVertexArray::UINT16:
 			return GL_UNSIGNED_SHORT;
 			break;
-		case Engine::VertexArray::INT8:
+		case Engine::OpenGLVertexArray::INT8:
 			return GL_BYTE;
 			break;
-		case Engine::VertexArray::UINT8:
+		case Engine::OpenGLVertexArray::UINT8:
 			return GL_UNSIGNED_BYTE;
 			break;
 		}

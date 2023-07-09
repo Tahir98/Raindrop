@@ -6,14 +6,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scenes\ExampleScene.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="Scenes\VolumeRendering.h">
+    <ClInclude Include="Scenes\DxExampleScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Sandbox.cpp" />
+    <ClCompile Include="DxApplication.cpp" />
   </ItemGroup>
 </Project>

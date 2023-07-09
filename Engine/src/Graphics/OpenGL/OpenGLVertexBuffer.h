@@ -5,14 +5,14 @@
 
 namespace Engine {
 
-	class VertexBuffer {
+	class OpenGLVertexBuffer {
 	private:
 		uint32_t id;
 
 		const uint32_t size; //Buffer size in bytes
 	public:
-		VertexBuffer(const void* data, uint32_t size, GLenum usage);
-		~VertexBuffer();
+		OpenGLVertexBuffer(const void* data, uint32_t size, GLenum usage);
+		~OpenGLVertexBuffer();
 
 		void bind();
 		void unbind();

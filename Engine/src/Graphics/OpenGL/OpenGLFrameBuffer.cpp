@@ -1,8 +1,8 @@
-#include "FrameBuffer.h"
+#include "OpenGLFrameBuffer.h"
 #include "glad/glad.h"
 #include "Log.h"
 
-Engine::FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height) : width(width), height(height) {
+Engine::OpenGLFrameBuffer::OpenGLFrameBuffer(const uint32_t width, const uint32_t height) : width(width), height(height) {
     //Frame buffer object
     glGenFramebuffers(1, &id);
     glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -39,14 +39,14 @@ Engine::FrameBuffer::FrameBuffer(const uint32_t width, const uint32_t height) : 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Engine::FrameBuffer::~FrameBuffer() {
+Engine::OpenGLFrameBuffer::~OpenGLFrameBuffer() {
     ENG_LOG_INFO("Frame buffer is deleted, id: {0}, width: {1}, height: {2}", id, width, height);
     glDeleteFramebuffers(1, &id);
     glDeleteTextures(1, &texture_id);
     glDeleteRenderbuffers(1, &renderbuffer_id);
 }
 
-void Engine::FrameBuffer::resize(const uint32_t width, const uint32_t height){
+void Engine::OpenGLFrameBuffer::resize(const uint32_t width, const uint32_t height){
     this->width = width;
     this->height = height;
     
@@ -65,41 +65,41 @@ void Engine::FrameBuffer::resize(const uint32_t width, const uint32_t height){
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-uint32_t Engine::FrameBuffer::getWidth()
+uint32_t Engine::OpenGLFrameBuffer::getWidth()
 {
     return width;
 }
 
-uint32_t Engine::FrameBuffer::getHeight()
+uint32_t Engine::OpenGLFrameBuffer::getHeight()
 {
     return height;
 }
 
-void Engine::FrameBuffer::clear(glm::vec3 color){
+void Engine::OpenGLFrameBuffer::clear(glm::vec3 color){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glClearColor(color.r, color.g, color.b, 1);
 }
 
-void Engine::FrameBuffer::bind() {
+void Engine::OpenGLFrameBuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
     glViewport(0, 0, width, height);
 }
 
-void Engine::FrameBuffer::unbind() {
+void Engine::OpenGLFrameBuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-uint32_t& Engine::FrameBuffer::getID()
+uint32_t& Engine::OpenGLFrameBuffer::getID()
 {
     return id;
 }
 
-uint32_t& Engine::FrameBuffer::getTextureID()
+uint32_t& Engine::OpenGLFrameBuffer::getTextureID()
 {
     return texture_id;
 }
 
-uint32_t& Engine::FrameBuffer::getRenderbufferID()
+uint32_t& Engine::OpenGLFrameBuffer::getRenderbufferID()
 {
     return renderbuffer_id;
 }

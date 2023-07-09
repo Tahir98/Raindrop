@@ -6,8 +6,13 @@
 #include "Events/MouseEvent.h"
 #include "Events/WindowEvent.h"
 #include "Scene/SceneManager.h"
+
+#ifdef GRAPHICS_API_OPENGL
 #include "GUI/ImGuiLayer.h"
 #include "GUI/DockSpace.h"
+#elif GRAPHICS_API_DIRECTX
+//TODO Alperen
+#endif 
 
 Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool fullscreen, bool vsync, bool dockspaceEnabled) {
 	properties.name = name;
@@ -48,12 +53,16 @@ Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool f
 
 	glfwMakeContextCurrent(properties.nativeWindowPtr);
 
+#ifdef GRAPHICS_API_OPENGL
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		ENG_LOG_ERROR("Failed to initialize GLAD and OpenGL!!!");
 		glfwTerminate();
 
 		return;
 	}
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif 
 
 	glfwSetWindowUserPointer(properties.nativeWindowPtr, &properties);
 
@@ -72,7 +81,12 @@ Engine::Window::Window(std::string name, uint32_t width, uint32_t height, bool f
 
 	glDepthFunc(GL_LEQUAL);
 
+
+#ifdef GRAPHICS_API_OPENGL
 	ImGuiLayer::InitImGui(*this);
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif 
 
 	time_now = (float)glfwGetTime();
 }
@@ -156,7 +170,9 @@ void Engine::Window::AddCallbackFunctions() {
 #endif
 		});
 
-	glEnable(GL_DEBUG_OUTPUT);
+
+#ifdef GRAPHICS_API_OPENGL
+	glEnable(GL_DEBUG_OUTPUT); //Opengl Debug callback to trace errors
 	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const  GLchar* message, const void* userParam) {
 
 		if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM) {
@@ -169,10 +185,20 @@ void Engine::Window::AddCallbackFunctions() {
 			ENG_LOG_ERROR("------------------------");
 		}
 		}, nullptr);
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif
+
 }
 
 Engine::Window::~Window() {
+
+#ifdef GRAPHICS_API_OPENGL
 	ImGuiLayer::Shutdown();
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif 
+
 
 	glfwDestroyWindow(properties.nativeWindowPtr);
 	ENG_LOG_INFO("Window is destoryed: {0}, ({1},{2})", properties.name, properties.width, properties.height);
@@ -186,8 +212,12 @@ GLFWwindow* Engine::Window::GetNativeWindowPtr() {
 }
 
 void Engine::Window::Update() {
+#ifdef GRAPHICS_API_OPENGL
 	glClearColor(0.1f, 0.5f, 1, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif 
 
 	time_prev = time_now;
 	time_now = (float)glfwGetTime();
@@ -195,17 +225,28 @@ void Engine::Window::Update() {
 	deltaTime = time_now - time_prev;
 
 	glfwPollEvents();
+
+#ifdef GRAPHICS_API_OPENGL
 	ImGuiLayer::StartNewFrame();
 
 	if (properties.dockspaceEnabled)
 		Dockspace::begin(*this);
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif 
+
 	SceneManager::update(deltaTime);
 }
 
 void Engine::Window::PostEvents() {
+
+#ifdef GRAPHICS_API_OPENGL
 	if (properties.dockspaceEnabled)
 		Dockspace::end();
 	ImGuiLayer::RenderNewFrame();
+#elif GRAPHICS_API_DIRECTX
+	//TODO Alperen
+#endif
 
 	glfwSwapBuffers(properties.nativeWindowPtr);
 

@@ -119,6 +119,7 @@ public:
 
 		camera.update();
 
+		////////////////////////////////////////////////
 		fb.bind();
 		fb.clear();
 
@@ -128,8 +129,6 @@ public:
 		Engine::OpenGLUtility::EnableDepthTest();
 
 		skybox.draw(camera);
-
-		////////////////////////////////////////////////
 
 		model = glm::mat4(1.0f);
 
@@ -156,9 +155,9 @@ public:
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		////////////////////////////////////////////////
 
 		fb.unbind();
+		////////////////////////////////////////////////
 
 	//Frame buffer to screen via ImGui
 	ImGui::Begin("Scene");

@@ -1,7 +1,7 @@
-#include "VertexBuffer.h"
+#include "OpenGLVertexBuffer.h"
 
 namespace Engine {
-	VertexBuffer::VertexBuffer(const void* data, uint32_t size, GLenum usage) : size(size) {
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* data, uint32_t size, GLenum usage) : size(size) {
 		glCreateBuffers(1, &id);
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 		glBufferData(GL_ARRAY_BUFFER, size, data, usage);
@@ -9,20 +9,20 @@ namespace Engine {
 		ENG_LOG_INFO("Vertex Buffer created, id: {0}", id);
 	}
 
-	VertexBuffer::~VertexBuffer() {
+	OpenGLVertexBuffer::~OpenGLVertexBuffer() {
 		glDeleteBuffers(1, &id);
 		ENG_LOG_INFO("Vertex Buffer deleted, id: {0}", id);
 	}
 
-	void VertexBuffer::bind() {
+	void OpenGLVertexBuffer::bind() {
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 	}
 
-	void VertexBuffer::unbind() {
+	void OpenGLVertexBuffer::unbind() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void VertexBuffer::SetData(const void* data, uint32_t offset, uint32_t size) {
+	void OpenGLVertexBuffer::SetData(const void* data, uint32_t offset, uint32_t size) {
 		if (size > this->size) {
 			bind();
 			glBufferSubData(GL_ARRAY_BUFFER, offset, this->size, data);
@@ -34,7 +34,7 @@ namespace Engine {
 		}
 	}
 
-	uint32_t VertexBuffer::GetBufferSize() {
+	uint32_t OpenGLVertexBuffer::GetBufferSize() {
 		return size;
 	}
 

@@ -74,7 +74,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;GRAPHICS_API_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -94,7 +94,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RELEASE;GRAPHICS_API_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -118,7 +118,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DIST;GRAPHICS_API_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -152,18 +152,24 @@
     <ClInclude Include="src\GUI\DockSpace.h" />
     <ClInclude Include="src\GUI\ImGuiLayer.h" />
     <ClInclude Include="src\GUI\ImGuiThemes.h" />
+    <ClInclude Include="src\Graphics\Interface\FrameBuffer.h" />
+    <ClInclude Include="src\Graphics\Interface\IndexBuffer.h" />
+    <ClInclude Include="src\Graphics\Interface\Shader.h" />
+    <ClInclude Include="src\Graphics\Interface\Texture.h" />
+    <ClInclude Include="src\Graphics\Interface\VertexArray.h" />
+    <ClInclude Include="src\Graphics\Interface\VertexBuffer.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLFrameBuffer.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLIndexBuffer.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLUtility.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLVertexArray.h" />
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLVertexBuffer.h" />
     <ClInclude Include="src\Input\InputDefines.h" />
     <ClInclude Include="src\Input\InputHandler.h" />
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\Noise\PerlinNoise2D.h" />
     <ClInclude Include="src\Noise\PerlinNoise3D.h" />
-    <ClInclude Include="src\OpenGL\FrameBuffer.h" />
-    <ClInclude Include="src\OpenGL\IndexBuffer.h" />
-    <ClInclude Include="src\OpenGL\OpenGLUtility.h" />
-    <ClInclude Include="src\OpenGL\Shader.h" />
-    <ClInclude Include="src\OpenGL\Texture.h" />
-    <ClInclude Include="src\OpenGL\VertexArray.h" />
-    <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Random\AddWithCarry.h" />
     <ClInclude Include="src\Random\BitConverter.h" />
     <ClInclude Include="src\Random\LaggedFibonacciGenerator.h" />
@@ -193,15 +199,15 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\GUI\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLFrameBuffer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLIndexBuffer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLVertexArray.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLVertexBuffer.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
-    <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
-    <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
-    <ClCompile Include="src\OpenGL\Shader.cpp" />
-    <ClCompile Include="src\OpenGL\Texture.cpp" />
-    <ClCompile Include="src\OpenGL\VertexArray.cpp" />
-    <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Random\BitConverter.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />

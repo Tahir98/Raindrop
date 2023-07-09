@@ -12,14 +12,27 @@
 #include "Events/MouseEvent.h"
 #include "Events/WindowEvent.h"
 
-//OpenGL Classes
-#include "OpenGL/IndexBuffer.h"
-#include "OpenGL/Shader.h"
-#include "OpenGL/VertexArray.h"
-#include "OpenGL/VertexBuffer.h"
-#include "OpenGL/Texture.h"
-#include "OpenGL/FrameBuffer.h"
-#include "OpenGL/OpenGLUtility.h"
+//Graphics Interface Classes
+#include "Graphics/Interface/IndexBuffer.h"
+#include "Graphics/Interface/Shader.h"
+#include "Graphics/Interface/VertexArray.h"
+#include "Graphics/Interface/VertexBuffer.h"
+#include "Graphics/Interface/Texture.h"
+#include "Graphics/Interface/FrameBuffer.h"
+
+//Interface olmadan kullanılmak istenirse 
+#ifdef GRAPHICS_API_OPENGL 
+#include "Graphics/OpenGL/OpenGLIndexBuffer.h"
+#include "Graphics/OpenGL/OpenGLShader.h"
+#include "Graphics/OpenGL/OpenGLVertexArray.h"
+#include "Graphics/OpenGL/OpenGLVertexBuffer.h"
+#include "Graphics/OpenGL/OpenGLTexture.h"
+#include "Graphics/OpenGL/OpenGLFrameBuffer.h"
+#include "Graphics/OpenGL/OpenGLUtility.h"
+#elif GRAPHICS_API_DIRECTX
+//TODO Alperen
+#endif 
+
 
 //Scene system
 #include "Scene/Scene.h"

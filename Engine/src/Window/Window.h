@@ -1,5 +1,11 @@
 #pragma once
+
+#ifdef GRAPHICS_API_OPENGL
 #include <glad/glad.h>
+#elif GRAPHICS_API_DIRECTX
+//TODO Alperen
+#endif 
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>

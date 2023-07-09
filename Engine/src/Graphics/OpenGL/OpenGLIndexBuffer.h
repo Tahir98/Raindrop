@@ -5,15 +5,15 @@
 
 namespace Engine {
 
-	class IndexBuffer {
+	class OpenGLIndexBuffer {
 	private:
 		uint32_t id;
 
 		const uint32_t size; //Buffer size in sizeof uint32_t
 	public:
-		IndexBuffer(const uint32_t* indices, uint32_t size, GLenum usage);
+		OpenGLIndexBuffer(const uint32_t* indices, uint32_t size, GLenum usage);
 
-		~IndexBuffer();
+		~OpenGLIndexBuffer();
 
 		void bind();
 		void unbind();

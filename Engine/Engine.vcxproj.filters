@@ -10,11 +10,26 @@
     <Filter Include="src\Events">
       <UniqueIdentifier>{7162C20E-5D1A-045C-C621-DDB7B2F89E4C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\GUI">
+      <UniqueIdentifier>{C1782FA9-2D58-AE44-3670-391BA2CE14A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Graphics">
+      <UniqueIdentifier>{0D564864-F9B8-D708-A23E-10BF8E80A38B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Graphics\Interface">
+      <UniqueIdentifier>{2D72DC97-196C-05EA-02D9-9BFAEE716B56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Graphics\OpenGL">
+      <UniqueIdentifier>{A10E80C2-0D70-5DD0-96DD-A382023E948F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Input">
       <UniqueIdentifier>{EC4823B3-58B3-D729-A1F1-88CF0D9BB57E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\OpenGL">
-      <UniqueIdentifier>{C15FA925-AD17-EB72-161F-C4CE02F68563}</UniqueIdentifier>
+    <Filter Include="src\Noise">
+      <UniqueIdentifier>{BA317EB3-269C-322A-6FDA-E3CFDB83107F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Random">
+      <UniqueIdentifier>{3D349E2B-29EC-DF78-92F3-B8D47ECA7A69}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Scene">
       <UniqueIdentifier>{0A06D2B3-7670-862A-BFAE-37D02B58647F}</UniqueIdentifier>
@@ -69,6 +84,54 @@
     <ClInclude Include="src\Events\WindowEvent.h">
       <Filter>src\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\GUI\DockSpace.h">
+      <Filter>src\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\ImGuiLayer.h">
+      <Filter>src\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI\ImGuiThemes.h">
+      <Filter>src\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\FrameBuffer.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\IndexBuffer.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\Shader.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\Texture.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\VertexArray.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Interface\VertexBuffer.h">
+      <Filter>src\Graphics\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLFrameBuffer.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLIndexBuffer.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLShader.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLTexture.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLUtility.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLVertexArray.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\OpenGL\OpenGLVertexBuffer.h">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Input\InputDefines.h">
       <Filter>src\Input</Filter>
     </ClInclude>
@@ -78,23 +141,41 @@
     <ClInclude Include="src\Log.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\IndexBuffer.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Noise\PerlinNoise2D.h">
+      <Filter>src\Noise</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\OpenGLUtility.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Noise\PerlinNoise3D.h">
+      <Filter>src\Noise</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\Shader.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Random\AddWithCarry.h">
+      <Filter>src\Random</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\Texture.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Random\BitConverter.h">
+      <Filter>src\Random</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\VertexArray.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Random\LaggedFibonacciGenerator.h">
+      <Filter>src\Random</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\VertexBuffer.h">
-      <Filter>src\OpenGL</Filter>
+    <ClInclude Include="src\Random\LaggedFibonacciGenerator64.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\MersenneTwister.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\MersenneTwister64.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\MultiplyWithCarry.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\Random.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\Xorshift.h">
+      <Filter>src\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random\Xorshift64.h">
+      <Filter>src\Random</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Scene.h">
       <Filter>src\Scene</Filter>
@@ -107,6 +188,9 @@
     </ClInclude>
     <ClInclude Include="src\Skybox\SpherecalSkybox.h">
       <Filter>src\Skybox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility.h">
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Window\Window.h">
       <Filter>src\Window</Filter>
@@ -138,27 +222,31 @@
     <ClInclude Include="vendor\ImGui\imstb_truetype.h">
       <Filter>vendor\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI\DockSpace.h" />
-    <ClInclude Include="src\GUI\ImGuiLayer.h" />
-    <ClInclude Include="src\GUI\ImGuiThemes.h" />
-    <ClInclude Include="src\OpenGL\FrameBuffer.h" />
-    <ClInclude Include="src\Noise\PerlinNoise2D.h" />
-    <ClInclude Include="src\Noise\PerlinNoise3D.h" />
-    <ClInclude Include="src\Random\AddWithCarry.h" />
-    <ClInclude Include="src\Random\BitConverter.h" />
-    <ClInclude Include="src\Random\LaggedFibonacciGenerator.h" />
-    <ClInclude Include="src\Random\LaggedFibonacciGenerator64.h" />
-    <ClInclude Include="src\Random\MersenneTwister.h" />
-    <ClInclude Include="src\Random\MersenneTwister64.h" />
-    <ClInclude Include="src\Random\MultiplyWithCarry.h" />
-    <ClInclude Include="src\Random\Random.h" />
-    <ClInclude Include="src\Random\Xorshift.h" />
-    <ClInclude Include="src\Random\Xorshift64.h" />
-    <ClInclude Include="src\Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\ImGuiLayer.cpp">
+      <Filter>src\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLFrameBuffer.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLIndexBuffer.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLShader.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLTexture.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLVertexArray.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\OpenGL\OpenGLVertexBuffer.cpp">
+      <Filter>src\Graphics\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Input\InputHandler.cpp">
       <Filter>src\Input</Filter>
@@ -166,20 +254,11 @@
     <ClCompile Include="src\Log.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\IndexBuffer.cpp">
-      <Filter>src\OpenGL</Filter>
+    <ClCompile Include="src\Noise\PerlinNoiseImp.cpp">
+      <Filter>src\Noise</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\Shader.cpp">
-      <Filter>src\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\Texture.cpp">
-      <Filter>src\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\VertexArray.cpp">
-      <Filter>src\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\VertexBuffer.cpp">
-      <Filter>src\OpenGL</Filter>
+    <ClCompile Include="src\Random\BitConverter.cpp">
+      <Filter>src\Random</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\Scene.cpp">
       <Filter>src\Scene</Filter>
@@ -217,9 +296,5 @@
     <ClCompile Include="vendor\STB\stb_image.c">
       <Filter>vendor\STB</Filter>
     </ClCompile>
-    <ClCompile Include="src\GUI\ImGuiLayer.cpp" />
-    <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
-    <ClCompile Include="src\Random\BitConverter.cpp" />
-    <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
   </ItemGroup>
 </Project>
