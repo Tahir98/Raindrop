@@ -3,7 +3,7 @@
 
 namespace Engine {
 
-	class OpenGLTexture {
+	class Texture {
 	private:
 		uint32_t id;
 
@@ -22,9 +22,9 @@ namespace Engine {
 			CLAMP, MIRROR
 		};
 
-		OpenGLTexture(std::string filePath);
-		OpenGLTexture(int32_t width, int32_t height, int32_t depth, const float* pixels);
-		~OpenGLTexture();
+		Texture(std::string filePath);
+		Texture(int32_t width, int32_t height, int32_t depth, const float* pixels);
+		~Texture();
 
 		void bind();
 		void unbind();

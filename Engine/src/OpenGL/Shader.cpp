@@ -1,12 +1,12 @@
-#include "OpenGLShader.h"
+#include "Shader.h"
 #include <iostream>
 
 namespace Engine {
-	OpenGLShader::OpenGLShader(const std::string filePath) {
+	Shader::Shader(const std::string filePath) {
 		std::ifstream file(filePath);
 
 		if (!file.is_open()) {
-			ENG_LOG_ERROR("Given OpenGL shader file is not found: {0}", filePath);
+			ENG_LOG_ERROR("Given shader file is not found: {0}", filePath);
 			return;
 		}
 
@@ -216,21 +216,21 @@ namespace Engine {
 		ENG_LOG_INFO("Shader is created, id: {0}", id);
 	}
 
-	OpenGLShader::~OpenGLShader() {
+	Shader::~Shader() {
 		glDeleteProgram(id);
 
 		ENG_LOG_INFO("Shader is deleted, id: {0}", id);
 	}
 
-	void OpenGLShader::bind() {
+	void Shader::bind() {
 		glUseProgram(id);
 	}
 
-	void OpenGLShader::unbind() {
+	void Shader::unbind() {
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::SetUniform1f(std::string uname, float v) {
+	void Shader::SetUniform1f(std::string uname, float v) {
 
 		int location = -1;
 
@@ -253,7 +253,7 @@ namespace Engine {
 	}
 
 
-	void OpenGLShader::SetUniform2f(std::string uname, float v1, float v2) {
+	void Shader::SetUniform2f(std::string uname, float v1, float v2) {
 
 		int location = -1;
 
@@ -275,7 +275,7 @@ namespace Engine {
 		glUniform2f(location, v1, v2);
 	}
 
-	void OpenGLShader::SetUniform2f(std::string uname, glm::vec2 v) {
+	void Shader::SetUniform2f(std::string uname, glm::vec2 v) {
 
 		int location = -1;
 
@@ -297,7 +297,7 @@ namespace Engine {
 		glUniform2f(location, v.x, v.y);
 	}
 
-	void OpenGLShader::SetUniform3f(std::string uname, float v1, float v2, float v3) {
+	void Shader::SetUniform3f(std::string uname, float v1, float v2, float v3) {
 
 		int location = -1;
 
@@ -319,7 +319,7 @@ namespace Engine {
 		glUniform3f(location, v1, v2, v3);
 	}
 
-	void OpenGLShader::SetUniform3f(std::string uname, glm::vec3 v) {
+	void Shader::SetUniform3f(std::string uname, glm::vec3 v) {
 
 		int location = -1;
 
@@ -341,7 +341,7 @@ namespace Engine {
 		glUniform3f(location, v.x, v.y, v.z);
 	}
 
-	void OpenGLShader::SetUniform4f(std::string uname, float v1, float v2, float v3, float v4) {
+	void Shader::SetUniform4f(std::string uname, float v1, float v2, float v3, float v4) {
 
 		int location = -1;
 
@@ -363,7 +363,7 @@ namespace Engine {
 		glUniform4f(location, v1, v2, v3, v4);
 	}
 
-	void OpenGLShader::SetUniform4f(std::string uname, glm::vec4 v) {
+	void Shader::SetUniform4f(std::string uname, glm::vec4 v) {
 
 		int location = -1;
 
@@ -385,7 +385,7 @@ namespace Engine {
 		glUniform4f(location, v.x, v.y, v.z, v.w);
 	}
 
-	void OpenGLShader::SetUniform1i(std::string uname, int32_t v) {
+	void Shader::SetUniform1i(std::string uname, int32_t v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -406,7 +406,7 @@ namespace Engine {
 		glUniform1i(location, v);
 	}
 
-	void OpenGLShader::SetUniform2i(std::string uname, int32_t v1, int32_t v2) {
+	void Shader::SetUniform2i(std::string uname, int32_t v1, int32_t v2) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -427,7 +427,7 @@ namespace Engine {
 		glUniform2i(location, v1, v2);
 	}
 
-	void OpenGLShader::SetUniform2i(std::string uname, glm::ivec2 v) {
+	void Shader::SetUniform2i(std::string uname, glm::ivec2 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -448,7 +448,7 @@ namespace Engine {
 		glUniform2i(location, v.x, v.y);
 	}
 
-	void OpenGLShader::SetUniform3i(std::string uname, int32_t v1, int32_t v2, int32_t v3) {
+	void Shader::SetUniform3i(std::string uname, int32_t v1, int32_t v2, int32_t v3) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -469,7 +469,7 @@ namespace Engine {
 		glUniform3i(location, v1, v2, v3);
 	}
 
-	void OpenGLShader::SetUniform3i(std::string uname, glm::ivec3 v) {
+	void Shader::SetUniform3i(std::string uname, glm::ivec3 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -490,7 +490,7 @@ namespace Engine {
 		glUniform3i(location, v.x, v.y, v.z);
 	}
 
-	void OpenGLShader::SetUniform4i(std::string uname, int32_t v1, int32_t v2, int32_t v3, int32_t v4) {
+	void Shader::SetUniform4i(std::string uname, int32_t v1, int32_t v2, int32_t v3, int32_t v4) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -511,7 +511,7 @@ namespace Engine {
 		glUniform4i(location, v1, v2, v3, v4);
 	}
 
-	void OpenGLShader::SetUniform4i(std::string uname, glm::ivec4 v) {
+	void Shader::SetUniform4i(std::string uname, glm::ivec4 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -532,7 +532,7 @@ namespace Engine {
 		glUniform4i(location, v.x, v.y, v.z, v.w);
 	}
 
-	void OpenGLShader::SetUniform1ui(std::string uname, uint32_t v) {
+	void Shader::SetUniform1ui(std::string uname, uint32_t v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -553,7 +553,7 @@ namespace Engine {
 		glUniform1ui(location, v);
 	}
 
-	void OpenGLShader::SetUniform2ui(std::string uname, uint32_t v1, uint32_t v2) {
+	void Shader::SetUniform2ui(std::string uname, uint32_t v1, uint32_t v2) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -574,7 +574,7 @@ namespace Engine {
 		glUniform2ui(location, v1, v2);
 	}
 
-	void OpenGLShader::SetUniform2ui(std::string uname, glm::uvec2 v) {
+	void Shader::SetUniform2ui(std::string uname, glm::uvec2 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -595,7 +595,7 @@ namespace Engine {
 		glUniform2ui(location, v.x, v.y);
 	}
 
-	void OpenGLShader::SetUniform3ui(std::string uname, uint32_t v1, uint32_t v2, uint32_t v3) {
+	void Shader::SetUniform3ui(std::string uname, uint32_t v1, uint32_t v2, uint32_t v3) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -616,7 +616,7 @@ namespace Engine {
 		glUniform3ui(location, v1, v2, v3);
 	}
 
-	void OpenGLShader::SetUniform3ui(std::string uname, glm::uvec3 v) {
+	void Shader::SetUniform3ui(std::string uname, glm::uvec3 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -637,7 +637,7 @@ namespace Engine {
 		glUniform3ui(location, v.x, v.y, v.z);
 	}
 
-	void OpenGLShader::SetUniform4ui(std::string uname, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4) {
+	void Shader::SetUniform4ui(std::string uname, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -658,7 +658,7 @@ namespace Engine {
 		glUniform4ui(location, v1, v2, v3, v4);
 	}
 
-	void OpenGLShader::SetUniform4ui(std::string uname, glm::uvec4 v) {
+	void Shader::SetUniform4ui(std::string uname, glm::uvec4 v) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -679,7 +679,7 @@ namespace Engine {
 		glUniform4ui(location, v.x, v.y, v.z, v.w);
 	}
 
-	void OpenGLShader::SetUniformArray1f(std::string uname, int32_t count, const float* array) {
+	void Shader::SetUniformArray1f(std::string uname, int32_t count, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -700,7 +700,7 @@ namespace Engine {
 		glUniform1fv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2f(std::string uname, int32_t count, const float* array) {
+	void Shader::SetUniformArray2f(std::string uname, int32_t count, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -721,7 +721,7 @@ namespace Engine {
 		glUniform2fv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2f(std::string uname, int32_t count, const glm::vec2* array) {
+	void Shader::SetUniformArray2f(std::string uname, int32_t count, const glm::vec2* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -742,7 +742,7 @@ namespace Engine {
 		glUniform1fv(location, count, reinterpret_cast<const float*>(array));
 	}
 
-	void OpenGLShader::SetUniformArray3f(std::string uname, int32_t count, const float* array) {
+	void Shader::SetUniformArray3f(std::string uname, int32_t count, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -763,7 +763,7 @@ namespace Engine {
 		glUniform3fv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray3f(std::string uname, int32_t count, const glm::vec3* array) {
+	void Shader::SetUniformArray3f(std::string uname, int32_t count, const glm::vec3* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -784,7 +784,7 @@ namespace Engine {
 		glUniform3fv(location, count, reinterpret_cast<const float*>(array));
 	}
 
-	void OpenGLShader::SetUniformArray4f(std::string uname, int32_t count, const float* array) {
+	void Shader::SetUniformArray4f(std::string uname, int32_t count, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -805,7 +805,7 @@ namespace Engine {
 		glUniform1fv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray4f(std::string uname, int32_t count, const glm::vec4* array) {
+	void Shader::SetUniformArray4f(std::string uname, int32_t count, const glm::vec4* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -826,7 +826,7 @@ namespace Engine {
 		glUniform4fv(location, count, reinterpret_cast<const float*>(array));
 	}
 
-	void OpenGLShader::SetUniformArray1i(std::string uname, int32_t count, const int32_t* array){
+	void Shader::SetUniformArray1i(std::string uname, int32_t count, const int32_t* array){
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -847,7 +847,7 @@ namespace Engine {
 		glUniform1iv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2i(std::string uname, int32_t count, const int32_t* array) {
+	void Shader::SetUniformArray2i(std::string uname, int32_t count, const int32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -868,7 +868,7 @@ namespace Engine {
 		glUniform2iv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2i(std::string uname, int32_t count, const glm::ivec2* array) {
+	void Shader::SetUniformArray2i(std::string uname, int32_t count, const glm::ivec2* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -889,7 +889,7 @@ namespace Engine {
 		glUniform2iv(location, count, reinterpret_cast<const int32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformArray3i(std::string uname, int32_t count, const int32_t* array){
+	void Shader::SetUniformArray3i(std::string uname, int32_t count, const int32_t* array){
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -910,7 +910,7 @@ namespace Engine {
 		glUniform3iv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray3i(std::string uname, int32_t count, const glm::ivec3* array) {
+	void Shader::SetUniformArray3i(std::string uname, int32_t count, const glm::ivec3* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -931,7 +931,7 @@ namespace Engine {
 		glUniform3iv(location, count, reinterpret_cast<const int32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformArray4i(std::string uname, int32_t count, const int32_t* array) {
+	void Shader::SetUniformArray4i(std::string uname, int32_t count, const int32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -952,7 +952,7 @@ namespace Engine {
 		glUniform4iv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray4i(std::string uname, int32_t count, const glm::ivec4* array) {
+	void Shader::SetUniformArray4i(std::string uname, int32_t count, const glm::ivec4* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -973,7 +973,7 @@ namespace Engine {
 		glUniform4iv(location, count, reinterpret_cast<const int32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformArray1ui(std::string uname, int32_t count, const uint32_t* array) {
+	void Shader::SetUniformArray1ui(std::string uname, int32_t count, const uint32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -994,7 +994,7 @@ namespace Engine {
 		glUniform1uiv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2ui(std::string uname, int32_t count, const uint32_t* array) {
+	void Shader::SetUniformArray2ui(std::string uname, int32_t count, const uint32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1015,7 +1015,7 @@ namespace Engine {
 		glUniform2uiv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray2ui(std::string uname, int32_t count, const glm::uvec2* array) {
+	void Shader::SetUniformArray2ui(std::string uname, int32_t count, const glm::uvec2* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1036,7 +1036,7 @@ namespace Engine {
 		glUniform2uiv(location, count, reinterpret_cast<const uint32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformArray3ui(std::string uname, int32_t count, const uint32_t* array) {
+	void Shader::SetUniformArray3ui(std::string uname, int32_t count, const uint32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1057,7 +1057,7 @@ namespace Engine {
 		glUniform3uiv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray3ui(std::string uname, int32_t count, const glm::uvec3* array) {
+	void Shader::SetUniformArray3ui(std::string uname, int32_t count, const glm::uvec3* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1078,7 +1078,7 @@ namespace Engine {
 		glUniform3uiv(location, count, reinterpret_cast<const uint32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformArray4ui(std::string uname, int32_t count, const uint32_t* array) {
+	void Shader::SetUniformArray4ui(std::string uname, int32_t count, const uint32_t* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1099,7 +1099,7 @@ namespace Engine {
 		glUniform4uiv(location, count, array);
 	}
 
-	void OpenGLShader::SetUniformArray4ui(std::string uname, int32_t count, const glm::uvec4* array) {
+	void Shader::SetUniformArray4ui(std::string uname, int32_t count, const glm::uvec4* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1120,7 +1120,7 @@ namespace Engine {
 		glUniform4uiv(location, count, reinterpret_cast<const uint32_t*> (array));
 	}
 
-	void OpenGLShader::SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const float* array) {
+	void Shader::SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1141,7 +1141,7 @@ namespace Engine {
 		glUniformMatrix2fv(location, count, transpose, array);
 	}
 
-	void OpenGLShader::SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const glm::mat2* array) {
+	void Shader::SetUniformMatrix2x2(std::string uname, int32_t count, bool transpose, const glm::mat2* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1162,7 +1162,7 @@ namespace Engine {
 		glUniformMatrix2fv(location, count, transpose, reinterpret_cast<const float*> (array));
 	}
 
-	void OpenGLShader::SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const float* array) {
+	void Shader::SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1183,7 +1183,7 @@ namespace Engine {
 		glUniformMatrix3fv(location, count, transpose, array);
 	}
 
-	void OpenGLShader::SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const glm::mat3* array) {
+	void Shader::SetUniformMatrix3x3(std::string uname, int32_t count, bool transpose, const glm::mat3* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1204,7 +1204,7 @@ namespace Engine {
 		glUniformMatrix3fv(location, count, transpose, reinterpret_cast<const float*> (array));
 	}
 
-	void OpenGLShader::SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const float* array) {
+	void Shader::SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const float* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1225,7 +1225,7 @@ namespace Engine {
 		glUniformMatrix4fv(location, count, transpose, array);
 	}
 
-	void OpenGLShader::SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const glm::mat4* array) {
+	void Shader::SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const glm::mat4* array) {
 		int location = -1;
 
 		if (uniforms.find(uname) == uniforms.end()) {
@@ -1246,7 +1246,7 @@ namespace Engine {
 		glUniformMatrix4fv(location, count, transpose, reinterpret_cast<const float*> (array));
 	}
 
-	bool OpenGLShader::InShaderTypeList(ShaderType type) {
+	bool Shader::InShaderTypeList(ShaderType type) {
 		for (int i = 0; i < shaderTypes.size(); i++)
 			if (type == shaderTypes[i])
 				return true;

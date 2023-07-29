@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 namespace Engine {
-	class OpenGLShader {
+	class Shader {
 	public:
 		enum ShaderType {
 			None = -1, Vertex = 0, Fragment = 1, Geometry = 2, Tessellation = 3, Compute = 4
@@ -24,8 +24,8 @@ namespace Engine {
 		std::unordered_map<std::string, int> uniforms;
 
 	public:
-		OpenGLShader(const std::string filePath);
-		~OpenGLShader();
+		Shader(const std::string filePath);
+		~Shader();
 
 		void bind();
 		void unbind();

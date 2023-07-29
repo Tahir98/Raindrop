@@ -9,11 +9,14 @@
     <ClInclude Include="Scenes\ExampleScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Scenes\VolumeRendering.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
+    <ClInclude Include="Scenes\VolumeRendering.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sandbox.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\VolumeRenderer.shader" />
+    <None Include="Shaders\skybox.shader" />
+    <None Include="Shaders\Basic.shader" />
   </ItemGroup>
 </Project>

@@ -1,18 +1,18 @@
 #pragma once
 #include "Log.h"
-#include "OpenGLVertexBuffer.h"
+#include "VertexBuffer.h"
 #include <string>
 #include <vector>
 
 namespace Engine {
-	class OpenGLVertexArray {
+	class VertexArray {
 	public:
 		enum DataType {
 			FLOAT, DOUBLE, INT32, UINT32, INT16, UINT16, INT8, UINT8
 		};
 	private:
 		uint32_t id;
-		OpenGLVertexBuffer* vb = nullptr;
+		VertexBuffer* vb = nullptr;
 
 		struct VertexElement {
 			int count;
@@ -21,13 +21,13 @@ namespace Engine {
 
 		std::vector<VertexElement> vertexElements;
 	public:
-		OpenGLVertexArray();
-		~OpenGLVertexArray();
+		VertexArray();
+		~VertexArray();
 
 		void bind();
 		void unbind();
 
-		void PushElement(OpenGLVertexBuffer* vb, int count, DataType type, bool normalized = false);
+		void PushElement(VertexBuffer* vb, int count, DataType type, bool normalized = false);
 
 	private:
 		int GetSize(DataType type);
