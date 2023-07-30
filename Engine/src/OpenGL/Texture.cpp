@@ -1,10 +1,10 @@
-#include "OpenGLTexture.h"
+#include "Texture.h"
 #include "stb_image.h"
 #include <filesystem>
 #include "glad/glad.h"
 
 namespace Engine {
-	OpenGLTexture::OpenGLTexture(std::string filePath) {
+	Texture::Texture(std::string filePath) {
 		if (!std::filesystem::exists(filePath)) {
 			ENG_LOG_ERROR("Given image file is not found: {0}", filePath);
 			return;
@@ -26,8 +26,6 @@ namespace Engine {
 		if (data) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
-
-			ENG_LOG_INFO("Texture created; id: {0}, file: {1}, width: {2}, height: {3}", id, filePath, width, height);
 		}
 		else {
 			ENG_LOG_ERROR("Failed to load image: {0}", filePath);
@@ -36,7 +34,7 @@ namespace Engine {
 		dimension = 2;
 	}
 
-	OpenGLTexture::OpenGLTexture(int32_t width, int32_t height, int32_t depth, const float* pixels) : width(width), height(height), depth(depth){
+	Texture::Texture(int32_t width, int32_t height, int32_t depth, const float* pixels) : width(width), height(height), depth(depth){
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_3D, id);
 
@@ -49,55 +47,53 @@ namespace Engine {
 
 		if (pixels) {
 			glTexImage3D(GL_TEXTURE_3D,0, GL_R32F, width, height, depth, 0, GL_RED, GL_UNSIGNED_INT, pixels);
-
-			ENG_LOG_INFO("Texture created; id: {0} width: {1}, height: {2}, depth", id, width, height, depth);
 		}
 
 		dimension = 3;
 	}
 
-	OpenGLTexture::~OpenGLTexture() {
+	Texture::~Texture() {
 		glDeleteTextures(1, &id);
 	}
-	void OpenGLTexture::bind() {
+	void Texture::bind() {
 		if(dimension == 2)
 			glBindTexture(GL_TEXTURE_2D, id);
 		else if(dimension == 3)
 			glBindTexture(GL_TEXTURE_3D, id);
 	}
 
-	void OpenGLTexture::unbind() {
+	void Texture::unbind() {
 		if (dimension == 2)
 			glBindTexture(GL_TEXTURE_2D, 0);
 		else if (dimension == 3)
 			glBindTexture(GL_TEXTURE_3D, 0);
 	}
 
-	void OpenGLTexture::SetActiveTextureSlot(uint32_t slot) {
+	void Texture::SetActiveTextureSlot(uint32_t slot) {
 		glActiveTexture(GL_TEXTURE0 + slot);
 	}
 
-	int32_t OpenGLTexture::getDimension()
+	int32_t Texture::getDimension()
 	{
 		return dimension;
 	}
 
-	int32_t OpenGLTexture::getWidth()
+	int32_t Texture::getWidth()
 	{
 		return width;
 	}
 
-	int32_t OpenGLTexture::getHeight()
+	int32_t Texture::getHeight()
 	{
 		return height;
 	}
 
-	int32_t OpenGLTexture::getDepth()
+	int32_t Texture::getDepth()
 	{
 		return depth;
 	}
 
-	int32_t OpenGLTexture::getChannels()
+	int32_t Texture::getChannels()
 	{
 		return channels;
 	}

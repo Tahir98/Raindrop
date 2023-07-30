@@ -4,7 +4,7 @@
 
 namespace Engine {
 
-	class OpenGLFrameBuffer {
+	class FrameBuffer {
 	private:
 		uint32_t id = -1;
 		uint32_t texture_id = -1;
@@ -12,8 +12,8 @@ namespace Engine {
 
 		uint32_t width, height;
 	public:
-		OpenGLFrameBuffer(const uint32_t width, const uint32_t height);
-		~OpenGLFrameBuffer();
+		FrameBuffer(const uint32_t width, const uint32_t height);
+		~FrameBuffer();
 
 		void resize(const uint32_t width, const uint32_t height);
 

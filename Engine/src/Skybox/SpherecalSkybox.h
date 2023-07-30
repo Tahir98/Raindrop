@@ -1,9 +1,9 @@
 #pragma once
-#include "Graphics/Interface/VertexArray.h"
-#include "Graphics/Interface/VertexBuffer.h"
-#include "Graphics/Interface/IndexBuffer.h"
-#include "Graphics/Interface/Shader.h"
-#include "Graphics/Interface/Texture.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexBuffer.h"
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/Texture.h"
 #include "Camera/PerspectiveCamera.h"
 
 namespace Engine {
