@@ -21,7 +21,7 @@ namespace Engine {
 
 		uint32_t indexCount = -1;
 
-		uint32_t segment = 20;
+		uint32_t segment = 10;
 		glm::vec3 rotationAngles;
 		glm::mat4 rotationMatrix;
 	public:
@@ -67,7 +67,7 @@ namespace Engine {
 			va.PushElement(vb, 3, Engine::VertexArray::FLOAT, false);
 			va.PushElement(vb, 3, Engine::VertexArray::FLOAT, false);
 
-			ib = new Engine::IndexBuffer(indices.data(), sizeof(uint32_t)  * indices.size(), GL_STATIC_DRAW);
+			ib = new Engine::IndexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
 
 			shader = new Engine::Shader("Shaders/skybox.shader");
 

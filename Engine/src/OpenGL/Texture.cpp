@@ -38,9 +38,9 @@ namespace Engine {
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_3D, id);
 
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -50,6 +50,22 @@ namespace Engine {
 		}
 
 		dimension = 3;
+	}
+
+	Texture::Texture(int32_t width, const float* pixels) {
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_1D, id);
+
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		if (pixels) {
+			glTexImage1D(GL_TEXTURE_1D,0, GL_R32F, width, 0, GL_RED, GL_UNSIGNED_INT, pixels);
+		}
+
+		dimension = 1;
 	}
 
 	Texture::~Texture() {

@@ -155,6 +155,8 @@
     <ClInclude Include="src\Input\InputDefines.h" />
     <ClInclude Include="src\Input\InputHandler.h" />
     <ClInclude Include="src\Log.h" />
+    <ClInclude Include="src\Model\Mesh.h" />
+    <ClInclude Include="src\Model\ProceduralMeshGenerator.h" />
     <ClInclude Include="src\Noise\PerlinNoise2D.h" />
     <ClInclude Include="src\Noise\PerlinNoise3D.h" />
     <ClInclude Include="src\OpenGL\FrameBuffer.h" />
@@ -195,6 +197,7 @@
     <ClCompile Include="src\GUI\ImGuiLayer.cpp" />
     <ClCompile Include="src\Input\InputHandler.cpp" />
     <ClCompile Include="src\Log.cpp" />
+    <ClCompile Include="src\Model\ProceduralMeshGenerator.cpp" />
     <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />

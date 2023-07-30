@@ -16,7 +16,7 @@ public:
 	void run() override {
 		Engine::Window window("App",1600,900,false,false, true);
 
-		VolumeRendering scene("Volume Rendering", window);
+		VolumeRendering scene("Example Scene", window);
 
 		Engine::SceneManager::pushScene(&scene);
 

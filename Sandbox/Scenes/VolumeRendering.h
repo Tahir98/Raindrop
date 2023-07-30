@@ -1,5 +1,7 @@
 #pragma once
 #include "Engine.h"
+#include <algorithm>
+#include <execution>
 
 class VolumeRendering : public Engine::Scene {
 private:
@@ -19,14 +21,15 @@ private:
 	Engine::Shader* shader = nullptr;
 
 	Engine::Texture* densityTex = nullptr;
-	int32_t texSize = 128;
+	int32_t texSize = 512;
 
 	Bound bound;
-	std::vector<Engine::PerlinNoise3DLayer> noiseLayers;
 
 	glm::mat4 model;
 
-	uint32_t stepCount = 1000;
+	float stepCount = 1000;
+	float threshold = 0.5f;
+	float opacity = 0.6f;
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100), 
@@ -54,16 +57,16 @@ public:
 
 		for (int i = 0; i < vertices.size(); i++) {
 			vertices[i] += glm::vec3(-0.5f, -0.5f, -0.5f);
-			vertices[i] *= glm::vec3(1, 1, -1);
+			vertices[i] *= glm::vec3(1, 1, 1);
 		}
 
 		std::vector<uint32_t> indices = {
-			0,2,1, 0,3,2,
-			3,5,2, 3,4,5,
-			4,6,5, 4,7,6,
-			7,1,6, 7,0,1,
-			7,3,0, 7,4,3,
-			1,5,6, 1,2,5
+			0,1,2, 0,2,3,
+			3,2,5, 3,5,4,
+			4,5,6, 4,6,7,
+			7,6,1, 7,1,0,
+			7,0,3, 7,3,4,
+			1,6,5, 1,5,2
 		};
 
 		vb = new Engine::VertexBuffer(vertices.data(), sizeof(glm::vec3) * vertices.size(), GL_STATIC_DRAW);
@@ -71,41 +74,100 @@ public:
 		vb->bind();
 		va.PushElement(vb, 3, Engine::VertexArray::FLOAT, false);
 
-		ib = new Engine::IndexBuffer(indices.data(), sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW);
+		ib = new Engine::IndexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
 		shader = new Engine::Shader("Shaders/VolumeRenderer.shader");
 
+		bound.min = glm::vec3(-0.5f, -0.5f, -0.5f);
+		bound.max = glm::vec3(0.5f, 0.5f, 0.5f);
 		glm::vec3 boundSize = bound.size();
 		glm::vec3 boundCenter = bound.center();
+		
+		ENG_LOG_INFO("Bounds size : ({0},{1},{2})", boundSize.x, boundSize.y, boundSize.z);
+		ENG_LOG_INFO("Bounds center : ({0},{1},{2}", boundCenter.x, boundCenter.y, boundCenter.z);
 
 		Engine::PerlinNoise3DLayer layer1;
-		layer1.offset = glm::vec3(0.3f, 6.7f, -5.3f);
+		layer1.offset = glm::vec3(200.3f, 623.7f, 523.3f);
 		layer1.scale = 3;
 		layer1.smoothness = 2;
 
+		Engine::PerlinNoise3DLayer layer2;
+		layer2.offset = glm::vec3(200.3f, 623.7f, 523.3f);
+		layer2.scale = 5;
+		layer2.smoothness = 2;
+
+		Engine::PerlinNoise3DLayer layer3;
+		layer3.offset = glm::vec3(200.3f, 623.7f, 523.3f);
+		layer3.scale = 10;
+		layer3.smoothness = 2;
+
+		Engine::PerlinNoise3DLayer layer4;
+		layer4.offset = glm::vec3(200.3f, 623.7f, 523.3f);
+		layer4.scale = 20;
+		layer4.smoothness = 2;
+
+
+		std::vector<Engine::PerlinNoise3DLayer> noiseLayers; 
 		noiseLayers.push_back(layer1);
+		noiseLayers.push_back(layer2);
+		noiseLayers.push_back(layer3);
+		noiseLayers.push_back(layer4);
 
 		float* densityArray = new float[texSize * texSize * texSize];
 
-		for (int x = 0; x < texSize; x++) {
-			for (int y = 0; y < texSize; y++) {
-				for (int z = 0; z < texSize; z++) {
+		int32_t size = texSize;
+		Bound newBound = bound;
+
+		std::vector<int32_t> index_numbers;
+		for (int i = 0; i < texSize; i++) {
+			index_numbers.push_back(i);
+		}
+
+		std::for_each(std::execution::par, index_numbers.begin(), index_numbers.end()
+			, [densityArray, noiseLayers, size, boundSize, newBound, boundCenter](int x) {
+			for (int y = 0; y < size; y++) {
+				for (int z = 0; z < size; z++) {
 					float density = 0;
 
 					glm::vec3 position;
-					position.x = bound.min.x + (boundSize.x * x / (float)texSize);
-					position.y = bound.min.y + (boundSize.y * y / (float)texSize);
-					position.z = bound.min.z + (boundSize.z * z / (float)texSize);
+					position.x = newBound.min.x + (boundSize.x * x / (float)size);
+					position.y = newBound.min.y + (boundSize.y * y / (float)size);
+					position.z = newBound.min.z + (boundSize.z * z / (float)size);
+
+					float densityMultiplier = 1.0f - (float)y / (float)size;
 
 					for (int i = 0; i < noiseLayers.size(); i++) {
-						glm::vec3 corner = (position * noiseLayers[i].scale + noiseLayers[i].offset);
+						glm::vec3 value = (position * noiseLayers[i].scale + noiseLayers[i].offset);
 
-						density += Engine::PerlinNoise3D::value(corner.x, corner.y, corner.z, noiseLayers[i].smoothness);
+						density += Engine::PerlinNoise3D::value(value.x, value.y, value.z, noiseLayers[i].smoothness) / noiseLayers[i].scale;
 					}
 
-					densityArray[x + y * texSize + z * texSize * texSize] = density;
+					densityArray[x + y * size + z * size * size] = density * densityMultiplier;
 				}
 			}
-		}
+		});
+
+		//for (int x = 0; x < texSize; x++) {
+		//	for (int y = 0; y < texSize; y++) {
+		//		for (int z = 0; z < texSize; z++) {
+		//			float density = 0;
+		//
+		//			glm::vec3 position;
+		//			position.x = bound.min.x + (boundSize.x * x / (float)texSize);
+		//			position.y = bound.min.y + (boundSize.y * y / (float)texSize);
+		//			position.z = bound.min.z + (boundSize.z * z / (float)texSize);
+		//
+		//			float densityMultiplier = (bound.center() - position).length() * 2.0f;
+		//
+		//			for (int i = 0; i < noiseLayers.size(); i++) {
+		//				glm::vec3 corner = (position * noiseLayers[i].scale + noiseLayers[i].offset);
+		//
+		//				density += Engine::PerlinNoise3D::value(corner.x, corner.y, corner.z, noiseLayers[i].smoothness);
+		//			}
+		//
+		//			densityArray[x + y * texSize + z * texSize * texSize] = density * densityMultiplier;
+		//		}
+		//	}
+		//}
 
 		densityTex = new Engine::Texture(texSize, texSize, texSize, densityArray);
 
@@ -128,11 +190,15 @@ public:
 		Engine::OpenGLUtility::EnableCulling();
 		Engine::OpenGLUtility::EnableDepthTest();
 
+
+		Engine::OpenGLUtility::SetCullMode(Engine::CullBack);
 		skybox.draw(camera);
 
 		////////////////////////////////////////////////
 
 		model = glm::mat4(1.0f);
+
+		Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
 
 		shader->bind();
 		va.bind();
@@ -153,8 +219,9 @@ public:
 
 		shader->SetUniform1f("stepSize", 1.0f / (float) stepCount);
 		shader->SetUniform3f("boundMin", bound.min);
-		shader->SetUniform3f("boundMax", bound.min);
-
+		shader->SetUniform3f("boundMax", bound.max);
+		shader->SetUniform1f("threshold", threshold);
+		shader->SetUniform1f("opacity", opacity);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		////////////////////////////////////////////////
@@ -175,6 +242,8 @@ public:
 
 		ImGui::Image((ImTextureID)fb.getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
+
+		DrawSettingsPanel(delta);
 	}
 
 	void inputControl(float delta) {
@@ -232,6 +301,20 @@ public:
 		else {
 			isRightClicked = false;
 		}
+	}
+
+	void DrawSettingsPanel(float delta) {
+		ImGui::Begin("Setting");
+		ImGui::Text("Frame time: %.2fms, fps: %.2f", delta, 1.0f / delta);
+		ImGui::NewLine();
+		ImGui::Separator();
+
+		ImGui::SliderFloat("Step count", &stepCount, 1, 10000, "%.0f");
+		ImGui::SliderFloat("Threshold", &threshold, 0, 1);
+		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
+
+		ImGui::End();
+
 	}
 
 	void OnSuspend() override {

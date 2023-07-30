@@ -24,6 +24,7 @@ namespace Engine {
 
 		Texture(std::string filePath);
 		Texture(int32_t width, int32_t height, int32_t depth, const float* pixels);
+		Texture(int32_t width, const float* pixels);
 		~Texture();
 
 		void bind();
