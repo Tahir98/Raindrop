@@ -5,7 +5,7 @@ namespace Engine {
 
 	class Texture {
 	private:
-		uint32_t id;
+		uint32_t id = - 1;
 
 		int32_t width, height, depth, channels;
 		int32_t dimension;

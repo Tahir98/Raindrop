@@ -10,6 +10,7 @@
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Scenes\VolumeRendering.h" />
+    <ClInclude Include="Scenes\TextureTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sandbox.cpp" />

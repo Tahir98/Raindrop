@@ -157,6 +157,10 @@
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\Model\ProceduralMeshGenerator.h" />
     <ClInclude Include="src\Model\Mesh.h" />
+    <ClInclude Include="src\OpenGL\Texture1D.h" />
+    <ClInclude Include="src\OpenGL\Texture2D.h" />
+    <ClInclude Include="src\OpenGL\Texture3D.h" />
+    <ClInclude Include="src\OpenGL\TextureUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -224,5 +228,8 @@
     <ClCompile Include="src\Random\BitConverter.cpp" />
     <ClCompile Include="src\Noise\PerlinNoiseImp.cpp" />
     <ClCompile Include="src\Model\ProceduralMeshGenerator.cpp" />
+    <ClCompile Include="src\OpenGL\Texture1D.cpp" />
+    <ClCompile Include="src\OpenGL\Texture2D.cpp" />
+    <ClCompile Include="src\OpenGL\Texture3D.cpp" />
   </ItemGroup>
 </Project>

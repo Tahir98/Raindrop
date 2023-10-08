@@ -46,7 +46,7 @@ namespace Engine {
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		if (pixels) {
-			glTexImage3D(GL_TEXTURE_3D,0, GL_R32F, width, height, depth, 0, GL_RED, GL_UNSIGNED_INT, pixels);
+			glTexImage3D(GL_TEXTURE_3D,0, GL_R32F, width, height, depth, 0, GL_RED, GL_FLOAT, pixels);
 		}
 
 		dimension = 3;

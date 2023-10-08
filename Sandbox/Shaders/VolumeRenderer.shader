@@ -106,8 +106,8 @@ void main() {
         float density = sampleDensity(texCoord);
         density = clamp(density, 0, 1);
         
-        if (density >= threshold) {
-            outputColor = BlendUnder(outputColor, vec4(density, density, density,density * opacity * stepSize * 100.0f));
+        if (density > threshold) {
+            outputColor = BlendUnder(outputColor, vec4(density, density, density, density * opacity * stepSize * 100.0f));
             if(outputColor.a >= 0.99f)
                 break;
         }

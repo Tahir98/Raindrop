@@ -163,7 +163,11 @@
     <ClInclude Include="src\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\OpenGL\OpenGLUtility.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\OpenGL\Texture2D.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
+    <ClInclude Include="src\OpenGL\Texture1D.h" />
+    <ClInclude Include="src\OpenGL\Texture3D.h" />
+    <ClInclude Include="src\OpenGL\TextureUtility.h" />
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\Random\AddWithCarry.h" />
@@ -203,6 +207,9 @@
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\Texture.cpp" />
+    <ClCompile Include="src\OpenGL\Texture1D.cpp" />
+    <ClCompile Include="src\OpenGL\Texture2D.cpp" />
+    <ClCompile Include="src\OpenGL\Texture3D.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Random\BitConverter.cpp" />

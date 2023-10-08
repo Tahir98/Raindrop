@@ -2,7 +2,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/constants.hpp"
 
-#include "Random/Xorshift.h"
+#include "Random/Xorshift64.h"
 
 namespace Engine {
 
@@ -14,7 +14,7 @@ namespace Engine {
 
 	class PerlinNoise3D {
 	private:
-		static Xorshift xorshift;
+		static Xorshift64 xorshift;
 	public:
 		static float interpolate(float a0, float a1, float w, int smoothness) {
 			if (w < 0) w = 0;
