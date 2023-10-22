@@ -3,7 +3,7 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/Shader.h"
-#include "OpenGL/Texture.h"
+#include "OpenGL/Texture2D.h"
 #include "Camera/PerspectiveCamera.h"
 
 namespace Engine {
@@ -14,7 +14,7 @@ namespace Engine {
 		VertexArray va;
 		IndexBuffer* ib = nullptr;
 		Shader* shader = nullptr;
-		Texture* hdri = nullptr;
+		Texture2D* hdri = nullptr;
 
 		std::vector<glm::vec3> vertices;
 		std::vector<uint32_t> indices;
@@ -71,7 +71,7 @@ namespace Engine {
 
 			shader = new Engine::Shader("Shaders/skybox.shader");
 
-			hdri = new Engine::Texture(filePath);
+			hdri = new Engine::Texture2D(filePath);
 
 			indexCount = indices.size();
 
@@ -100,7 +100,7 @@ namespace Engine {
 			ib->bind();
 			shader->bind();
 			hdri->bind();
-			hdri->SetActiveTextureSlot(0);
+			hdri->setActiveTextureSlot(0);
 
 			shader->SetUniform2ui("texSize", hdri->getWidth(), hdri->getHeight());
 			shader->SetUniform1i("hdriTex", 0);

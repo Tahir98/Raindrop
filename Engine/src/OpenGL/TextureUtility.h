@@ -374,7 +374,8 @@ namespace Engine {
 			case Engine::RGB32_Float:
 			case Engine::RGBA32_Float:
 				return GL_FLOAT;
-
+			default:
+				return GL_UNSIGNED_BYTE;
 			}
 		}
 

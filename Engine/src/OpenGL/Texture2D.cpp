@@ -195,6 +195,8 @@ namespace Engine {
 				TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), data);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
+
+			ENG_LOG_INFO("2D Texture created, id:{0}, width:{1}, height:{2}, bbp:{3}", id, width, height, bbp);
 		}
 		else {
 			ENG_LOG_ERROR("Texture2D, given data pointer is null");
@@ -253,12 +255,45 @@ namespace Engine {
 		}
 	}
 
+	void Texture2D::SetData(void* data, uint32_t size, uint32_t startIndex) {
+		if (id != 0) {
+			int32_t previouslyBindedTexture;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previouslyBindedTexture);
+
+			glBindTexture(GL_TEXTURE_2D, id);
+
+			int32_t xoffset = (startIndex % width);
+			int32_t yoffset = (startIndex / width);
+
+			glTexSubImage2D(GL_TEXTURE_3D, 0, xoffset, yoffset, width, height, TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), data);
+
+			glBindTexture(GL_TEXTURE_2D, (uint32_t)previouslyBindedTexture);
+		}
+	}
+
+	void Texture2D::SetData(void* data, uint32_t size, uint32_t xoffset, uint32_t yoffset) {
+		if (id != 0) {
+			int32_t previouslyBindedTexture;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previouslyBindedTexture);
+
+			glBindTexture(GL_TEXTURE_2D, id);
+
+			glTexSubImage2D(GL_TEXTURE_2D, 0, xoffset, yoffset, width, height, TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), data);
+
+			glBindTexture(GL_TEXTURE_2D, (uint32_t)previouslyBindedTexture);
+		}
+	}
+
 	void Texture2D::bind() {
 		glBindTexture(GL_TEXTURE_2D, id);
 	}
 
 	void Texture2D::unbind() {
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void Texture2D::setActiveTextureSlot(int slot) {
+		glActiveTexture(GL_TEXTURE0 + slot);
 	}
 
 	uint32_t Texture2D::getWidth() {
@@ -288,39 +323,57 @@ namespace Engine {
 	void Texture2D::SetTextureFilter(TextureFilter filter) {
 		this->filter = filter;
 
-		switch (filter) {
-		case TextureFilter::POINT:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			break;
-		case TextureFilter::BILINEAR:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
-		case TextureFilter::TRILINEAR:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			break;
+		if (id != 0) {
+			int32_t previouslyBindedTexture;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previouslyBindedTexture);
+
+			glBindTexture(GL_TEXTURE_2D, id);
+
+			switch (filter) {
+			case TextureFilter::POINT:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				break;
+			case TextureFilter::BILINEAR:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+			case TextureFilter::TRILINEAR:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				break;
+			}
+
+			glBindTexture(GL_TEXTURE_2D, (uint32_t)previouslyBindedTexture);
 		}
 	}
 
 	void Texture2D::SetTextureWrapMode(TextureWrapper wrapper) {
 		this->wrapper = wrapper;
 
-		switch (wrapper)
-		{
-		case Engine::CLAMP:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			break;
-		case Engine::MIRROR:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-			break;
-		case Engine::REPEAT:
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			break;
+		if (id != 0) {
+			int32_t previouslyBindedTexture;
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &previouslyBindedTexture);
+
+			glBindTexture(GL_TEXTURE_2D, id);
+
+			switch (wrapper)
+			{
+			case Engine::CLAMP:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				break;
+			case Engine::MIRROR:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+				break;
+			case Engine::REPEAT:
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				break;
+			}
+
+			glBindTexture(GL_TEXTURE_2D, (uint32_t)previouslyBindedTexture);
 		}
 	}
 

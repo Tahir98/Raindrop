@@ -22,7 +22,7 @@ private:
 	Engine::IndexBuffer* ib = nullptr;
 	Engine::Shader* shader = nullptr;
 
-	Engine::Texture* densityTex = nullptr;
+	Engine::Texture3D* densityTex = nullptr;
 	int32_t texSize = 512;
 	int32_t subdivision_Size = 8;
 	std::vector<glm::vec2> minmaxDensities;
@@ -174,7 +174,7 @@ public:
 			file.read((char*) densityArray, sizeof(float) * texSize * texSize * texSize);
 		}
 
-		densityTex = new Engine::Texture(texSize, texSize, texSize, densityArray);
+		densityTex = new Engine::Texture3D(densityArray, texSize, texSize, texSize, Engine::R32_Float);
 
 		delete densityArray;
 
@@ -212,7 +212,7 @@ public:
 		va.bind();
 		ib->bind();
 		densityTex->bind();
-		densityTex->SetActiveTextureSlot(0);
+		densityTex->setActiveTextureSlot(0);
 
 		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
 		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));

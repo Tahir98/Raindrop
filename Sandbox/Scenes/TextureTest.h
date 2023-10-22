@@ -5,6 +5,13 @@ class TextureTest : public Engine::Scene {
 private:
 	Engine::FrameBuffer* fb = nullptr;
 
+	Engine::VertexBuffer* vb = nullptr;
+	Engine::VertexArray va;
+	Engine::Shader* shader = nullptr;
+
+	
+	Engine::Texture2D* customDataTex = nullptr;
+	Engine::Texture2D* imageTex = nullptr;
 
 public:
 	TextureTest(std::string name, Engine::Window& window) : Scene(name, window) {
@@ -19,6 +26,41 @@ public:
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 
 		fb = new Engine::FrameBuffer(800, 600);
+
+		std::vector<float> vertices = {
+			-1,-1,0,	0, 0,
+			-1, 1,0,	0, 1,
+			 1, 1,0,	1, 1,
+
+			-1,-1,0,	0, 0,
+			 1, 1,0,	1, 1,
+			 1, -1,0,	1, 0,
+		};
+
+		vb = new Engine::VertexBuffer(vertices.data(), sizeof(float) * vertices.size(), GL_STATIC_DRAW);
+
+		va.PushElement(vb, 3, Engine::VertexArray::DataType::FLOAT, false);
+		va.PushElement(vb, 2, Engine::VertexArray::DataType::FLOAT, false);
+
+		shader = new Engine::Shader("Shaders/TextureTest.shader");
+
+		int texSize = 256;
+
+		uint8_t* textureData = new uint8_t[texSize * texSize * 3];
+
+		for (int i = 0; i < texSize; i++) {
+			for (int j = 0; j < texSize; j++) {
+				textureData[(i * texSize + j) * 3 + 0] = (uint8_t)i;
+				textureData[(i * texSize + j) * 3 + 1] = (uint8_t)j;
+				textureData[(i * texSize + j) * 3 + 2] = (uint8_t)0;
+			}
+		}
+
+		customDataTex = new Engine::Texture2D(textureData, texSize, texSize, Engine::TextureFormat::RGB8_UNORM);
+
+		delete[] textureData;
+
+		imageTex = new Engine::Texture2D("Textures/rooitou_park.jpg");
 	}
 
 	void OnUpdate(float delta) override {
@@ -26,6 +68,16 @@ public:
 
 		fb->bind();
 		fb->clear();
+
+		va.bind();
+
+		imageTex->bind();
+		imageTex->setActiveTextureSlot(0);
+
+		shader->bind();
+		shader->SetUniform1i("tex", 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		fb->unbind();
 
