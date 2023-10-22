@@ -39,6 +39,9 @@ uniform float stepSize;
 uniform vec3 boundMin;
 uniform vec3 boundMax;
 
+uniform float threshold;
+uniform float opacity;
+
 out vec4 outputColor;
 
 vec2 rayBoxDst(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir) {
@@ -86,7 +89,7 @@ float sampleDensity(vec3 texCoord) {
 
 void main() {
     outputColor = vec4(0, 0, 0, 0.0f);
-    vec3 volumeColor = vec3(1, 0, 0);
+    vec3 volumeColor = vec3(1, 1, 1);
     //outputColor = BlendUnder(outputColor, vec4(volumeColor, 0.5f));
 
     vec3 rayDirection = normalize(worldPos - cameraPos);
@@ -95,20 +98,21 @@ void main() {
 
     float offset = 0;
     vec3 position = cameraPos + rayDirection * rayHit.x;
-    int counter = 0;
 
     while (offset < rayHit.y ) {
-
         position = cameraPos + rayDirection * (rayHit.x + offset);
         vec3 texCoord = calculateTexCoord(boundMin, boundMax, position);
-
+        
         float density = sampleDensity(texCoord);
         density = clamp(density, 0, 1);
-
-        outputColor = BlendUnder(outputColor, vec4(volumeColor,density + 0.6f));
+        
+        if (density > threshold) {
+            outputColor = BlendUnder(outputColor, vec4(density, density, density, density * opacity * stepSize * 100.0f));
+            if(outputColor.a >= 0.99f)
+                break;
+        }
 
         offset += stepSize;
-        counter++;
     }
     
 }

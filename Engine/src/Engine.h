@@ -17,9 +17,13 @@
 #include "OpenGL/Shader.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexBuffer.h"
-#include "OpenGL/Texture.h"
 #include "OpenGL/FrameBuffer.h"
 #include "OpenGL/OpenGLUtility.h"
+
+#include "OpenGL/Texture1D.h"
+#include "OpenGL/Texture2D.h"
+#include "OpenGL/Texture3D.h"
+
 
 //Scene system
 #include "Scene/Scene.h"

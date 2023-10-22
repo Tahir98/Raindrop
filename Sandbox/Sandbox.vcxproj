@@ -137,6 +137,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scenes\ExampleScene.h" />
+    <ClInclude Include="Scenes\TextureTest.h" />
     <ClInclude Include="Scenes\VolumeRendering.h" />
   </ItemGroup>
   <ItemGroup>

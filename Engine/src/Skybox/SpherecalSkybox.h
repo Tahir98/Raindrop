@@ -3,7 +3,7 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/Shader.h"
-#include "OpenGL/Texture.h"
+#include "OpenGL/Texture2D.h"
 #include "Camera/PerspectiveCamera.h"
 
 namespace Engine {
@@ -14,14 +14,14 @@ namespace Engine {
 		VertexArray va;
 		IndexBuffer* ib = nullptr;
 		Shader* shader = nullptr;
-		Texture* hdri = nullptr;
+		Texture2D* hdri = nullptr;
 
 		std::vector<glm::vec3> vertices;
 		std::vector<uint32_t> indices;
 
 		uint32_t indexCount = -1;
 
-		uint32_t segment = 20;
+		uint32_t segment = 10;
 		glm::vec3 rotationAngles;
 		glm::mat4 rotationMatrix;
 	public:
@@ -67,11 +67,11 @@ namespace Engine {
 			va.PushElement(vb, 3, Engine::VertexArray::FLOAT, false);
 			va.PushElement(vb, 3, Engine::VertexArray::FLOAT, false);
 
-			ib = new Engine::IndexBuffer(indices.data(), sizeof(uint32_t)  * indices.size(), GL_STATIC_DRAW);
+			ib = new Engine::IndexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
 
 			shader = new Engine::Shader("Shaders/skybox.shader");
 
-			hdri = new Engine::Texture(filePath);
+			hdri = new Engine::Texture2D(filePath);
 
 			indexCount = indices.size();
 
@@ -100,7 +100,7 @@ namespace Engine {
 			ib->bind();
 			shader->bind();
 			hdri->bind();
-			hdri->SetActiveTextureSlot(0);
+			hdri->setActiveTextureSlot(0);
 
 			shader->SetUniform2ui("texSize", hdri->getWidth(), hdri->getHeight());
 			shader->SetUniform1i("hdriTex", 0);

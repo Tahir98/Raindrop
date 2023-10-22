@@ -2,4 +2,4 @@
 #include "PerlinNoise3D.h"
 
 
-Xorshift Engine::PerlinNoise3D::xorshift;
+Xorshift64 Engine::PerlinNoise3D::xorshift;

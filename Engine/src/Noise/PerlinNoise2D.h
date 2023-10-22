@@ -25,13 +25,13 @@ namespace Engine {
 				return (a1 - a0) * w + a0;
 				break;
 			case 1:
-				return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
+				return (a1 - a0) * (3.0f - w * 2.0f) * w * w + a0;
 				break;
 			case 2:
-				return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
+				return (a1 - a0) * ((w * (w * 6.0f - 15.0f) + 10.0f) * w * w * w) + a0;
 				break;
 			default:
-				return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
+				return (a1 - a0) * ((w * (w * 6.0 - 15.0f) + 10.0f) * w * w * w) + a0;
 				break;
 			}
 
@@ -54,9 +54,9 @@ namespace Engine {
 
 		static float value(float x, float z, int smoothness) {
 			int x0 = (int)x;
-			int x1 = x + 1;
+			int x1 = (int)(x + 1);
 			int z0 = (int)z;
-			int z1 = z0 + 1;
+			int z1 = (int)(z0 + 1);
 
 			float sx = x - (float)x0;
 			float sz = z - (float)z0;
