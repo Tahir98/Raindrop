@@ -73,7 +73,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win64|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -93,7 +93,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win64|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
@@ -117,7 +117,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist Win64|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Dependencies\GLFW\include;..\Dependencies\GLAD\include;..\Dependencies\spdlog\include;..\Dependencies\GLM;..\Dependencies\STB;vendor\ImGui;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
@@ -164,7 +164,6 @@
     <ClInclude Include="src\OpenGL\OpenGLUtility.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
     <ClInclude Include="src\OpenGL\Texture2D.h" />
-    <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\OpenGL\Texture1D.h" />
     <ClInclude Include="src\OpenGL\Texture3D.h" />
     <ClInclude Include="src\OpenGL\TextureUtility.h" />
@@ -183,6 +182,7 @@
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\SceneTemplate.h" />
+    <ClInclude Include="src\Skybox\CubeMapSkyBox.h" />
     <ClInclude Include="src\Skybox\SpherecalSkybox.h" />
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\Window\Window.h" />
@@ -206,7 +206,6 @@
     <ClCompile Include="src\OpenGL\FrameBuffer.cpp" />
     <ClCompile Include="src\OpenGL\IndexBuffer.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
-    <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\Texture1D.cpp" />
     <ClCompile Include="src\OpenGL\Texture2D.cpp" />
     <ClCompile Include="src\OpenGL\Texture3D.cpp" />

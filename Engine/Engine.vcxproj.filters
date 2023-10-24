@@ -87,9 +87,6 @@
     <ClInclude Include="src\OpenGL\Shader.h">
       <Filter>src\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGL\Texture.h">
-      <Filter>src\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="src\OpenGL\VertexArray.h">
       <Filter>src\OpenGL</Filter>
     </ClInclude>
@@ -161,6 +158,7 @@
     <ClInclude Include="src\OpenGL\Texture2D.h" />
     <ClInclude Include="src\OpenGL\Texture3D.h" />
     <ClInclude Include="src\OpenGL\TextureUtility.h" />
+    <ClInclude Include="src\Skybox\CubeMapSkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -176,9 +174,6 @@
       <Filter>src\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGL\Shader.cpp">
-      <Filter>src\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OpenGL\Texture.cpp">
       <Filter>src\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\OpenGL\VertexArray.cpp">

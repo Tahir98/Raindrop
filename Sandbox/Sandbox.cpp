@@ -14,7 +14,7 @@ public:
 	}
 
 	void run() override {
-		Engine::Window window("App",1600,900,false,false, true);
+		Engine::Window window("App", 1600, 900, false, false, true);
 
 		VolumeRendering scene("Example Scene", window);
 		//TextureTest scene("Texture Test", window);
