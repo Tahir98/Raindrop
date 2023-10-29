@@ -114,5 +114,7 @@ void main() {
 
         offset += stepSize;
     }
-    
+
+    if (outputColor.a < 0.001f)
+        discard;
 }

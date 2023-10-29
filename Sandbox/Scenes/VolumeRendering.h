@@ -14,13 +14,15 @@ private:
 	float camSpeed = 3.0;
 	float camSensivity = 0.075f;
 
-	Engine::SpherecalSkybox skybox;
+	//Engine::SpherecalSkybox skybox;
+	Engine::CubeMapSkybox cubemap;
 	Engine::FrameBuffer fb;
 
 	Engine::VertexBuffer* vb = nullptr;
 	Engine::VertexArray va;
 	Engine::IndexBuffer* ib = nullptr;
 	Engine::Shader* shader = nullptr;
+	Engine::OpenGLState volumeRendererState;
 
 	Engine::Texture3D* densityTex = nullptr;
 	int32_t texSize = 512;
@@ -31,7 +33,7 @@ private:
 
 	glm::mat4 model;
 
-	float stepCount = 1000;
+	float stepCount = 128;
 	float threshold = 0.5f;
 	float opacity = 0.6f;
 
@@ -43,7 +45,7 @@ private:
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100),
-		skybox("Textures/rooitou_park.jpg"), fb(800, 600), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
+		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -176,10 +178,12 @@ public:
 
 		densityTex = new Engine::Texture3D(densityArray, texSize, texSize, texSize, Engine::R32_Float);
 
-		delete densityArray;
+		delete[] densityArray;
 
 		camera.setPosition(glm::vec3(0, 0, 2));
 
+		volumeRendererState.blendingEnabled = true;
+		volumeRendererState.cullMode = Engine::CullFront;
 	}
 
 	void OnUpdate(float delta) override {
@@ -198,9 +202,7 @@ public:
 		Engine::OpenGLUtility::EnableCulling();
 		Engine::OpenGLUtility::EnableDepthTest();
 
-
-		Engine::OpenGLUtility::SetCullMode(Engine::CullBack);
-		skybox.draw(camera);
+		cubemap.draw(camera);
 
 		////////////////////////////////////////////////
 
@@ -230,10 +232,11 @@ public:
 		shader->SetUniform3f("boundMax", bound.max);
 		shader->SetUniform1f("threshold", threshold);
 		shader->SetUniform1f("opacity", opacity);
+
+		Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		////////////////////////////////////////////////
-
 		fb.unbind();
 
 		//Frame buffer to screen via ImGui

@@ -21,6 +21,16 @@ namespace Engine {
 		SRC_ALPHA_SATURATE = 14
 	};
 
+	struct OpenGLState {
+		bool cullingEnabled = true;
+		CullMode cullMode = CullFront;
+		bool depthTestEnabled = true;
+		DepthMode depthMode = LEQUAL;
+		bool blendingEnabled = false;
+		BlendFunction blendSource = SRC_ALPHA;
+		BlendFunction blendDestination = ONE_MINUS_SRC_ALPHA;
+	};
+
 	class OpenGLUtility {
 	public:
 		static void EnableBlend(bool setActive = true) {
@@ -91,6 +101,16 @@ namespace Engine {
 
 		static void SetBlendFunction(BlendFunction source, BlendFunction destination) {
 			glBlendFunc(GetOpenGLBlendFunctionValue(source), GetOpenGLBlendFunctionValue(destination));
+		}
+
+		static void SetOpenGLState(OpenGLState state) {
+			EnableCulling(state.cullingEnabled);
+			EnableDepthTest(state.depthTestEnabled);
+			EnableBlend(state.blendingEnabled);
+
+			SetCullMode(state.cullMode);
+			SetDepthMode(state.depthMode);
+			SetBlendFunction(state.blendSource, state.blendDestination);
 		}
 
 		static GLenum GetOpenGLBlendFunctionValue(BlendFunction function) {
