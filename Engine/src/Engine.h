@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "Log.h"
 
+//Event Classes
 #include "Input/InputHandler.h"
 #include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
@@ -19,7 +20,6 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/FrameBuffer.h"
 #include "OpenGL/OpenGLUtility.h"
-
 #include "OpenGL/Texture1D.h"
 #include "OpenGL/Texture2D.h"
 #include "OpenGL/Texture3D.h"
@@ -35,11 +35,12 @@
 
 //Skybox
 #include "Skybox/SpherecalSkybox.h"
+#include "Skybox/CubeMapSkybox.h"
 
 //ImGui
 #include "imgui.h"
 
-//Random
+//Random Number Generators
 #include "Random/AddWithCarry.h"
 #include "Random/LaggedFibonacciGenerator.h"
 #include "Random/LaggedFibonacciGenerator64.h"
@@ -49,7 +50,7 @@
 #include "Random/Xorshift.h"
 #include "Random/Xorshift64.h"
 
-//Noise
+//Noise Generators
 #include "Noise/PerlinNoise2D.h"
 #include "Noise/PerlinNoise3D.h"
 

@@ -13,6 +13,7 @@ void main() {
 
 	vec3 pos = mat3(view) * vPos;
 	gl_Position = projection * vec4(pos, 1.0f);
+	gl_Position.z = gl_Position.w;
 }
 
 
@@ -25,5 +26,5 @@ uniform samplerCube cubemap;
 out vec4 outputColor;
 
 void main() {
-	outputColor = texture(cubeMap, texCoord);
+	outputColor = texture(cubemap, texCoord );
 }
