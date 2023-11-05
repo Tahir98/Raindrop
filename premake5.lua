@@ -16,16 +16,20 @@ project "Engine"
         "Dependencies/spdlog/include",
         "Dependencies/GLM",
         "Dependencies/STB",
+        "Dependencies/Assimp/include",
         "Engine/vendor/ImGui",
         "Engine/src"
     }
 
     libdirs { 
-        "Dependencies/GLFW/lib-vc2022"
+        "Dependencies/GLFW/lib-vc2022",
+        "Dependencies/Assimp/lib"
     }
 
     links {
-        "glfw3.lib"
+        "glfw3.lib",
+        "assimp-vc143-mt.lib",
+        "zlibstatic.lib"
     }
 
     files { "%{prj.name}/**.h", "%{prj.name}/**.c", "%{prj.name}/**.hpp", "%{prj.name}/**.cpp" }
@@ -63,17 +67,22 @@ project "Sandbox"
         "Dependencies/spdlog/include",
         "Dependencies/STB",
         "Dependencies/GLM",
+        "Dependencies/Assimp/include",
         "Engine",
         "Engine/src",
         "Engine/vendor/ImGui"
     }
 
     libdirs { 
-        "Dependencies/GLFW/lib-vc2022"
+        "Dependencies/GLFW/lib-vc2022",
+        "Dependencies/Assimp/lib"
     }
     
     links {
-        "Engine", "glfw3.lib"
+        "Engine", 
+        "glfw3.lib",
+        "assimp-vc143-mt.lib",
+        "zlibstatic.lib"
     }
 
     files { "%{prj.name}/**.h", "%{prj.name}/**.c", "%{prj.name}/**.hpp", "%{prj.name}/**.cpp"}

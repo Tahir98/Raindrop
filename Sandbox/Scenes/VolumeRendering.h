@@ -43,6 +43,9 @@ private:
 	float frameTimeLimit = 0.120f; //ms
 	bool vsync = false;
 
+	DirectionalLight light;
+	Engine::Model* plane = nullptr;
+
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100),
 		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
@@ -184,6 +187,8 @@ public:
 
 		volumeRendererState.blendingEnabled = true;
 		volumeRendererState.cullMode = Engine::CullFront;
+
+		plane = new Engine::Model("Models/Su-25/Su-25.obj");
 	}
 
 	void OnUpdate(float delta) override {
@@ -235,6 +240,8 @@ public:
 
 		Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		plane->draw(camera, light);
 
 		////////////////////////////////////////////////
 		fb.unbind();
