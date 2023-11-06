@@ -8,7 +8,7 @@ namespace Engine {
 
 	class Model {
 	private:
-		std::vector<Mesh> meshes;
+		std::vector<Mesh*> meshes;
 		std::string filePath;
 
 		std::vector<TextureDef> loadedTextures;
@@ -20,7 +20,7 @@ namespace Engine {
 	private:
 		void loadModel(std::string path);
 		void processNode(aiNode* node, const aiScene* scene);
-		Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+		Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<TextureDef> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 	};
 

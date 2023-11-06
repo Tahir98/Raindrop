@@ -185,10 +185,10 @@ public:
 
 		camera.setPosition(glm::vec3(0, 0, 2));
 
-		volumeRendererState.blendingEnabled = true;
-		volumeRendererState.cullMode = Engine::CullFront;
+		//volumeRendererState.blendingEnabled = true;
+		//volumeRendererState.cullMode = Engine::CullFront;
 
-		plane = new Engine::Model("Models/Su-25/Su-25.obj");
+		plane = new Engine::Model("Models/sponza/Sponza.gltf");
 	}
 
 	void OnUpdate(float delta) override {
@@ -201,47 +201,47 @@ public:
 		fb.bind();
 		fb.clear();
 
-		Engine::OpenGLUtility::EnableBlend();
-		Engine::OpenGLUtility::SetBlendFunction(Engine::SRC_ALPHA, Engine::ONE_MINUS_SRC_ALPHA);
-
-		Engine::OpenGLUtility::EnableCulling();
-		Engine::OpenGLUtility::EnableDepthTest();
-
+		//Engine::OpenGLUtility::EnableBlend();
+		//Engine::OpenGLUtility::SetBlendFunction(Engine::SRC_ALPHA, Engine::ONE_MINUS_SRC_ALPHA);
+		//
+		//Engine::OpenGLUtility::EnableCulling();
+		//Engine::OpenGLUtility::EnableDepthTest();
+		//
 		cubemap.draw(camera);
+		//
+		//////////////////////////////////////////////////
+		//
+		//model = glm::mat4(1.0f);
+		//
+		//Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
+		//
+		//shader->bind();
+		//va.bind();
+		//ib->bind();
+		//densityTex->bind();
+		//densityTex->setActiveTextureSlot(0);
+		//
+		//shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
+		//shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
+		//shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
+		//
+		////shader->SetUniform1i("screenWidth", window.getWindowProperties().width);
+		////shader->SetUniform1i("screenHeight", window.getWindowProperties().height);
+		//
+		////shader->SetUniform3i("texSize", texSize, texSize, texSize);
+		//shader->SetUniform3f("cameraPos", camera.getPosition());
+		//shader->SetUniform1i("densityTex", 0);
+		//
+		//shader->SetUniform1f("stepSize", 1.0f / (float)stepCount);
+		//shader->SetUniform3f("boundMin", bound.min);
+		//shader->SetUniform3f("boundMax", bound.max);
+		//shader->SetUniform1f("threshold", threshold);
+		//shader->SetUniform1f("opacity", opacity);
+		//
+		////Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
+		////glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		////////////////////////////////////////////////
-
-		model = glm::mat4(1.0f);
-
-		Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
-
-		shader->bind();
-		va.bind();
-		ib->bind();
-		densityTex->bind();
-		densityTex->setActiveTextureSlot(0);
-
-		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
-		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
-		shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
-
-		//shader->SetUniform1i("screenWidth", window.getWindowProperties().width);
-		//shader->SetUniform1i("screenHeight", window.getWindowProperties().height);
-
-		//shader->SetUniform3i("texSize", texSize, texSize, texSize);
-		shader->SetUniform3f("cameraPos", camera.getPosition());
-		shader->SetUniform1i("densityTex", 0);
-
-		shader->SetUniform1f("stepSize", 1.0f / (float)stepCount);
-		shader->SetUniform3f("boundMin", bound.min);
-		shader->SetUniform3f("boundMax", bound.max);
-		shader->SetUniform1f("threshold", threshold);
-		shader->SetUniform1f("opacity", opacity);
-
-		Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-		plane->draw(camera, light);
+		//plane->draw(camera, light);
 
 		////////////////////////////////////////////////
 		fb.unbind();

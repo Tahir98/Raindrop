@@ -1,9 +1,8 @@
 #vertex shader
 #version 460 core
-
-layout(location = 0) in ve3 vpos;
-layout(location = 1) in ve3 vnormal;
-layout(location = 2) in ve2 vtexcoord;
+layout(location = 0) in vec3 vpos;
+layout(location = 1) in vec3 vnormal;
+layout(location = 2) in vec2 vtexcoord;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -22,7 +21,7 @@ void main() {
 }
 
 #fragment shader
-
+#version 460 core
 struct Material {
 	vec3 ambient;
 	vec3 diffuse;
@@ -63,7 +62,7 @@ void main() {
 	vec3 viewDirection = normalize(position - cameraPos);
 	vec3 reflectionDirection = reflect(light.direction, Normal);
 
-	float cosAngle = clamp(dot(viewDirection * -1.0f, reflectionDirection), 0, 1);
+	cosAngle = clamp(dot(viewDirection * -1.0f, reflectionDirection), 0, 1);
 	vec3 specular = material.specular * pow(cosAngle, material.shininess);
 
 	vec4 texColor = texture(diffuseTex, texcoord);

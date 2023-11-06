@@ -6,11 +6,14 @@ namespace Engine {
 	}
 
 	Model::~Model() {
+		for (int i = 0; i < meshes.size(); i++) {
+			delete meshes[i];
+		}
 	}
 
 	void Model::draw(Camera& camera, DirectionalLight& light) {
 		for (int i = 0; i < meshes.size(); i++) {
-			meshes[i].draw(camera, light);
+			meshes[i]->draw(camera, light);
 		}
 	}
 
@@ -23,12 +26,13 @@ namespace Engine {
 		if (!scene) {
 			ENG_LOG_ERROR("Failed to load model, path: {0}", path);
 		}
+		else {
+			filePath = path.substr(0, path.find_last_of('/'));
 
-		filePath = path.substr(0, path.find_last_of('/'));
+			processNode(scene->mRootNode, scene);
 
-		processNode(scene->mRootNode, scene);
-
-		ENG_LOG_INFO("Model is successfully loaded, path: {0}, mesh count: {1}", path, meshes.size());
+			ENG_LOG_INFO("Model is successfully loaded, path: {0}, mesh count: {1}", path, meshes.size());
+		}
 	}
 
 	void Model::processNode(aiNode* node, const aiScene* scene) {
@@ -43,7 +47,7 @@ namespace Engine {
 		}
 	}
 
-	Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+	Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		std::vector<TextureDef> textureDefinitions;
@@ -75,7 +79,7 @@ namespace Engine {
 			loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		}
 
-		return Mesh(vertices, indices, textureDefinitions);
+		return new Mesh(vertices, indices, textureDefinitions);
 	}
 
 	std::vector<TextureDef> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {

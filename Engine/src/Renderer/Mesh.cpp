@@ -61,7 +61,7 @@ namespace Engine {
 				}
 			}
 
-			glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_BYTE, 0);
+			glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 		}
 	}
 	
@@ -155,10 +155,12 @@ namespace Engine {
 		va->PushElement(vb, 3, VertexArray::DataType::FLOAT, false);
 		va->PushElement(vb, 3, VertexArray::DataType::FLOAT, false);
 		
-		ib = new IndexBuffer(indices.data(), sizeof(uint32_t) * indices.size(), GL_STATIC_DRAW);
+		ib = new IndexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
 
 		shader = new Shader("Shaders/Model.shader");
 
+		indexCount = indices.size();
+		initialized = true;
 	}
 
 	void Mesh::UpdateMatrices() {
