@@ -17,9 +17,11 @@
 namespace Engine {
 	class Mesh {
 	private:
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-		std::vector<TextureDef> textureDefinitions;
+		bool initialized = false;
+		
+		std::vector<Vertex>* vertices;
+		std::vector<uint32_t>* indices;
+		std::vector<TextureDef>* textures;
 
 		VertexBuffer* vb = nullptr;
 		VertexArray* va = nullptr;
@@ -28,13 +30,11 @@ namespace Engine {
 
 		OpenGLState rendererState;
 
-		bool initialized = false;
-
 		uint32_t vertexCount = 0;
 		uint32_t indexCount = 0;
 
 		glm::vec3 position = glm::vec3(0, 0, 0);
-		glm::vec3 scale = glm::vec3(1, 1, 1);
+		glm::vec3 scale = glm::vec3(0.01f, 0.01f, 0.01f);
 		glm::vec3 rotation = glm::vec3(0, 0, 0);
 
 		glm::mat4x4 modelMatrix;
@@ -44,7 +44,7 @@ namespace Engine {
 
 		Material material;
 	public: 
-		Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, std::vector<TextureDef>& textureDefinitions);
+		Mesh(std::vector<Vertex>* vertices, std::vector<uint32_t>* indices, std::vector<TextureDef>* textures);
 		~Mesh();
 
 		bool IsInitialized();
@@ -74,6 +74,9 @@ namespace Engine {
 
 		Material getMaterial();
 		void setMaterial(Material material);
+
+		void setShader(Shader* shader);
+		Shader* getShader();
 
 	private:
 		void SetupMesh();

@@ -14,10 +14,7 @@ namespace Engine {
 	};
 
 	struct TextureDef {
-		uint32_t id;
-		std::string type;
-		std::string path;
+		TextureType type;
 		Texture2D* texture = nullptr;
 	};
-	
 }

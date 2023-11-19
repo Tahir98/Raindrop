@@ -1,13 +1,30 @@
 #include "Model.h"
+#include <chrono>
 
 namespace Engine {
 	Model::Model(std::string path) : filePath(path) {
+		auto startTime = std::chrono::system_clock::now();
+
+		shader = new Shader("Shaders/model.shader");
 		loadModel(path);
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setShader(shader);
+		}
+
+		auto endTime = std::chrono::system_clock::now();
+
+		auto loadingTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+		ENG_LOG_INFO("Model loading time: {0}ms", loadingTime.count());
 	}
 
 	Model::~Model() {
 		for (int i = 0; i < meshes.size(); i++) {
 			delete meshes[i];
+		}
+
+		for (int i = 0; i < textures.size(); i++) {
+			delete textures[i].texture;
 		}
 	}
 
@@ -48,10 +65,9 @@ namespace Engine {
 	}
 
 	Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene) {
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
-		std::vector<TextureDef> textureDefinitions;
-		std::vector<Texture2D> textures;
+		std::vector<Vertex>* vertices = new std::vector<Vertex>();
+		std::vector<uint32_t>* indices = new std::vector<uint32_t>(); 
+		std::vector<TextureDef>* mesh_textures = nullptr;
 
 		for (int i = 0; i < mesh->mNumVertices; i++) {
 			Vertex vertex;
@@ -63,52 +79,68 @@ namespace Engine {
 				vertex.texCoord = glm::vec3(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y, 0);
 			}
 
-			vertices.push_back(vertex);
+			vertices->push_back(vertex);
 		}
 
 		for (int i = 0; i < mesh->mNumFaces; i++) {
 			aiFace face = mesh->mFaces[i];
 
 			for (int j = 0; j < face.mNumIndices; j++) {
-				indices.push_back(face.mIndices[j]);
+				indices->push_back(face.mIndices[j]);
 			}
 		}
 
 		if (mesh->mMaterialIndex >= 0) {
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+			mesh_textures = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		}
 
-		return new Mesh(vertices, indices, textureDefinitions);
+		return new Mesh(vertices, indices, mesh_textures);
 	}
 
-	std::vector<TextureDef> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
-		std::vector<TextureDef> textures;
+	std::vector<TextureDef>* Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
+		std::vector<TextureDef>* mesh_textures = new std::vector<TextureDef>();
 
-		for (int i = 0; i < mat->GetTextureCount(type); i++) {
+		int texCount = mat->GetTextureCount(type);
+
+		for (int i = 0; i < texCount; i++) {
 			aiString str;
 			mat->GetTexture(type,i, &str);
-			//ENG_LOG_INFO("Texture path: {0}", str);
 
-			bool skip = false;
+			bool textureFound = false;
+			std::string path = filePath + "/" + std::string(str.C_Str());
 
-			for (int j = 0; j < loadedTextures.size(); j++) {
-				if (std::strcmp(loadedTextures[j].path.data(), str.C_Str()) == 0) {
-					textures.push_back(loadedTextures[j]);
-					skip = true;
-					break;
-				}
-			}
+			if (texturePaths.find(path) != texturePaths.end()) {
+				mesh_textures->push_back(textures[texturePaths[path]]);
+				textureFound = true;
+				break;
+			}	
 
-			if (!skip) {
+			if (!textureFound) {
 				TextureDef textureDef;
-				std::string fullPath = filePath + "/" + std::string(str.C_Str());
-				ENG_LOG_INFO("Texture full path: {0}",  fullPath);
-				textureDef.texture = new Texture2D(fullPath);
-			}
+				textureDef.type = getTexuteType(typeName);
 
+				TextureFilter filter = TextureFilter::BILINEAR;
+				TextureWrapper wrapMode = TextureWrapper::REPEAT;
+
+				textureDef.texture = new Texture2D(path, filter, wrapMode);
+
+				textures.push_back(textureDef);
+
+				ENG_LOG_INFO("Texture full path: {0}", path);
+				texturePaths[path] = textures.size() - 1;
+
+				mesh_textures->push_back(textureDef);
+			}
 		}
 
-		return textures;
+		return mesh_textures;
 	}
+	TextureType Model::getTexuteType(std::string typeStr) {
+		if (typeStr.compare("texture_diffuse") == 0) {
+			return TextureType::DIFFUSE;
+		}
+	}
+
+
 }

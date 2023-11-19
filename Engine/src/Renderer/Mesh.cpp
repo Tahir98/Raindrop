@@ -3,10 +3,13 @@
 
 namespace Engine {
 
-	Engine::Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, std::vector<TextureDef>& textureDefinitions) : vertices(vertices), indices(indices), textureDefinitions(textureDefinitions){
+	Engine::Mesh::Mesh(std::vector<Vertex>* vertices, std::vector<uint32_t>* indices, std::vector<TextureDef>* textures) 
+		: vertices(vertices), indices(indices), textures(textures) {
 
 		SetupMesh();
 		UpdateMatrices();
+
+		rendererState.cullMode = CullBack;
 	}
 
 	Mesh::~Mesh() {
@@ -15,14 +18,9 @@ namespace Engine {
 		delete ib;
 		delete shader;
 
-		vertices.clear();
-		vertices.shrink_to_fit();
-
-		indices.clear();
-		indices.shrink_to_fit();
-
-		textureDefinitions.clear();
-		textureDefinitions.shrink_to_fit();
+		delete vertices;
+		delete indices;
+		delete textures;
 	}
 
 	bool Mesh::IsInitialized() {
@@ -30,7 +28,7 @@ namespace Engine {
 	}
 	
 	void Mesh::draw(Camera& camera, DirectionalLight& light) {
-		if (initialized) {
+		if (initialized && shader != nullptr) {
 			OpenGLUtility::SetOpenGLState(rendererState);
 
 			va->bind();
@@ -51,11 +49,11 @@ namespace Engine {
 			shader->SetUniform4f("light.color", light.color);
 			shader->SetUniform1f("light.intensity", light.intensity);
 
-			for (int i = 0; i < textureDefinitions.size(); i++) {
-				if (textureDefinitions[i].type == "texture_diffuse") {
-					textureDefinitions[i].texture->bind();
-					textureDefinitions[i].texture->setActiveTextureSlot(0);
-
+			for (int i = 0; i < textures->size(); i++) {
+				if ((*textures)[i].type == TextureType::DIFFUSE) {
+					(*textures)[i].texture->bind();
+					(*textures)[i].texture->setActiveTextureSlot(0);
+			
 					shader->SetUniform1i("diffuseTex", 0);
 					break;
 				}
@@ -66,11 +64,11 @@ namespace Engine {
 	}
 	
 	void Mesh::deleteCPUSideData() {
-		vertices.clear();
-		vertices.shrink_to_fit();
+		vertices->clear();
+		vertices->shrink_to_fit();
 
-		indices.clear();
-		indices.shrink_to_fit();
+		indices->clear();
+		indices->shrink_to_fit();
 	}
 
 	void Mesh::setPosition(glm::vec3 position) {
@@ -147,19 +145,28 @@ namespace Engine {
 		this->material = material;
 	}
 
+	void Mesh::setShader(Shader* shader) {
+		this->shader = shader;
+	}
+
+	Shader* Mesh::getShader() {
+		return shader;
+	}
+
 	void Mesh::SetupMesh() {
-		vb = new VertexBuffer(vertices.data(), sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW);
+		vb = new VertexBuffer(vertices->data(), sizeof(Vertex) * vertices->size(), GL_STATIC_DRAW);
 		va = new VertexArray();
 
 		va->PushElement(vb, 3, VertexArray::DataType::FLOAT, false);
 		va->PushElement(vb, 3, VertexArray::DataType::FLOAT, false);
 		va->PushElement(vb, 3, VertexArray::DataType::FLOAT, false);
 		
-		ib = new IndexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
+		ib = new IndexBuffer(indices->data(), indices->size(), GL_STATIC_DRAW);
 
-		shader = new Shader("Shaders/Model.shader");
+		//shader = new Shader("Shaders/Model.shader");
 
-		indexCount = indices.size();
+		vertexCount = vertices->size();
+		indexCount = indices->size();
 		initialized = true;
 	}
 

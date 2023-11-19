@@ -185,10 +185,10 @@ public:
 
 		camera.setPosition(glm::vec3(0, 0, 2));
 
-		//volumeRendererState.blendingEnabled = true;
-		//volumeRendererState.cullMode = Engine::CullFront;
+		volumeRendererState.blendingEnabled = true;
+		volumeRendererState.cullMode = Engine::CullFront;
 
-		plane = new Engine::Model("Models/sponza/Sponza.gltf");
+		plane = new Engine::Model("Models/Su-25/Su-25.obj");
 	}
 
 	void OnUpdate(float delta) override {
@@ -201,16 +201,8 @@ public:
 		fb.bind();
 		fb.clear();
 
-		//Engine::OpenGLUtility::EnableBlend();
-		//Engine::OpenGLUtility::SetBlendFunction(Engine::SRC_ALPHA, Engine::ONE_MINUS_SRC_ALPHA);
-		//
-		//Engine::OpenGLUtility::EnableCulling();
-		//Engine::OpenGLUtility::EnableDepthTest();
-		//
 		cubemap.draw(camera);
-		//
-		//////////////////////////////////////////////////
-		//
+
 		//model = glm::mat4(1.0f);
 		//
 		//Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
@@ -241,7 +233,7 @@ public:
 		////Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
 		////glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		//plane->draw(camera, light);
+		plane->draw(camera, light);
 
 		////////////////////////////////////////////////
 		fb.unbind();

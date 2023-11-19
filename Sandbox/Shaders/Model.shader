@@ -18,6 +18,7 @@ void main() {
 	texcoord = vtexcoord;
 
 	gl_Position = projection * view * vec4(position, 1.0f);
+	//gl_Position.z = gl_Position.w;
 }
 
 #fragment shader
@@ -53,7 +54,6 @@ void main() {
 
 	//Ambient
 	vec3 ambient = material.ambient;
-
 	//Diffuse
 	float cosAngle = clamp(dot(Normal, light.direction * -1.0f), 0, 1);
 	vec3 diffuse = material.diffuse * cosAngle;
@@ -65,7 +65,9 @@ void main() {
 	cosAngle = clamp(dot(viewDirection * -1.0f, reflectionDirection), 0, 1);
 	vec3 specular = material.specular * pow(cosAngle, material.shininess);
 
-	vec4 texColor = texture(diffuseTex, texcoord);
+	vec4 texColor = texture(diffuseTex, vec2(texcoord.x, 1.0f - texcoord.y));
+	//vec4 texColor = texture(diffuseTex, texcoord);
 
 	outputColor = vec4(ambient + diffuse + specular, 1.0f) * texColor * light.color * light.intensity;
+	outputColor.a = 1;
 }
