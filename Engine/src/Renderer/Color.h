@@ -4,7 +4,7 @@
 
 typedef glm::vec4 Color;
 
-namespace PredefinedColor {
+namespace Colors {
 	static Color Red = Color(1.0f, 0.0f, 0.0f, 1.0f);
 	static Color Cyan = Color(0.0f, 1.0f, 1.0f, 1.0f);
 	static Color Blue = Color(0.0f, 0.0f, 1.0f, 1.0f);

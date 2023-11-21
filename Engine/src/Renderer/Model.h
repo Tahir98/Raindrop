@@ -22,6 +22,7 @@ namespace Engine {
 		~Model();
 
 		void draw(Camera& camera, DirectionalLight& light);
+		void setMaterial(Material material);
 	private:
 		void loadModel(std::string path);
 		void processNode(aiNode* node, const aiScene* scene);

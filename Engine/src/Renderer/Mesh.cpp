@@ -40,9 +40,10 @@ namespace Engine {
 			shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
 
 			shader->SetUniform3f("cameraPos", camera.getPosition());
-			shader->SetUniform3f("material.ambient", material.ambient);
-			shader->SetUniform3f("material.diffuse", material.diffuse);
-			shader->SetUniform3f("material.specular", material.specular);
+			shader->SetUniform4f("material.color", material.color);
+			shader->SetUniform1f("material.ambient", material.ambient);
+			shader->SetUniform1f("material.diffuse", material.diffuse);
+			shader->SetUniform1f("material.specular", material.specular);
 			shader->SetUniform1f("material.shininess", material.shininess);
 
 			shader->SetUniform3f("light.direction", light.direction);
@@ -54,7 +55,7 @@ namespace Engine {
 					(*textures)[i].texture->bind();
 					(*textures)[i].texture->setActiveTextureSlot(0);
 			
-					shader->SetUniform1i("diffuseTex", 0);
+					shader->SetUniform1i("colorTex", 0);
 					break;
 				}
 			}

@@ -34,6 +34,12 @@ namespace Engine {
 		}
 	}
 
+	void Model::setMaterial(Material material) {
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setMaterial(material);
+		}
+	}
+
 	void Model::loadModel(std::string path) {
 		Assimp::Importer importer;
 

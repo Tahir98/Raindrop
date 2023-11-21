@@ -27,6 +27,7 @@ private:
 
 	DirectionalLight light;
 	Engine::Model* sponza = nullptr;
+	Engine::Material material;
 
 public:
 	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 2000),
@@ -150,7 +151,23 @@ public:
 		ImGui::Text("Frame time: %.2fms, fps: %.2f", 1000.0f / fps, fps);
 		ImGui::NewLine();
 		ImGui::Separator();
+		ImGui::Text("Material properties");
+		ImGui::ColorEdit4("color", &material.color.x);
+		ImGui::SliderFloat("ambient", &material.ambient, 0, 1);
+		ImGui::SliderFloat("diffuse", &material.diffuse, 0, 1);
+		ImGui::SliderFloat("specular", &material.specular, 0, 1);
+		ImGui::SliderFloat("shininess", &material.shininess, 1, 250);
+
+		ImGui::Separator();
+		ImGui::NewLine();
+		ImGui::Text("Light properties");
+		ImGui::SliderFloat3("direction", &light.direction.x, -1, 1);
+		ImGui::ColorEdit4("light color", &light.color.x);
+		ImGui::SliderFloat("intensity", &light.intensity, 0, 5);
+
 		ImGui::End();
+
+		sponza->setMaterial(material);
 
 		glfwSwapInterval(vsync ? 1 : 0);
 	}
