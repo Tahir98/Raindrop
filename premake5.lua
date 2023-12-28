@@ -37,14 +37,17 @@ project "Engine"
     filter "configurations:Debug"
         defines {"DEBUG"}
         symbols "On"
+        buildoptions "/MD"
 
     filter "configurations:Release"
         defines {"RELEASE"}
         optimize "On"
+        buildoptions "/MD"
 
     filter "configurations:Dist"
         defines {"DIST"}
         optimize "On"
+        buildoptions "/MD"
 
     filter { "platforms:Win64" }
         system "Windows"
@@ -90,14 +93,17 @@ project "Sandbox"
     filter "configurations:Debug"
         defines {"DEBUG"}
         symbols "On"
+        buildoptions "/MD"
     
     filter "configurations:Release"
         defines {"RELEASE"}
         optimize "On"
+        buildoptions "/MD"
     
     filter "configurations:Dist"
         defines {"DIST"}
         optimize "On"
+        buildoptions "/MD"
     
     filter { "platforms:Win64" }
         system "Windows"
