@@ -45,6 +45,7 @@ private:
 
 	DirectionalLight light;
 	Engine::Model* plane = nullptr;
+	Engine::NoiseGenerator noiseGenerator;
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100),
@@ -100,28 +101,28 @@ public:
 		ENG_LOG_INFO("Bounds size : ({0},{1},{2})", boundSize.x, boundSize.y, boundSize.z);
 		ENG_LOG_INFO("Bounds center : ({0},{1},{2}", boundCenter.x, boundCenter.y, boundCenter.z);
 
-		Engine::PerlinNoise3DLayer layer1;
+		Engine::NoiseLayer layer1;
 		layer1.offset = glm::vec3(223.3f, 627.7f, 556.3f);
 		layer1.scale = 3.2f;
-		layer1.smoothness = 2;
+		layer1.smoothnessLevel = 2;
 
-		Engine::PerlinNoise3DLayer layer2;
+		Engine::NoiseLayer layer2;
 		layer2.offset = glm::vec3(200.3f, 623.7f, 523.3f);
 		layer2.scale = 5;
-		layer2.smoothness = 2;
+		layer2.smoothnessLevel = 2;
 
-		Engine::PerlinNoise3DLayer layer3;
+		Engine::NoiseLayer layer3;
 		layer3.offset = glm::vec3(200.3f, 623.7f, 523.3f);
 		layer3.scale = 10;
-		layer3.smoothness = 2;
+		layer3.smoothnessLevel = 2;
 
-		Engine::PerlinNoise3DLayer layer4;
+		Engine::NoiseLayer layer4;
 		layer4.offset = glm::vec3(200.3f, 623.7f, 523.3f);
 		layer4.scale = 20;
-		layer4.smoothness = 2;
+		layer4.smoothnessLevel = 2;
 
 
-		std::vector<Engine::PerlinNoise3DLayer> noiseLayers;
+		std::vector<Engine::NoiseLayer> noiseLayers;
 		noiseLayers.push_back(layer1);
 		noiseLayers.push_back(layer2);
 		noiseLayers.push_back(layer3);
@@ -135,22 +136,16 @@ public:
 			for (int x = 0; x < texSize; x++) {
 				for (int y = 0; y < texSize; y++) {
 					for (int z = 0; z < texSize; z++) {
-						float density = 0;
-
 						glm::vec3 position;
 						position.x = bound.min.x + (boundSize.x * x / (float)texSize);
 						position.y = bound.min.y + (boundSize.y * y / (float)texSize);
 						position.z = bound.min.z + (boundSize.z * z / (float)texSize);
 
 						float densityMultiplier = (bound.center() - position).length() * 2.0f;
+						
+						float density = noiseGenerator.Value(position, noiseLayers);
 
-						for (int i = 0; i < noiseLayers.size(); i++) {
-							glm::vec3 corner = (position * noiseLayers[i].scale + noiseLayers[i].offset);
-
-							density += Engine::PerlinNoise3D::value(corner.x, corner.y, corner.z, noiseLayers[i].smoothness) / (noiseLayers[i].scale * 0.5f);
-						}
-
-						densityArray[x + y * texSize + z * texSize * texSize] = density * 12.0f;
+						densityArray[x + y * texSize + z * texSize * texSize] = density * densityMultiplier;
 					}
 				}
 			}

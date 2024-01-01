@@ -56,9 +56,7 @@
 #include "Random/Xorshift64.h"
 
 //Noise Generators
-#include "Noise/PerlinNoise2D.h"
-#include "Noise/PerlinNoise3D.h"
-
+#include "Noise/NoiseGenerator.h"
 
 //Utility
 #include "Utility.h"
