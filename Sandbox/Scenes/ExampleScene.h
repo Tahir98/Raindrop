@@ -35,7 +35,8 @@ private:
 
 	Engine::FrameBuffer fb;
 public:
-	ExampleScene(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100), skybox("Textures/rooitou_park.jpg"), fb(800,600) {
+	ExampleScene(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100), skybox("Textures/rooitou_park.jpg"), 
+		fb(800,600) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -160,7 +161,7 @@ public:
 			camera.setAspectRatio((float)PanelSize.x / (float)PanelSize.y);
 		}
 
-		ImGui::Image((ImTextureID)fb.getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)fb.getColorAttachmentID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 	}
 

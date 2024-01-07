@@ -28,7 +28,7 @@
 #include "Renderer/Light.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Model.h"
-
+#include "Renderer/VolumeRenderer.h"
 
 //Scene system
 #include "Scene/Scene.h"

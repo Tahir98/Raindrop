@@ -25,7 +25,7 @@ private:
 	Engine::OpenGLState volumeRendererState;
 
 	Engine::Texture3D* densityTex = nullptr;
-	int32_t texSize = 512;
+	int32_t texSize = 128;
 	int32_t subdivision_Size = 8;
 	std::vector<glm::vec2> minmaxDensities;
 
@@ -34,7 +34,7 @@ private:
 	glm::mat4 model;
 
 	float stepCount = 128;
-	float threshold = 0.5f;
+	float threshold = 0.0f;
 	float opacity = 0.6f;
 
 	float frameTime;
@@ -49,7 +49,7 @@ private:
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100),
-		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
+		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, false), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -103,7 +103,7 @@ public:
 
 		Engine::NoiseLayer layer1;
 		layer1.offset = glm::vec3(223.3f, 627.7f, 556.3f);
-		layer1.scale = 3.2f;
+		layer1.scale = 2;
 		layer1.smoothnessLevel = 2;
 
 		Engine::NoiseLayer layer2;
@@ -124,13 +124,13 @@ public:
 
 		std::vector<Engine::NoiseLayer> noiseLayers;
 		noiseLayers.push_back(layer1);
-		noiseLayers.push_back(layer2);
-		noiseLayers.push_back(layer3);
-		noiseLayers.push_back(layer4);
+		//noiseLayers.push_back(layer2);
+		//noiseLayers.push_back(layer3);
+		//noiseLayers.push_back(layer4);
 
 		float* densityArray = nullptr;
 
-		if (!std::filesystem::exists("DensityTexture.bin")) {
+		//if (!std::filesystem::exists("DensityTexture.bin")) {
 			densityArray = new float[texSize * texSize * texSize];
 
 			for (int x = 0; x < texSize; x++) {
@@ -141,38 +141,36 @@ public:
 						position.y = bound.min.y + (boundSize.y * y / (float)texSize);
 						position.z = bound.min.z + (boundSize.z * z / (float)texSize);
 
-						float densityMultiplier = (bound.center() - position).length() * 2.0f;
-						
 						float density = noiseGenerator.Value(position, noiseLayers);
 
-						densityArray[x + y * texSize + z * texSize * texSize] = density * densityMultiplier;
+						densityArray[x + y * texSize + z * texSize * texSize] = density ;
 					}
 				}
 			}
 
-			std::fstream filewriter("DensityTexture.bin", std::ios_base::out | std::ios_base::binary);
-			filewriter.write(  (char*) & texSize, sizeof(texSize));
-			filewriter.write((char*)&texSize, sizeof(texSize));
-			filewriter.write((char*)&texSize, sizeof(texSize));
-
-
-			filewriter.write((char*)densityArray, texSize* texSize* texSize * sizeof(float));
-
-			filewriter.close();
-		}
-		else {
-			std::ifstream file("DensityTexture.bin", std::ios::in | std::ios::binary);
-
-			file.read((char*)&texSize, sizeof(float));
-			file.read((char*)&texSize, sizeof(float));
-			file.read((char*)&texSize, sizeof(float));
-
-			APP_LOG_INFO("Texsize: {0}", texSize);
-
-			densityArray = new float[texSize * texSize * texSize];
-
-			file.read((char*) densityArray, sizeof(float) * texSize * texSize * texSize);
-		}
+		//	std::fstream filewriter("DensityTexture.bin", std::ios_base::out | std::ios_base::binary);
+		//	filewriter.write(  (char*) & texSize, sizeof(texSize));
+		//	filewriter.write((char*)&texSize, sizeof(texSize));
+		//	filewriter.write((char*)&texSize, sizeof(texSize));
+		//
+		//
+		//	filewriter.write((char*)densityArray, texSize* texSize* texSize * sizeof(float));
+		//
+		//	filewriter.close();
+		//}
+		//else {
+		//	std::ifstream file("DensityTexture.bin", std::ios::in | std::ios::binary);
+		//
+		//	file.read((char*)&texSize, sizeof(float));
+		//	file.read((char*)&texSize, sizeof(float));
+		//	file.read((char*)&texSize, sizeof(float));
+		//
+		//	APP_LOG_INFO("Texsize: {0}", texSize);
+		//
+		//	densityArray = new float[texSize * texSize * texSize];
+		//
+		//	file.read((char*) densityArray, sizeof(float) * texSize * texSize * texSize);
+		//}
 
 		densityTex = new Engine::Texture3D(densityArray, texSize, texSize, texSize, Engine::R32_Float);
 
@@ -198,35 +196,36 @@ public:
 
 		cubemap.draw(camera);
 
-		//model = glm::mat4(1.0f);
-		//
-		//Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
-		//
-		//shader->bind();
-		//va.bind();
-		//ib->bind();
-		//densityTex->bind();
-		//densityTex->setActiveTextureSlot(0);
-		//
-		//shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
-		//shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
-		//shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
-		//
-		////shader->SetUniform1i("screenWidth", window.getWindowProperties().width);
-		////shader->SetUniform1i("screenHeight", window.getWindowProperties().height);
-		//
-		////shader->SetUniform3i("texSize", texSize, texSize, texSize);
-		//shader->SetUniform3f("cameraPos", camera.getPosition());
-		//shader->SetUniform1i("densityTex", 0);
-		//
-		//shader->SetUniform1f("stepSize", 1.0f / (float)stepCount);
-		//shader->SetUniform3f("boundMin", bound.min);
-		//shader->SetUniform3f("boundMax", bound.max);
-		//shader->SetUniform1f("threshold", threshold);
-		//shader->SetUniform1f("opacity", opacity);
-		//
-		////Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
-		////glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		model = glm::mat4(1.0f);
+		
+		Engine::OpenGLUtility::SetCullMode(Engine::CullFront);
+		
+		shader->bind();
+		va.bind();
+		ib->bind();
+		densityTex->bind();
+		densityTex->setActiveTextureSlot(0);
+		
+		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(model));
+		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
+		shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(camera.getProjectionMatrix()));
+		
+		//shader->SetUniform1i("screenWidth", window.getWindowProperties().width);
+		//shader->SetUniform1i("screenHeight", window.getWindowProperties().height);
+		
+		//shader->SetUniform3i("texSize", texSize, texSize, texSize);
+		shader->SetUniform3f("cameraPos", camera.getPosition());
+		shader->SetUniform1i("densityTex", 0);
+		
+		shader->SetUniform1f("stepSize", 1.0f / (float)stepCount);
+		shader->SetUniform3f("boundMin", bound.min);
+		shader->SetUniform3f("boundMax", bound.max);
+		shader->SetUniform1f("minDensity", threshold);
+		shader->SetUniform1f("alphaThreshold", 0.98f);
+		shader->SetUniform1f("opacity", opacity);
+		
+		Engine::OpenGLUtility::SetOpenGLState(volumeRendererState);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		plane->draw(camera, light);
 
@@ -245,7 +244,7 @@ public:
 			camera.setAspectRatio((float)PanelSize.x / (float)PanelSize.y);
 		}
 
-		ImGui::Image((ImTextureID)fb.getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)fb.getColorAttachmentID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 
 		DrawSettingsPanel(delta);

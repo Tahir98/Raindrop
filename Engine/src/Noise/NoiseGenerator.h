@@ -165,7 +165,7 @@ namespace Engine {
 		float Value(glm::vec3 point, std::vector<NoiseLayer> layers) {
 			float totalNoise = 0;
 
-			for (uint8_t i = 0; layers.size(); i++) {
+			for (uint8_t i = 0;i < layers.size(); i++) {
 
 				float noise = 0;
 				glm::vec3 position = point * layers[i].scale + layers[i].offset;

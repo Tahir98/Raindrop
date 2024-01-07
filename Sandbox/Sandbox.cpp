@@ -18,6 +18,7 @@ public:
 		Engine::Window window("App", 1600, 900, false, false, true);
 	
 		ModelTest scene("Model Test", window);
+		//VolumeRendering scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);
 

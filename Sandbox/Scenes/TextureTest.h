@@ -25,7 +25,7 @@ public:
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 
-		fb = new Engine::FrameBuffer(800, 600);
+		fb = new Engine::FrameBuffer(800, 600, Engine::AttachmentType::Texture, Engine::AttachmentType::Texture, false);
 
 		std::vector<float> vertices = {
 			-1,-1,0,	0, 0,
@@ -92,7 +92,7 @@ public:
 			ImVec2 size = ImGui::GetWindowSize();
 		}
 
-		ImGui::Image((ImTextureID)fb->getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)fb->getColorAttachmentID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 	}
 

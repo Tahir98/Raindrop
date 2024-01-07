@@ -6,6 +6,7 @@
 #include "OpenGL/Texture3D.h"
 #include "OpenGL/Texture2D.h"
 #include "OpenGL/OpenGLUtility.h"
+#include "OpenGL/FrameBuffer.h"
 
 #include "Noise/NoiseGenerator.h"
 
@@ -16,7 +17,7 @@ namespace Engine {
 	private:
 		bool isInitialized = false;
 
-		glm::vec3 position = glm::vec3(0, 0, 0);
+		glm::vec3 position = glm::vec3(0, 1, 0);
 		glm::vec3 scale = glm::vec3(1, 1, 1);
 		glm::vec3 rotation = glm::vec3(0, 0, 0);
 		glm::mat4 modelMat = glm::mat4(1.0f);
@@ -28,8 +29,8 @@ namespace Engine {
 		std::vector<uint32_t> indices;
 
 		//Opengl objects
-		VertexArray* va = nullptr;
 		VertexBuffer* vb = nullptr;
+		VertexArray* va = nullptr;
 		IndexBuffer* ib = nullptr;
 		Shader* shader = nullptr;
 
@@ -39,8 +40,8 @@ namespace Engine {
 
 		uint32_t virtualTextureSize = 128;
 		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
-		glm::uvec3 volumeSize = glm::uvec3(1, 1, 1);
-		glm::uvec3 textureFitSize = glm::uvec3(1, 1, 1);
+		glm::vec3 volumeSize = glm::vec3(1, 1, 1);
+		glm::vec3 textureFitSize = glm::vec3(1, 1, 1);
 
 		//Volume data textures
 		std::vector<glm::vec2> volumeData;
@@ -50,9 +51,9 @@ namespace Engine {
 		//Rendering parameters
 		float minDensity = 0;
 		float maxDensity = 1;
-		float stepSize = 0.1f; //It determines quality
-		float opacity = 1;
-		float opacityThreshold = 0.98f; 
+		float stepSize = 0.01f; //It determines quality
+		float opacity = 0.6f;
+		float alphaThreshold = 0.98f; 
 
 		float lightMarchStepSize = 2;
 		float lightBaseIntensity = 0.2f;
@@ -73,7 +74,7 @@ namespace Engine {
 		void dispose();
 
 		void update(float delta);
-		void draw(PerspectiveCamera& camera);
+		void draw(PerspectiveCamera& camera, FrameBuffer& fb);
 
 		void setPosition(glm::vec3 position);
 		void setScale(glm::vec3 scale);

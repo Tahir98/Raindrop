@@ -28,10 +28,12 @@ private:
 	DirectionalLight light;
 	Engine::Model* sponza = nullptr;
 	Engine::Material material;
+	
+	Engine::VolumeRenderer volumeRenderer;
 
 public:
-	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 2000),
-		 cubemap("Textures/CubeMap"), fb(800, 600) {
+	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.5f, 2000),
+		 cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, false) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -42,6 +44,8 @@ public:
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 		sponza = new Engine::Model("Models/Sponza/sponza.obj");
+
+		volumeRenderer.init();
 	}
 
 	void OnUpdate(float delta) override {
@@ -57,6 +61,7 @@ public:
 		sponza->draw(camera, light);
 		cubemap.draw(camera);
 
+		volumeRenderer.draw(camera, fb);
 		////////////////////////////////////////////////
 		fb.unbind();
 
@@ -72,7 +77,7 @@ public:
 			camera.setAspectRatio((float)PanelSize.x / (float)PanelSize.y);
 		}
 
-		ImGui::Image((ImTextureID)fb.getTextureID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)fb.getColorAttachmentID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 
 		DrawSettingsPanel(delta);

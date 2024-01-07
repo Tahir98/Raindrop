@@ -17,11 +17,11 @@ namespace Engine {
 			update();
 		}
 
-		float getNearPlaneDistane() { return nearPlane; }
-		float getFarPlaneDistane() { return farPlane; }
+		float getNearPlaneDistance() { return nearPlane; }
+		float getFarPlaneDistance() { return farPlane; }
 		float getFieldOfView() { return fovy; }
 		
-		glm::vec2 getFrustom() { return glm::vec2(nearPlane, farPlane); }
+		glm::vec2 getFrustum() { return glm::vec2(nearPlane, farPlane); }
 
 		float getAspectRatio() { return aspectRatio; }
 
