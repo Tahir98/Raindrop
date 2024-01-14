@@ -111,9 +111,11 @@ void main() {
 
     vec2 rayHit = rayBoxDst(boundMin, boundMax, cameraPos, rayDirection);
 
-    vec4 depthColor = texture(depthTex, vec2(0.5f, 0.5f));
+    //vec4 depthColor = texture(depthTex, vec2(0.5f, 0.5f));
+    vec4 depthColor = texture(depthTex, vec2(0.5f, 0.5f), 0);
+
     float depth = depthColor.x;
-    depth = pow(depth, 3.0f);
+    //depth = pow(depth, 3.0f);
     outputColor = vec4(depth, depth, depth, 1);
 
     depth = linearEyeDepth(depth, zNear, zFar);

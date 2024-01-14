@@ -16,20 +16,27 @@ namespace Engine {
 		uint32_t colorRenderbufferID = 0;
 		uint32_t depthTexID = 0;
 		uint32_t depthRenderbufferID = 0;
+		uint32_t stencilTexID =  0;
+		uint32_t stencilRenderbufferID = 0;
 
 		uint32_t width, height;
 		
 		AttachmentType colorAttachmentType = AttachmentType::Texture; 
 		AttachmentType depthAttachmentType = AttachmentType::Renderbuffer;
+		AttachmentType stencilAttachmentType = AttachmentType::Renderbuffer;
 
-		bool stencilBufferExist = true;
+		bool created = false;
 
 	public:
 		FrameBuffer(const uint32_t width, const uint32_t height);
-		FrameBuffer(const uint32_t width, const uint32_t height, AttachmentType colorAttachmentType, AttachmentType depthAttachmentType, bool createStencilBuffer);
+		FrameBuffer(const uint32_t width, const uint32_t height, AttachmentType colorAttachmentType = Texture, AttachmentType depthAttachmentType = Texture,
+			AttachmentType stencilAttachmentType = Texture);
 		~FrameBuffer();
 
 		void resize(const uint32_t width, const uint32_t height);
+		
+		void release();
+		bool isCreated();
 
 		uint32_t getWidth();
 		uint32_t getHeight();
@@ -42,9 +49,8 @@ namespace Engine {
 		uint32_t& getID();
 		uint32_t& getColorAttachmentID();
 		uint32_t& getDepthAttachmentID();
+		uint32_t& getStencilAttachmentID();
 
-
-		bool hasStencilBuffer();
 
 	private:
 		void createAttachmentObjects();

@@ -25,7 +25,7 @@ public:
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 
-		fb = new Engine::FrameBuffer(800, 600, Engine::AttachmentType::Texture, Engine::AttachmentType::Texture, false);
+		fb = new Engine::FrameBuffer(800, 600, Engine::AttachmentType::Texture, Engine::AttachmentType::Texture);
 
 		std::vector<float> vertices = {
 			-1,-1,0,	0, 0,

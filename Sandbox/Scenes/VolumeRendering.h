@@ -49,7 +49,7 @@ private:
 
 public:
 	VolumeRendering(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 100),
-		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, false), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
+		/*skybox("Textures/rooitou_park.jpg")*/ cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture), bound(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f)) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 

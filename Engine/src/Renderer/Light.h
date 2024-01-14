@@ -8,7 +8,7 @@ struct DirectionalLight {
 	float intensity = 1;
 };
 
-struct PointList {
+struct PointLight {
 	glm::vec3 position;
 	float intensity;
 };
