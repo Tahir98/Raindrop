@@ -52,8 +52,8 @@ namespace Engine {
 
 			for (int i = 0; i < textures->size(); i++) {
 				if ((*textures)[i].type == TextureType::DIFFUSE) {
-					(*textures)[i].texture->bind();
 					(*textures)[i].texture->setActiveTextureSlot(0);
+					(*textures)[i].texture->bind();
 			
 					shader->SetUniform1i("colorTex", 0);
 					break;

@@ -31,6 +31,8 @@ private:
 	
 	Engine::VolumeRenderer volumeRenderer;
 
+	Engine::PostProcess* postProcess = nullptr;
+
 public:
 	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.5f, 2000),
 		 cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, Engine::Texture) {
@@ -46,6 +48,8 @@ public:
 		sponza = new Engine::Model("Models/Sponza/sponza.obj");
 
 		volumeRenderer.init();
+
+		postProcess = new Engine::PostProcess("Shaders/PostProcess.shader");
 	}
 
 	void OnUpdate(float delta) override {
@@ -58,10 +62,14 @@ public:
 		fb.bind();
 		fb.clear();
 
-		sponza->draw(camera, light);
 		cubemap.draw(camera);
+		sponza->draw(camera, light);
 
+		glFinish();
 		volumeRenderer.draw(camera, fb);
+
+		//glFinish();
+		//postProcess->draw(fb);
 		////////////////////////////////////////////////
 		fb.unbind();
 

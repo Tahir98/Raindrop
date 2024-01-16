@@ -123,14 +123,14 @@ namespace Engine {
 
 		shader->bind();
 
-		densityTex->bind();
 		densityTex->setActiveTextureSlot(0);
-
-		noiseTex->bind();
+		densityTex->bind();
+		
 		noiseTex->setActiveTextureSlot(1);
+		noiseTex->bind();
 
-		glBindTexture(GL_TEXTURE_2D, fb.getDepthAttachmentID());
 		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, fb.getDepthAttachmentID());
 
 		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(modelMat));
 		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
@@ -144,7 +144,7 @@ namespace Engine {
 		shader->SetUniform3i("texSize", textureSize);
 		shader->SetUniform3f("cameraPos", camera.getPosition());
 		shader->SetUniform1i("densityTex", 0);
-		//shader->SetUniform1i("noiseTex", 1);
+		shader->SetUniform1i("noiseTex", 1);
 		shader->SetUniform1i("depthTex",	2);
 
 		shader->SetUniform1f("stepSize", stepSize);

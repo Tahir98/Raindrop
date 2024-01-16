@@ -24,11 +24,13 @@
 #include "OpenGL/Texture2D.h"
 #include "OpenGL/Texture3D.h"
 
+//Renderer Classes
 #include "Renderer/Color.h"
 #include "Renderer/Light.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Model.h"
 #include "Renderer/VolumeRenderer.h"
+#include "Renderer/PostProcess.h"
 
 //Scene system
 #include "Scene/Scene.h"

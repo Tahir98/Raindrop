@@ -16,7 +16,8 @@ void main() {
     
 	vec4 screen_uv = projection * vec4(cameraViewDir, 1.0f);
 	
-	screenPos = screen_uv.xy / screen_uv.w;
+	screenPos = (screen_uv.xy / screen_uv.w) + 1;
+    screenPos /= 2.0f;
 	gl_Position = screen_uv;
 }
 
@@ -99,7 +100,7 @@ float sampleDensity(vec3 texCoord) {
 
 //d : deth, f : farplane, n : nearplane 
 float linearEyeDepth(float d,float n, float f) {
-    return (f * n) / (f - d * (f -n));
+    return 2 * f * n / (d * (f - n) -  (f + n));
 }
 
 void main() {
@@ -111,15 +112,12 @@ void main() {
 
     vec2 rayHit = rayBoxDst(boundMin, boundMax, cameraPos, rayDirection);
 
-    //vec4 depthColor = texture(depthTex, vec2(0.5f, 0.5f));
-    vec4 depthColor = texture(depthTex, vec2(0.5f, 0.5f), 0);
+    vec4 depthColor = texture(depthTex, screenPos);
 
     float depth = depthColor.x;
-    //depth = pow(depth, 3.0f);
-    outputColor = vec4(depth, depth, depth, 1);
-
+    
     depth = linearEyeDepth(depth, zNear, zFar);
-    float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, -1));
+    float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, 1));
     depth = depth * (1.0f / cosAngle);
 
     rayHit.y = min(depth - rayHit.x, rayHit.y);
@@ -135,7 +133,7 @@ void main() {
         density = clamp(density, 0, 1);
         
         if (density >= minDensity) {
-            //outputColor = BlendUnder(outputColor, vec4(1, 1, 1, density * opacity * stepSize * 100.0f));
+            outputColor = BlendUnder(outputColor, vec4(1, 1, 1, density * opacity * stepSize * 100.0f));
             if(outputColor.a >= alphaThreshold)
                 break;
         }
@@ -143,8 +141,10 @@ void main() {
         offset += stepSize;
     }
     
-    //if (outputColor.a < 0.001f)
-    //    discard;
-    //
-    //outputColor.rgb *=(1.0f / outputColor.a);
+    if (outputColor.a < 0.001f) {
+        outputColor = vec4(1, 0, 0,1);
+    }
+    else {
+        outputColor.rgb *=(1.0f / outputColor.a);
+    }
 }

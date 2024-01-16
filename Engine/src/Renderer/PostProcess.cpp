@@ -44,11 +44,11 @@ namespace Engine {
 		glBindTexture(GL_TEXTURE_2D, colorTexID);
 		glActiveTexture(GL_TEXTURE0);
 
-		glBindTexture(GL_TEXTURE_2D, depthTexID);
-		glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, depthTexID);
+		//glActiveTexture(GL_TEXTURE1);
 
-		shader->SetUniform1i("ColorTex", 0);
-		shader->SetUniform1i("DepthTex", 1);
+		shader->SetUniform1i("MainTex", 0);
+		//shader->SetUniform1i("DepthTex", 1);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
