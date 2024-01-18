@@ -11,7 +11,7 @@ namespace Engine {
 
 	//How to blend with total value of noise in multilayer noise use cases
 	enum LayerBlending {
-		Add = 0, Subtruct = 1, Multiply = 2, Divide = 3 
+		Add = 0, Subtract = 1, Multiply = 2, Divide = 3 
 	};
 
 	//Layer struct to generate more natural shapes in 2d and 3d textures
@@ -200,7 +200,7 @@ namespace Engine {
 			case Engine::Add:
 				newNoise = totalNoise + noise;
 				break;
-			case Engine::Subtruct:
+			case Engine::Subtract:
 				newNoise = totalNoise - noise;
 				break;
 			case Engine::Multiply:

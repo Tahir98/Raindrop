@@ -12,6 +12,8 @@
 
 #include "Camera/PerspectiveCamera.h"
 
+#include "LineRenderer.h"
+
 namespace Engine {
 	class VolumeRenderer {
 	private:
@@ -40,8 +42,8 @@ namespace Engine {
 
 		uint32_t virtualTextureSize = 128;
 		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
-		glm::vec3 volumeSize = glm::vec3(1, 1, 1);
-		glm::vec3 textureFitSize = glm::vec3(1, 1, 1);
+		glm::vec3 volumeSize = glm::vec3(10, 1, 10);
+		glm::vec3 textureFitSize = glm::vec3(10, 1, 10);
 
 		//Volume data textures
 		std::vector<glm::vec2> volumeData;
@@ -62,10 +64,12 @@ namespace Engine {
 		glm::vec3 lightDirection = glm::vec3(0, -1, 0);
 		glm::vec2 screenSize = glm::vec2(1600, 900);
 
+		LineRenderer lineRenderer;
+
 	public:
 		//Debug mode
-		bool showPropertiesWindow = false;
-		bool showBoundingBox = false;
+		bool showPropertiesWindow = true;
+		bool showBoundingBox = true;
 	public:
 		VolumeRenderer();
 		~VolumeRenderer();
@@ -121,6 +125,8 @@ namespace Engine {
 
 	private:
 		void DrawPropertiesWindow();
-		void DrawBoundingBox();
+		void DrawBoundingBox(PerspectiveCamera& camera);
+
+		void GenerateVolumeData();
 	};
 }

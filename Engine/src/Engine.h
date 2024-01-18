@@ -31,6 +31,7 @@
 #include "Renderer/Model.h"
 #include "Renderer/VolumeRenderer.h"
 #include "Renderer/PostProcess.h"
+#include "Renderer/LineRenderer.h"
 
 //Scene system
 #include "Scene/Scene.h"

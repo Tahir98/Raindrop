@@ -32,6 +32,7 @@ private:
 	Engine::VolumeRenderer volumeRenderer;
 
 	Engine::PostProcess* postProcess = nullptr;
+	Engine::LineRenderer lineRenderer;
 
 public:
 	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.5f, 2000),
@@ -50,6 +51,9 @@ public:
 		volumeRenderer.init();
 
 		postProcess = new Engine::PostProcess("Shaders/PostProcess.shader");
+		lineRenderer.setLineWidth(5);
+		lineRenderer.enableDepthTest();
+		lineRenderer.setColor(Colors::Blue);
 	}
 
 	void OnUpdate(float delta) override {
@@ -67,6 +71,8 @@ public:
 
 		glFinish();
 		volumeRenderer.draw(camera, fb);
+
+		//lineRenderer.drawBoundingBox(glm::vec3(-2,-2,-2), glm::vec3(2, 2, 2), camera);
 
 		//glFinish();
 		//postProcess->draw(fb);

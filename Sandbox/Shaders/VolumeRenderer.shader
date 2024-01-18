@@ -104,7 +104,7 @@ float linearEyeDepth(float d,float n, float f) {
 }
 
 void main() {
-    outputColor = vec4(0, 0, 0, 0.0f);
+    outputColor = vec4(0, 0, 0, 0);
     vec3 volumeColor = vec3(1, 1, 1);
     //outputColor = BlendUnder(outputColor, vec4(volumeColor, 0.5f));
 
@@ -120,7 +120,7 @@ void main() {
     float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, 1));
     depth = depth * (1.0f / cosAngle);
 
-    rayHit.y = min(depth - rayHit.x, rayHit.y);
+    //rayHit.y = min(depth - rayHit.x, rayHit.y);
 
     float offset = 0;
     vec3 position = cameraPos + rayDirection * rayHit.x;
@@ -132,8 +132,10 @@ void main() {
         float density = sampleDensity(texCoord);
         density = clamp(density, 0, 1);
         
+        float intensity = 0.2f + (position.y - boundMin.y) / (boundMax.y - boundMin.y) * 0.8f;
+
         if (density >= minDensity) {
-            outputColor = BlendUnder(outputColor, vec4(1, 1, 1, density * opacity * stepSize * 100.0f));
+            outputColor = BlendUnder(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 100.0f));
             if(outputColor.a >= alphaThreshold)
                 break;
         }
@@ -141,10 +143,10 @@ void main() {
         offset += stepSize;
     }
     
-    if (outputColor.a < 0.001f) {
-        outputColor = vec4(1, 0, 0,1);
-    }
-    else {
+    //if (outputColor.a < 0.001f) {
+    //    outputColor = vec4(1, 0, 0,1);
+    //}
+    //else {
         outputColor.rgb *=(1.0f / outputColor.a);
-    }
+    //}
 }

@@ -23,8 +23,9 @@ namespace Engine {
 	}
 
 	void VertexBuffer::SetData(const void* data, uint32_t offset, uint32_t size) {
+		bind();
 		if (size > this->size) {
-			bind();
+
 			glBufferSubData(GL_ARRAY_BUFFER, offset, this->size, data);
 
 			ENG_LOG_WARN("Data size is bigger than vertex buffer size, id: {0}", id);

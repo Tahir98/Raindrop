@@ -44,6 +44,8 @@ namespace Engine {
 
         OpenGLUtility::SetOpenGLState(rendererState2d);
 
+        glLineWidth(lineWidth);
+
         if (loop) {
             glDrawArrays(GL_LINE_LOOP, 0, points3d.size());
         }
@@ -70,6 +72,8 @@ namespace Engine {
         shader3d->SetUniform4f("color", color);
 
         OpenGLUtility::SetOpenGLState(rendererState3d);
+
+        glLineWidth(lineWidth);
 
         if (loop) {
             glDrawArrays(GL_LINE_LOOP, 0, points.size());
@@ -116,11 +120,12 @@ namespace Engine {
 
         OpenGLUtility::SetOpenGLState(rendererState3d);
 
+        glLineWidth(lineWidth);
         glDrawArrays(GL_LINES, 0, points.size());
     }
 
     void LineRenderer::setLineWidth(float width) {
-        lineWidth = glm::clamp<float>(width, 0, 100);
+        lineWidth = glm::clamp<float>(width, 1, 100);
     }
     void LineRenderer::setColor(Color color) {
         this->color = color;
