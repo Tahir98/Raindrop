@@ -27,6 +27,7 @@ private:
 
 	DirectionalLight light;
 	Engine::Model* sponza = nullptr;
+	Engine::Model* pist = nullptr;
 	Engine::Material material;
 	
 	Engine::VolumeRenderer volumeRenderer;
@@ -35,7 +36,7 @@ private:
 	Engine::LineRenderer lineRenderer;
 
 public:
-	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.5f, 2000),
+	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 2000),
 		 cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, Engine::Texture) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
@@ -46,7 +47,8 @@ public:
 
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
-		sponza = new Engine::Model("Models/Sponza/sponza.obj");
+		//sponza = new Engine::Model("Models/Sponza/sponza.obj");
+		pist = new Engine::Model("Models/Pist/nogaro.obj");
 
 		volumeRenderer.init();
 
@@ -62,12 +64,14 @@ public:
 		inputControl(delta);
 
 		camera.update();
+		volumeRenderer.update(delta);
 
 		fb.bind();
 		fb.clear();
 
 		cubemap.draw(camera);
-		sponza->draw(camera, light);
+		//sponza->draw(camera, light);
+		pist->draw(camera, light);
 
 		glFinish();
 		volumeRenderer.draw(camera, fb);
@@ -163,6 +167,7 @@ public:
 
 			frameCounter = 0;
 			frameTime = 0;
+
 		}
 
 		ImGui::Begin("Setting");
@@ -185,8 +190,9 @@ public:
 		ImGui::SliderFloat("intensity", &light.intensity, 0, 5);
 
 		ImGui::End();
-
-		sponza->setMaterial(material);
+		
+		//sponza->setMaterial(material);
+		pist->setMaterial(material);
 
 		glfwSwapInterval(vsync ? 1 : 0);
 	}

@@ -19,7 +19,7 @@ namespace Engine {
 	private:
 		bool isInitialized = false;
 
-		glm::vec3 position = glm::vec3(0, 1, 0);
+		glm::vec3 position = glm::vec3(0, 20, 0);
 		glm::vec3 scale = glm::vec3(1, 1, 1);
 		glm::vec3 rotation = glm::vec3(0, 0, 0);
 		glm::mat4 modelMat = glm::mat4(1.0f);
@@ -40,26 +40,29 @@ namespace Engine {
 		std::vector<NoiseLayer> noiseLayers;
 		NoiseGenerator noiseGenerator;
 
-		uint32_t virtualTextureSize = 128;
+		uint32_t virtualTextureSize = 256;
 		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
-		glm::vec3 volumeSize = glm::vec3(10, 1, 10);
-		glm::vec3 textureFitSize = glm::vec3(10, 1, 10);
+		glm::vec3 volumeSize = glm::vec3(100, 25, 100);
+		glm::vec3 textureFitSize = glm::vec3(100, 25, 100);
 
 		//Volume data textures
-		std::vector<glm::vec2> volumeData;
+		std::vector<float> volumeData;
 		Texture3D* densityTex = nullptr; // It holds volumetric density and light intensity data
 		Texture2D* noiseTex = nullptr; //For stochastic jittering
 
 		//Rendering parameters
 		float minDensity = 0;
 		float maxDensity = 1;
-		float stepSize = 0.01f; //It determines quality
+		float stepSize = 0.5f; //It determines quality
 		float opacity = 0.6f;
 		float alphaThreshold = 0.98f; 
 
 		float lightMarchStepSize = 2;
 		float lightBaseIntensity = 0.2f;
-		float lightAbsorptionCoefficient = 0.01f;
+		float lightAbsorptionCoefficient = 2.0f;
+
+		glm::vec3 texturePositionOffset = glm::vec3(0, 0, 0);
+		glm::vec3 animationSpeed = glm::vec3(0, 0, 0);
 
 		glm::vec3 lightDirection = glm::vec3(0, -1, 0);
 		glm::vec2 screenSize = glm::vec2(1600, 900);
@@ -128,5 +131,6 @@ namespace Engine {
 		void DrawBoundingBox(PerspectiveCamera& camera);
 
 		void GenerateVolumeData();
+		void UpdateVertexData();
 	};
 }

@@ -16,7 +16,7 @@ void main() {
     
 	vec4 screen_uv = projection * vec4(cameraViewDir, 1.0f);
 	
-	screenPos = (screen_uv.xy / screen_uv.w) + 1;
+	screenPos = (screen_uv.xy / screen_uv.w * -1.0f) + 1;
     screenPos /= 2.0f;
 	gl_Position = screen_uv;
 }
@@ -33,11 +33,10 @@ in vec3 worldPos;
 uniform int screenWidth;
 uniform int screenHeight;
 
-uniform ivec3 texSize;
 uniform vec3 cameraPos;
 
 uniform sampler3D densityTex;
-//uniform sampler2D noiseTex; //not in use for now
+uniform sampler2D noiseTex; //not in use for now
 uniform sampler2D depthTex;
 
 uniform float stepSize;
@@ -46,15 +45,23 @@ uniform vec3 boundMin;
 uniform vec3 boundMax;
 
 uniform float minDensity;
+uniform float maxDensity;
 uniform float alphaThreshold;
 uniform float opacity;
 
 uniform float zNear;
 uniform float zFar;
 
+uniform vec3 texturePositionOffset;
+
+uniform vec3 lightDirection;
+uniform float lightMarchStepSize;
+uniform float lightBaseIntensity;
+uniform float lightAbsorption;
+
 out vec4 outputColor;
 
-vec2 rayBoxDst(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir) {
+vec2 RayAABBIntersection(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir) {
     
     vec3 invRayDir = 1.0f / rayDir;
 
@@ -72,70 +79,89 @@ vec2 rayBoxDst(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir) {
 }
 
 //Blend front to back
-vec4 blendFTB(vec4 dstColor, vec4 srcColor) {
-    return dstColor + (1.0f - dstColor.w) * srcColor;
-}
-
-//Blend back to front
-vec4 blendBTF(vec4 dstColor, vec4 srcColor) {
-    return (1.0f - srcColor.w) * dstColor + srcColor;
-}
-
-vec4 BlendUnder(vec4 color, vec4 newColor)
-{
+vec4 BlendFTB(vec4 color, vec4 newColor) {
     color.rgb += (1.0 - color.a) * newColor.a * newColor.rgb;
     color.a += (1.0 - color.a) * newColor.a;
     return color;
 }
 
-vec3 calculateTexCoord(vec3 boundMin, vec3 boundMax, vec3 position) {
-    position = clamp(position, boundMin, boundMax);
-
+vec3 CalculateTexCoord(vec3 position) {
+    position += texturePositionOffset;
     return  (position - boundMin) / (boundMax - boundMin);
 }
 
-float sampleDensity(vec3 texCoord) {
-    return texture(densityTex, texCoord).x;
+float SampleDensity(vec3 texCoord) {
+    float density = texture(densityTex, texCoord + texturePositionOffset).x;
+    
+    if(density < minDensity || density > maxDensity)
+        density = 0;
+
+    return density;
 }
 
 //d : deth, f : farplane, n : nearplane 
-float linearEyeDepth(float d,float n, float f) {
-    return 2 * f * n / (d * (f - n) -  (f + n));
+float LinearEyeDepth(float d,float n, float f) {
+    d = d * 2.0f - 1.0f;
+    return 2.0f * f * n / (-d * (f - n) +  (f + n));
+}
+
+float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
+    float intensity = 1;
+
+    vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
+
+    if(rayHit.y > 0) {
+        float offset = noise * lightMarchStepSize;
+        
+        while(offset < rayHit.y) {
+            vec3 position = rayPos + rayDir * (rayHit.y - offset); 
+
+            vec3 texCoord = CalculateTexCoord(position);
+            float density = SampleDensity(texCoord) * opacity;
+            intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -1.0f);
+
+            if(intensity < 0.01f)
+                break;
+
+            offset += lightMarchStepSize;
+        }
+    }
+
+    return lightBaseIntensity + intensity * ( 1.0f - lightBaseIntensity);
 }
 
 void main() {
     outputColor = vec4(0, 0, 0, 0);
-    vec3 volumeColor = vec3(1, 1, 1);
-    //outputColor = BlendUnder(outputColor, vec4(volumeColor, 0.5f));
 
     vec3 rayDirection = normalize(worldPos - cameraPos);
+    vec2 rayHit = RayAABBIntersection(boundMin, boundMax, cameraPos, rayDirection);
 
-    vec2 rayHit = rayBoxDst(boundMin, boundMax, cameraPos, rayDirection);
+    //Calculate actual depth to limit ray end point
+    vec2 screen_uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
+    float depth = texture(depthTex, screen_uv).r;
 
-    vec4 depthColor = texture(depthTex, screenPos);
-
-    float depth = depthColor.x;
-    
-    depth = linearEyeDepth(depth, zNear, zFar);
-    float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, 1));
+    depth = LinearEyeDepth(depth, zNear, zFar);
+    float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, -1));
     depth = depth * (1.0f / cosAngle);
 
-    //rayHit.y = min(depth - rayHit.x, rayHit.y);
-
+    rayHit.y = min(depth - rayHit.x, rayHit.y);
+    
     float offset = 0;
+    float noise = texture(noiseTex, screen_uv * 64).r;
+    offset += noise * stepSize;
     vec3 position = cameraPos + rayDirection * rayHit.x;
 
     while (offset < rayHit.y ) {
         position = cameraPos + rayDirection * (rayHit.x + offset);
-        vec3 texCoord = calculateTexCoord(boundMin, boundMax, position);
+        vec3 texCoord = CalculateTexCoord(position);
         
-        float density = sampleDensity(texCoord);
+        float density = SampleDensity(texCoord);
         density = clamp(density, 0, 1);
         
-        float intensity = 0.2f + (position.y - boundMin.y) / (boundMax.y - boundMin.y) * 0.8f;
+        float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
 
         if (density >= minDensity) {
-            outputColor = BlendUnder(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 100.0f));
+            outputColor = BlendFTB(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 5));
             if(outputColor.a >= alphaThreshold)
                 break;
         }
@@ -143,10 +169,6 @@ void main() {
         offset += stepSize;
     }
     
-    //if (outputColor.a < 0.001f) {
-    //    outputColor = vec4(1, 0, 0,1);
-    //}
-    //else {
-        outputColor.rgb *=(1.0f / outputColor.a);
-    //}
+     outputColor.rgb *= (1.0f / outputColor.a);
+     outputColor.a /= alphaThreshold; 
 }

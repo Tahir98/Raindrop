@@ -136,7 +136,7 @@ namespace Engine {
 				}
 			}
 
-			return 1.0f - (interpolate(0, 1, minDistance - 0.5f, smoothnessLevel) + 0.5f);
+			return 1.0f - (interpolate(0, 1, minDistance, 1));
 		}
 
 		float Value(glm::vec3 point, NoiseLayer layer) {
@@ -208,7 +208,7 @@ namespace Engine {
 				break;
 			case Engine::Divide:
 				if(noise != 0)
-					newNoise = totalNoise + noise;
+					newNoise = totalNoise / noise;
 				break;
 			default:
 				newNoise = totalNoise + noise;

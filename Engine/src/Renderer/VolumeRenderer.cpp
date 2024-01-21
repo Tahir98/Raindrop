@@ -1,6 +1,7 @@
 #include "VolumeRenderer.h"
 #include "Input/InputHandler.h"
 #include "imgui.h"
+#include <execution>
 
 namespace Engine {
 	VolumeRenderer::VolumeRenderer() {
@@ -23,8 +24,6 @@ namespace Engine {
 	}
 
 	bool VolumeRenderer::init() {
-		vertices.clear();
-
 		vertices = {
 			glm::vec3(0,0,0),
 			glm::vec3(0,1,0),
@@ -96,6 +95,7 @@ namespace Engine {
 	}
 
 	void VolumeRenderer::update(float delta) {
+		texturePositionOffset += (animationSpeed * delta * 0.01f);
 	}
 
 	void VolumeRenderer::draw(PerspectiveCamera& camera, FrameBuffer& fb) {
@@ -127,25 +127,32 @@ namespace Engine {
 		glm::mat4 projection = camera.getProjectionMatrix();
 		shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(projection));
 
-		shader->SetUniform1i("screenWidth", screenSize.x);
-		shader->SetUniform1i("screenHeight", screenSize.y);
+		shader->SetUniform1i("screenWidth", fb.getWidth());
+		shader->SetUniform1i("screenHeight", fb.getHeight());
 
-		shader->SetUniform3i("texSize", textureSize);
 		shader->SetUniform3f("cameraPos", camera.getPosition());
 		shader->SetUniform1i("densityTex", 0);
 		shader->SetUniform1i("noiseTex", 1);
-		shader->SetUniform1i("depthTex",	2);
+		shader->SetUniform1i("depthTex", 2);
 
 		shader->SetUniform1f("stepSize", stepSize);
 		shader->SetUniform3f("boundMin", position - volumeSize / 2.0f);
 		shader->SetUniform3f("boundMax", position + volumeSize / 2.0f);
 
-		shader->SetUniform1f("alphaThreshold", alphaThreshold);
 		shader->SetUniform1f("minDensity", minDensity);
+		shader->SetUniform1f("maxDensity", maxDensity);
+		shader->SetUniform1f("alphaThreshold", alphaThreshold);
 		shader->SetUniform1f("opacity", opacity);
 		
 		shader->SetUniform1f("zNear", camera.getNearPlaneDistance());
 		shader->SetUniform1f("zFar", camera.getFarPlaneDistance());
+
+		shader->SetUniform3f("texturePositionOffset", texturePositionOffset);
+
+		shader->SetUniform3f("lightDirection", lightDirection);
+		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
+		shader->SetUniform1f("lightBaseIntensity", lightBaseIntensity);
+		shader->SetUniform1f("lightAbsorption", lightAbsorptionCoefficient);
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -290,21 +297,31 @@ namespace Engine {
 	void VolumeRenderer::DrawPropertiesWindow() {
 		ImGui::Begin("Volume Renderer");
 		ImGui::Checkbox("Show Bounding Box", &showBoundingBox);
+		ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f);
 		//ImGui::Checkbox("Show Properties Window", &showPropertiesWindow);
+		ImGui::InputInt("Virtual Texture Size", (int*) & virtualTextureSize);
+		ImGui::DragFloat3("Volume Size", glm::value_ptr(volumeSize),0.1f, 0, 2000);
+		ImGui::DragFloat3("Animation Speed", glm::value_ptr(animationSpeed), 0.01f, -100, 100);
+		ImGui::Text("Position Offset (%.1f,%.1f,%.1f)", texturePositionOffset.x, texturePositionOffset.y, texturePositionOffset.z);
+		if (ImGui::Button("Reset Offset")) {
+			texturePositionOffset = glm::vec3(0, 0, 0);
+		}
+
 		ImGui::Separator();
 		
 		ImGui::NewLine();
 		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
 		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
-		ImGui::DragFloat("Step Size", &stepSize, 0.001f, 0.001f, 50);
+		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.001f, 50);
 		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
 		ImGui::SliderFloat("Alpha Threshold", &alphaThreshold, 0, 1);
 		ImGui::Separator();
 
 		ImGui::NewLine();
+		ImGui::SliderFloat3("Light Direction", glm::value_ptr(lightDirection), -1, 1);
 		ImGui::DragFloat("Light March Step Size", &lightMarchStepSize, 0.01f, 0.001f, 50);
 		ImGui::SliderFloat("Light Base Intensity", &lightBaseIntensity, 0, 1);
-		ImGui::DragFloat("Light Absorption", &lightAbsorptionCoefficient, 0.01, 0, 10);
+		ImGui::DragFloat("Light Absorption", &lightAbsorptionCoefficient, 0.01f, 0, 10);
 		ImGui::Separator();
 
 		ImGui::NewLine();
@@ -412,19 +429,15 @@ namespace Engine {
 
 	void VolumeRenderer::GenerateVolumeData() {
 		uint32_t voxelCount = virtualTextureSize * virtualTextureSize * virtualTextureSize;
-		float fVoxelCount = textureFitSize.x * textureFitSize.y * textureFitSize.z;
+		float fVoxelCount = volumeSize.x * volumeSize.y * volumeSize.z;
 		float tSize = glm::pow(fVoxelCount, 1.0f / 3.0f);
 
-		textureSize.x = (uint32_t)(virtualTextureSize * textureFitSize.x / tSize);
-		textureSize.y = (uint32_t)(virtualTextureSize * textureFitSize.y / tSize);
-		textureSize.z = (uint32_t)(virtualTextureSize * textureFitSize.z / tSize);
+		textureSize.x = (uint32_t)(virtualTextureSize * volumeSize.x / tSize);
+		textureSize.y = (uint32_t)(virtualTextureSize * volumeSize.y / tSize);
+		textureSize.z = (uint32_t)(virtualTextureSize * volumeSize.z / tSize);
 		ENG_LOG_INFO("Volume renderer texture size ({0}, {1}, {2})", textureSize.x, textureSize.y, textureSize.z);
 
-		volumeData.clear();
-		if (densityTex != nullptr) {
-			delete densityTex;
-			densityTex = nullptr;
-		}
+
 
 		std::vector<NoiseLayer> layers;
 		for (int i = 0; i < noiseLayers.size(); i++) {
@@ -432,17 +445,70 @@ namespace Engine {
 			layers[i].scale /= virtualTextureSize;
 		}
 
-		for (int z = 0; z < textureSize.z; z++) {
-			for (int y = 0; y < textureSize.y; y++) {
-				for (int x = 0; x < textureSize.x; x++) {
-					glm::vec3 point(x, y, z);
-					float noise = noiseGenerator.Value(point, layers);
+		volumeData.clear();
+		volumeData.reserve(textureSize.x * textureSize.y * textureSize.z);
+		//volumeData.shrink_to_fit();
 
-					volumeData.push_back(glm::vec2(noise, 1));
+		glm::uvec3 texSize = textureSize;
+		float* data_ptr = volumeData.data();
+
+		std::vector<int> iterator;
+		for (int i = 0; i < texSize.z; i++)
+			iterator.push_back(i);
+
+		//for (int z = 0; z < textureSize.z; z++) {
+		std::for_each(std::execution::par, iterator.begin(), iterator.end(), [texSize, data_ptr, layers](int z) {
+			NoiseGenerator noiseGen;
+			for (int y = 0; y < texSize.y; y++) {
+				for (int x = 0; x < texSize.x; x++) {
+					glm::vec3 point(x, y, z);
+					float noise = noiseGen.Value(point, layers);
+
+					data_ptr[z * texSize.x * texSize.y + y * texSize.x + x] = noise;
 				}
 			}
+		});
+		
+
+		//for (int z = 0; z < textureSize.z; z++) {
+		//	for (int y = 0; y < textureSize.y; y++) {
+		//		for (int x = 0; x < textureSize.x; x++) {
+		//			glm::vec3 point(x, y, z);
+		//			float noise = noiseGenerator.Value(point, layers);
+		//
+		//			volumeData.push_back(glm::vec2(noise, 1));
+		//		}
+		//	}
+		//}
+
+		if (densityTex != nullptr) {
+			delete densityTex;
+			densityTex = nullptr;
+		}
+		densityTex = new Texture3D(volumeData.data(), textureSize.x, textureSize.y, textureSize.z, TextureFormat::R32_Float, TRILINEAR, TextureWrapper::MIRROR);
+	
+		UpdateVertexData();
+	}
+
+	void VolumeRenderer::UpdateVertexData() {
+		vertices.clear();
+
+		vertices = {
+			glm::vec3(0,0,0),
+			glm::vec3(0,1,0),
+			glm::vec3(1,1,0),
+			glm::vec3(1,0,0),
+			glm::vec3(1,0,1),
+			glm::vec3(1,1,1),
+			glm::vec3(0,1,1),
+			glm::vec3(0,0,1)
+		};
+
+		for (int i = 0; i < vertices.size(); i++) {
+			vertices[i] += glm::vec3(-0.5f, -0.5f, -0.5f);
+			vertices[i] *= volumeSize;
 		}
 
-		densityTex = new Texture3D(volumeData.data(), textureSize.x, textureSize.y, textureSize.z, TextureFormat::RG32_Float, TRILINEAR, TextureWrapper::MIRROR);
+		vb->SetData(vertices.data(), 0, sizeof(glm::vec3) * vertices.size());
 	}
 }
