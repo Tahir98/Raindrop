@@ -95,7 +95,9 @@ namespace Engine {
 	}
 
 	void VolumeRenderer::update(float delta) {
-		texturePositionOffset += (animationSpeed * delta * 0.01f);
+		ENG_LOG_INFO("Delta time: {0}", delta);
+
+		texturePositionOffset += (animationSpeed * delta);
 	}
 
 	void VolumeRenderer::draw(PerspectiveCamera& camera, FrameBuffer& fb) {
@@ -153,6 +155,9 @@ namespace Engine {
 		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
 		shader->SetUniform1f("lightBaseIntensity", lightBaseIntensity);
 		shader->SetUniform1f("lightAbsorption", lightAbsorptionCoefficient);
+
+		shader->SetUniform1f("falloffDistanceH", falloffDistanceHorizontal);
+		shader->SetUniform1f("falloffDistanceV", falloffDistanceVertical);
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -312,7 +317,7 @@ namespace Engine {
 		ImGui::NewLine();
 		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
 		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
-		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.001f, 50);
+		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.01f, 50);
 		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
 		ImGui::SliderFloat("Alpha Threshold", &alphaThreshold, 0, 1);
 		ImGui::Separator();
@@ -322,6 +327,10 @@ namespace Engine {
 		ImGui::DragFloat("Light March Step Size", &lightMarchStepSize, 0.01f, 0.001f, 50);
 		ImGui::SliderFloat("Light Base Intensity", &lightBaseIntensity, 0, 1);
 		ImGui::DragFloat("Light Absorption", &lightAbsorptionCoefficient, 0.01f, 0, 10);
+		
+		ImGui::DragFloat("Falloff Distance Vertical", &falloffDistanceVertical, 0.1, 0, 100);
+		ImGui::DragFloat("Falloff Distance Horizontal", &falloffDistanceHorizontal, 0.1, 0, 100);
+
 		ImGui::Separator();
 
 		ImGui::NewLine();

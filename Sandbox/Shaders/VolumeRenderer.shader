@@ -59,6 +59,9 @@ uniform float lightMarchStepSize;
 uniform float lightBaseIntensity;
 uniform float lightAbsorption;
 
+uniform float falloffDistanceH;
+uniform float falloffDistanceV;
+
 out vec4 outputColor;
 
 vec2 RayAABBIntersection(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir) {
@@ -90,11 +93,26 @@ vec3 CalculateTexCoord(vec3 position) {
     return  (position - boundMin) / (boundMax - boundMin);
 }
 
-float SampleDensity(vec3 texCoord) {
-    float density = texture(densityTex, texCoord + texturePositionOffset).x;
+float SampleDensity(vec3 texCoord, vec3 position) {
+    float density = texture(densityTex, texCoord).x;
     
-    if(density < minDensity || density > maxDensity)
+    if(density < minDensity || density > maxDensity) {
         density = 0;
+    }
+    else {
+        float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
+        edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
+
+        float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
+        edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
+
+        float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
+        edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
+
+        float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
+
+        density = density * edgeWeight;
+    }
 
     return density;
 }
@@ -117,7 +135,7 @@ float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
             vec3 position = rayPos + rayDir * (rayHit.y - offset); 
 
             vec3 texCoord = CalculateTexCoord(position);
-            float density = SampleDensity(texCoord) * opacity;
+            float density = SampleDensity(texCoord, position) * opacity;
             intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -1.0f);
 
             if(intensity < 0.01f)
@@ -155,7 +173,7 @@ void main() {
         position = cameraPos + rayDirection * (rayHit.x + offset);
         vec3 texCoord = CalculateTexCoord(position);
         
-        float density = SampleDensity(texCoord);
+        float density = SampleDensity(texCoord, position);
         density = clamp(density, 0, 1);
         
         float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);

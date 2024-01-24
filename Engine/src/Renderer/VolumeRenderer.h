@@ -61,6 +61,9 @@ namespace Engine {
 		float lightBaseIntensity = 0.2f;
 		float lightAbsorptionCoefficient = 2.0f;
 
+		float falloffDistanceVertical = 2;
+		float falloffDistanceHorizontal = 10;
+
 		glm::vec3 texturePositionOffset = glm::vec3(0, 0, 0);
 		glm::vec3 animationSpeed = glm::vec3(0, 0, 0);
 
