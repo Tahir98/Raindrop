@@ -45,20 +45,29 @@ public:
 		shader = new Engine::Shader("Shaders/TextureTest.shader");
 
 		int texSize = 256;
+		
+		Engine::NoiseLayer layer;
+		layer.offset = glm::vec3(12.4334,556.32, 562.45);
+		layer.scale = 12;
+		layer.opacity = 1;
+		layer.smoothnessLevel = 2;
+		layer.type = Engine::Worley2D;
 
-		uint8_t* textureData = new uint8_t[texSize * texSize * 3];
+		std::vector<float> textureData;
 
-		for (int i = 0; i < texSize; i++) {
-			for (int j = 0; j < texSize; j++) {
-				textureData[(i * texSize + j) * 3 + 0] = (uint8_t)i;
-				textureData[(i * texSize + j) * 3 + 1] = (uint8_t)j;
-				textureData[(i * texSize + j) * 3 + 2] = (uint8_t)0;
+		Engine::NoiseGenerator generator;
+
+		for (int y = 0; y < texSize; y++) {
+			for (int x = 0; x < texSize; x++) {
+				float xCoord = layer.offset.x + x * layer.scale / texSize;
+				float yCoord = layer.offset.y + y * layer.scale / texSize;
+
+				float value = generator.Worley2D(xCoord, yCoord, 0);
+				textureData.push_back(value);
 			}
 		}
 
-		customDataTex = new Engine::Texture2D(textureData, texSize, texSize, Engine::TextureFormat::RGB8_UNORM);
-
-		delete[] textureData;
+		customDataTex = new Engine::Texture2D(textureData.data(), texSize, texSize, Engine::R32_Float, Engine::BILINEAR);
 
 		imageTex = new Engine::Texture2D("Textures/rooitou_park.jpg");
 	}
@@ -71,8 +80,8 @@ public:
 
 		va.bind();
 
-		imageTex->bind();
-		imageTex->setActiveTextureSlot(0);
+		customDataTex->setActiveTextureSlot(0);
+		customDataTex->bind();
 
 		shader->bind();
 		shader->SetUniform1i("tex", 0);

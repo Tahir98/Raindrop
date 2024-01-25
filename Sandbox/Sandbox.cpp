@@ -17,7 +17,7 @@ public:
 	void run() override {
 		Engine::Window window("App", 1600, 900, false, false, true);
 	
-		ModelTest scene("Model Test", window);
+		ModelTest scene("Texture Test", window);
 		//VolumeRendering scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);

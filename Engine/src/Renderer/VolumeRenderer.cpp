@@ -95,7 +95,7 @@ namespace Engine {
 	}
 
 	void VolumeRenderer::update(float delta) {
-		ENG_LOG_INFO("Delta time: {0}", delta);
+		//ENG_LOG_INFO("Delta time: {0}", delta);
 
 		texturePositionOffset += (animationSpeed * delta);
 	}
@@ -471,7 +471,7 @@ namespace Engine {
 			for (int y = 0; y < texSize.y; y++) {
 				for (int x = 0; x < texSize.x; x++) {
 					glm::vec3 point(x, y, z);
-					float noise = noiseGen.Value(point, layers);
+					float noise = noiseGen.Value(point, layers) - 0.5f;
 
 					data_ptr[z * texSize.x * texSize.y + y * texSize.x + x] = noise;
 				}

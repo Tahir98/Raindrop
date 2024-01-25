@@ -52,7 +52,7 @@ namespace Engine {
 
 			value = interpolate(ix0, ix1, sy, smoothnessLevel);
 
-			return value;
+			return glm::clamp<float>(value + 0.5f, 0, 1);
 		}
 
 		float Perlin3D(float x, float y, float z, int smoothnessLevel) {
@@ -91,7 +91,7 @@ namespace Engine {
 
 			value = interpolate(iy0, iy1, sz, smoothnessLevel);
 
-			return value;
+			return glm::clamp<float>(value + 0.5f, 0, 1);
 		}
 
 		float Worley2D(float x, float y, int smoothnessLevel) {
@@ -107,7 +107,7 @@ namespace Engine {
 					glm::vec2 point = glm::vec2(x0 + x1, y0 + y1) + randomPoint(x0 + x1, y0 + y1);
 					float distance = glm::length(point - origin);
 
-					if (minDistance)
+					if (minDistance > distance)
 						minDistance = distance;
 				}
 			}
@@ -130,13 +130,19 @@ namespace Engine {
 						glm::vec3 point = glm::vec3(x0 + x1, y0 + y1, z0 + z1) + randomPoint(x0 + x1, y0 + y1, z0 + z1);
 						float distance = glm::length(point - origin);
 
-						if (minDistance)
+						if (minDistance > distance)
 							minDistance = distance;
 					}
 				}
 			}
 
-			return 1.0f - (interpolate(0, 1, minDistance, 1));
+			if (smoothnessLevel == 2) {
+				return 1.0f - (interpolate(0, 1, minDistance - 0.5f, smoothnessLevel));
+			}
+			else {
+				return 1.0f - (interpolate(0, 1, minDistance, smoothnessLevel));
+			}
+
 		}
 
 		float Value(glm::vec3 point, NoiseLayer layer) {

@@ -42,8 +42,8 @@ namespace Engine {
 
 		uint32_t virtualTextureSize = 256;
 		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
-		glm::vec3 volumeSize = glm::vec3(100, 25, 100);
-		glm::vec3 textureFitSize = glm::vec3(100, 25, 100);
+		glm::vec3 volumeSize = glm::vec3(1000, 75, 1000);
+		glm::vec3 textureFitSize = glm::vec3(1000, 75, 1000);
 
 		//Volume data textures
 		std::vector<float> volumeData;
@@ -53,7 +53,7 @@ namespace Engine {
 		//Rendering parameters
 		float minDensity = 0;
 		float maxDensity = 1;
-		float stepSize = 0.5f; //It determines quality
+		float stepSize = 5.0f; //It determines quality
 		float opacity = 0.6f;
 		float alphaThreshold = 0.98f; 
 
@@ -61,8 +61,8 @@ namespace Engine {
 		float lightBaseIntensity = 0.2f;
 		float lightAbsorptionCoefficient = 2.0f;
 
-		float falloffDistanceVertical = 2;
-		float falloffDistanceHorizontal = 10;
+		float falloffDistanceVertical = 25;
+		float falloffDistanceHorizontal = 100;
 
 		glm::vec3 texturePositionOffset = glm::vec3(0, 0, 0);
 		glm::vec3 animationSpeed = glm::vec3(0, 0, 0);
