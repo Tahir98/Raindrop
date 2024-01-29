@@ -239,7 +239,7 @@ namespace Engine {
 			return GL_RED;
 		}
 
-		static uint32_t GetTextureFormatStride(TextureFormat format) {
+		static int32_t GetTextureFormatStride(TextureFormat format) {
 			switch (format)
 			{
 			case Engine::R8_UNORM:

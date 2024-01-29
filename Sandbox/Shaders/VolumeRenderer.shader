@@ -26,6 +26,7 @@ void main() {
 #fragment shader
 #version 460 core
 
+
 in vec2 screenPos;
 in vec3 cameraViewDir;
 in vec3 worldPos;
@@ -35,8 +36,10 @@ uniform int screenHeight;
 
 uniform vec3 cameraPos;
 
-uniform sampler3D densityTex;
-uniform sampler2D noiseTex; //not in use for now
+uniform sampler3D textures[20];
+uniform int textureCount;
+
+uniform sampler2D noiseTex;
 uniform sampler2D depthTex;
 
 uniform float stepSize;
@@ -52,7 +55,8 @@ uniform float opacity;
 uniform float zNear;
 uniform float zFar;
 
-uniform vec3 texturePositionOffset;
+uniform vec3 positionOffsets[20];
+uniform vec3 textureFitSizes[20];
 
 uniform vec3 lightDirection;
 uniform float lightMarchStepSize;
@@ -89,30 +93,41 @@ vec4 BlendFTB(vec4 color, vec4 newColor) {
 }
 
 vec3 CalculateTexCoord(vec3 position) {
-    position += texturePositionOffset;
+    //position += texturePositionOffset;
     return  (position - boundMin) / (boundMax - boundMin);
 }
 
-float SampleDensity(vec3 texCoord, vec3 position) {
-    float density = texture(densityTex, texCoord).x;
-    
-    if(density < minDensity || density > maxDensity) {
+float SampleDensity(vec3 position) {
+    float density = 0;
+
+    for(int i = 0; i < textureCount; i++) {
+        vec3 pos = position + positionOffsets[i];
+        vec3 texCoord = (pos - boundMin) / textureFitSizes[i];
+
+        density += texture(textures[i], texCoord).x;
+    }
+
+    if(density < minDensity || density > maxDensity)
         density = 0;
-    }
-    else {
-        float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
-        edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
 
-        float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
-        edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
+    //float density = texture(densityTex, texCoord).x;
+       
+    float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
+    edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
 
-        float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
-        edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
+    float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
+    edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
 
-        float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
+    float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
+    edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
 
-        density = density * edgeWeight;
-    }
+    float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
+
+    density = density * edgeWeight;
+
+    //if(density < minDensity || density > maxDensity) {
+    //    density = 0;
+    //}
 
     return density;
 }
@@ -134,9 +149,8 @@ float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
         while(offset < rayHit.y) {
             vec3 position = rayPos + rayDir * (rayHit.y - offset); 
 
-            vec3 texCoord = CalculateTexCoord(position);
-            float density = SampleDensity(texCoord, position) * opacity;
-            intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -1.0f);
+            float density = SampleDensity(position) * opacity;
+            intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -0.1f);
 
             if(intensity < 0.01f)
                 break;
@@ -171,15 +185,14 @@ void main() {
 
     while (offset < rayHit.y ) {
         position = cameraPos + rayDirection * (rayHit.x + offset);
-        vec3 texCoord = CalculateTexCoord(position);
-        
-        float density = SampleDensity(texCoord, position);
+
+        float density = SampleDensity(position);
         density = clamp(density, 0, 1);
         
         float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
 
-        if (density >= minDensity) {
-            outputColor = BlendFTB(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 5));
+        if (density > 0) {
+            outputColor = BlendFTB(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 0.3));
             if(outputColor.a >= alphaThreshold)
                 break;
         }

@@ -43,11 +43,12 @@ namespace Engine {
 		uint32_t virtualTextureSize = 256;
 		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
 		glm::vec3 volumeSize = glm::vec3(1000, 75, 1000);
-		glm::vec3 textureFitSize = glm::vec3(1000, 75, 1000);
 
 		//Volume data textures
-		std::vector<float> volumeData;
-		Texture3D* densityTex = nullptr; // It holds volumetric density and light intensity data
+		std::vector<Texture3D*> textures;
+		std::vector<glm::uvec3> textureSizes;
+		std::vector<glm::vec3> positionOffsets;
+		std::vector<glm::vec3> textureFitSizes;
 		Texture2D* noiseTex = nullptr; //For stochastic jittering
 
 		//Rendering parameters
@@ -64,7 +65,6 @@ namespace Engine {
 		float falloffDistanceVertical = 25;
 		float falloffDistanceHorizontal = 100;
 
-		glm::vec3 texturePositionOffset = glm::vec3(0, 0, 0);
 		glm::vec3 animationSpeed = glm::vec3(0, 0, 0);
 
 		glm::vec3 lightDirection = glm::vec3(0, -1, 0);
@@ -105,9 +105,6 @@ namespace Engine {
 		void setVolumeSize(glm::vec3 volumeSize);
 		glm::vec3 getVolumeSize();
 
-		void setTextureFitSize(glm::vec3 fitSize);
-		glm::vec3 getTextureFitSize();
-
 		void setMinDensity(float density);
 		void setMaxDensity(float density);
 		float getMinDensity();
@@ -135,5 +132,6 @@ namespace Engine {
 
 		void GenerateVolumeData();
 		void UpdateVertexData();
+		void ClearData();
 	};
 }

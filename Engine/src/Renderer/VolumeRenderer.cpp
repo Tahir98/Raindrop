@@ -19,7 +19,11 @@ namespace Engine {
 		delete ib;
 		delete shader;
 
-		delete densityTex;
+		for (int i = 0; i < textures.size(); i++)
+			delete textures[i];
+
+		textures.clear();
+
 		delete noiseTex;
 	}
 
@@ -97,7 +101,10 @@ namespace Engine {
 	void VolumeRenderer::update(float delta) {
 		//ENG_LOG_INFO("Delta time: {0}", delta);
 
-		texturePositionOffset += (animationSpeed * delta);
+
+		for (int i = 0; i < positionOffsets.size(); i++) {
+			positionOffsets[i] += (animationSpeed * delta) / glm::vec3(i + 1, i + 1, i + 1);
+		}
 	}
 
 	void VolumeRenderer::draw(PerspectiveCamera& camera, FrameBuffer& fb) {
@@ -114,13 +121,17 @@ namespace Engine {
 
 		shader->bind();
 
-		densityTex->setActiveTextureSlot(0);
-		densityTex->bind();
-		
-		noiseTex->setActiveTextureSlot(1);
+		for (int i = 0; i < textures.size(); i++) {
+			textures[i]->setActiveTextureSlot(i);
+			textures[i]->bind();
+		}
+
+		int texCount = textures.size();
+
+		noiseTex->setActiveTextureSlot(texCount);
 		noiseTex->bind();
 
-		glActiveTexture(GL_TEXTURE0 + 2);
+		glActiveTexture(GL_TEXTURE0 + texCount + 1);
 		glBindTexture(GL_TEXTURE_2D, fb.getDepthAttachmentID());
 
 		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(modelMat));
@@ -133,9 +144,14 @@ namespace Engine {
 		shader->SetUniform1i("screenHeight", fb.getHeight());
 
 		shader->SetUniform3f("cameraPos", camera.getPosition());
-		shader->SetUniform1i("densityTex", 0);
-		shader->SetUniform1i("noiseTex", 1);
-		shader->SetUniform1i("depthTex", 2);
+
+		for (int i = 0; i < texCount; i++) {
+			shader->SetUniform1i("textures[" + std::to_string(i) + "]", i);
+		}
+		shader->SetUniform1i("textureCount", textures.size());
+
+		shader->SetUniform1i("noiseTex", texCount);
+		shader->SetUniform1i("depthTex", texCount + 1);
 
 		shader->SetUniform1f("stepSize", stepSize);
 		shader->SetUniform3f("boundMin", position - volumeSize / 2.0f);
@@ -149,7 +165,8 @@ namespace Engine {
 		shader->SetUniform1f("zNear", camera.getNearPlaneDistance());
 		shader->SetUniform1f("zFar", camera.getFarPlaneDistance());
 
-		shader->SetUniform3f("texturePositionOffset", texturePositionOffset);
+		shader->SetUniformArray3f("positionOffsets", positionOffsets.size(), positionOffsets.data());
+		shader->SetUniformArray3f("textureFitSizes", textureFitSizes.size(), textureFitSizes.data());
 
 		shader->SetUniform3f("lightDirection", lightDirection);
 		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
@@ -227,14 +244,6 @@ namespace Engine {
 		return volumeSize;
 	}
 
-	void VolumeRenderer::setTextureFitSize(glm::vec3 fitSize) {
-		textureFitSize = fitSize;
-	}
-
-	glm::vec3 VolumeRenderer::getTextureFitSize() {
-		return textureFitSize;
-	}
-
 	void VolumeRenderer::setMinDensity(float density) {
 		minDensity = density;
 	}
@@ -307,9 +316,11 @@ namespace Engine {
 		ImGui::InputInt("Virtual Texture Size", (int*) & virtualTextureSize);
 		ImGui::DragFloat3("Volume Size", glm::value_ptr(volumeSize),0.1f, 0, 2000);
 		ImGui::DragFloat3("Animation Speed", glm::value_ptr(animationSpeed), 0.01f, -100, 100);
-		ImGui::Text("Position Offset (%.1f,%.1f,%.1f)", texturePositionOffset.x, texturePositionOffset.y, texturePositionOffset.z);
+		if(positionOffsets.size() > 0)
+			ImGui::Text("Position Offset (%.1f,%.1f,%.1f)", positionOffsets[0].x, positionOffsets[0].y, positionOffsets[0].z);
 		if (ImGui::Button("Reset Offset")) {
-			texturePositionOffset = glm::vec3(0, 0, 0);
+			for (int i = 0; i < positionOffsets.size(); i++)
+				positionOffsets[i] = glm::vec3(0, 0, 0);
 		}
 
 		ImGui::Separator();
@@ -445,59 +456,84 @@ namespace Engine {
 		textureSize.y = (uint32_t)(virtualTextureSize * volumeSize.y / tSize);
 		textureSize.z = (uint32_t)(virtualTextureSize * volumeSize.z / tSize);
 		ENG_LOG_INFO("Volume renderer texture size ({0}, {1}, {2})", textureSize.x, textureSize.y, textureSize.z);
+		
+		ClearData();
 
+		for (int i = 0; i < noiseLayers.size(); i++) {
+			if (i == 0) {
+				textureSizes.push_back(textureSize);
+				textureFitSizes.push_back(volumeSize);
+			}
+			else {
+				int size = virtualTextureSize / (1 << (i + 1));
+
+				textureSizes.push_back(glm::uvec3(size, size, size));
+				textureFitSizes.push_back(glm::vec3(tSize / (i + 1), tSize / (i + 1), tSize / (i + 1)));
+			}
+
+			ENG_LOG_WARN("Texture({0}) size: {1}, {2}, {3}", i, textureSizes[i].x, textureSizes[i].y, textureSizes[i].z);
+			ENG_LOG_WARN("Texture({0}) fit size: {1}, {2}, {3}", i, textureFitSizes[i].x, textureFitSizes[i].y, textureFitSizes[i].z);
+
+			positionOffsets.push_back(glm::vec3(0, 0, 0));
+		}
 
 
 		std::vector<NoiseLayer> layers;
 		for (int i = 0; i < noiseLayers.size(); i++) {
 			layers.push_back(noiseLayers[i]);
-			layers[i].scale /= virtualTextureSize;
+			layers[i].scale /= (virtualTextureSize * (i + 1));
 		}
 
-		volumeData.clear();
-		volumeData.reserve(textureSize.x * textureSize.y * textureSize.z);
-		//volumeData.shrink_to_fit();
+		for (int i = 0; i < layers.size(); i++) {
+			std::vector<float> volumeData;
+			volumeData.reserve(textureSizes[i].x * textureSizes[i].y * textureSizes[i].z);
 
-		glm::uvec3 texSize = textureSize;
-		float* data_ptr = volumeData.data();
+			glm::uvec3 texSize = textureSizes[i];
+			float* data_ptr = volumeData.data();
 
-		std::vector<int> iterator;
-		for (int i = 0; i < texSize.z; i++)
-			iterator.push_back(i);
+			std::vector<int> iterator;
+			for (int i = 0; i < texSize.z; i++)
+				iterator.push_back(i);
 
-		//for (int z = 0; z < textureSize.z; z++) {
-		std::for_each(std::execution::par, iterator.begin(), iterator.end(), [texSize, data_ptr, layers](int z) {
-			NoiseGenerator noiseGen;
-			for (int y = 0; y < texSize.y; y++) {
-				for (int x = 0; x < texSize.x; x++) {
-					glm::vec3 point(x, y, z);
-					float noise = noiseGen.Value(point, layers) - 0.5f;
+			NoiseLayer layer = layers[i];
 
-					data_ptr[z * texSize.x * texSize.y + y * texSize.x + x] = noise;
+			//for (int z = 0; z < textureSize.z; z++) {
+			std::for_each(std::execution::par, iterator.begin(), iterator.end(), [texSize, data_ptr, layer](int z) {
+				NoiseGenerator noiseGen;
+				for (int y = 0; y < texSize.y; y++) {
+					for (int x = 0; x < texSize.x; x++) {
+						glm::vec3 point(x, y, z);
+						float noise = noiseGen.Value(point, layer);
+
+						data_ptr[z * texSize.x * texSize.y + y * texSize.x + x] = glm::clamp<float>(noise, 0, 1);
+					}
 				}
-			}
-		});
-		
+			});
 
-		//for (int z = 0; z < textureSize.z; z++) {
-		//	for (int y = 0; y < textureSize.y; y++) {
-		//		for (int x = 0; x < textureSize.x; x++) {
-		//			glm::vec3 point(x, y, z);
-		//			float noise = noiseGenerator.Value(point, layers);
-		//
-		//			volumeData.push_back(glm::vec2(noise, 1));
-		//		}
-		//	}
-		//}
+			Texture3D* texture = new Texture3D(volumeData.data(), textureSizes[i].x, textureSizes[i].y, textureSizes[i].z,
+				TextureFormat::R32_Float, TRILINEAR, TextureWrapper::MIRROR);
 
-		if (densityTex != nullptr) {
-			delete densityTex;
-			densityTex = nullptr;
+			textures.push_back(texture);
+
+			ENG_LOG_WARN("Volume Renderer Texture count: {0}", textures.size());
+
+			volumeData.clear();
+			volumeData.shrink_to_fit();
 		}
-		densityTex = new Texture3D(volumeData.data(), textureSize.x, textureSize.y, textureSize.z, TextureFormat::R32_Float, TRILINEAR, TextureWrapper::MIRROR);
-	
+		
 		UpdateVertexData();
 	}
+
+	void VolumeRenderer::ClearData() {
+		for (int i = 0; i < textures.size(); i++) {
+			delete textures[i];
+		}
+
+		textures.clear();
+		textureSizes.clear();
+		textureFitSizes.clear();
+		positionOffsets.clear();
+ 	}
 
 	void VolumeRenderer::UpdateVertexData() {
 		vertices.clear();
