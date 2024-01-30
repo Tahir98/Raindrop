@@ -158,10 +158,10 @@ namespace Engine {
 				noise = Perlin3D(position.x, position.y, position.z, layer.smoothnessLevel);
 				break;
 			case NoiseType::Worley2D:
-				noise = Worley2D(position.x, position.y, layer.smoothnessLevel);
+				noise = Worley2D(position.x, position.y, 0);
 				break;
 			case NoiseType::Worley3D:
-				noise = Worley3D(position.x, position.y, position.z, layer.smoothnessLevel);
+				noise = Worley3D(position.x, position.y, position.z, 0);
 				break;
 			}
 
@@ -184,10 +184,10 @@ namespace Engine {
 					noise = Perlin3D(position.x, position.y, position.z, layers[i].smoothnessLevel);
 					break;
 				case NoiseType::Worley2D:
-					noise = Worley2D(position.x, position.y, layers[i].smoothnessLevel);
+					noise = Worley2D(position.x, position.y, 0);
 					break;
 				case NoiseType::Worley3D:
-					noise = Worley3D(position.x, position.y, position.z, layers[i].smoothnessLevel);
+					noise = Worley3D(position.x, position.y, position.z, 0);
 					break;
 				}
 

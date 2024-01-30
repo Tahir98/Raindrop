@@ -103,7 +103,7 @@ namespace Engine {
 
 
 		for (int i = 0; i < positionOffsets.size(); i++) {
-			positionOffsets[i] += (animationSpeed * delta) / glm::vec3(i + 1, i + 1, i + 1);
+			positionOffsets[i] += (animationSpeed * delta) / glm::vec3(i + 1, i + 1, i + 1) * (i % 2 == 0 ? 1.0f : - 1.0f);
 		}
 	}
 
@@ -460,16 +460,16 @@ namespace Engine {
 		ClearData();
 
 		for (int i = 0; i < noiseLayers.size(); i++) {
-			if (i == 0) {
-				textureSizes.push_back(textureSize);
-				textureFitSizes.push_back(volumeSize);
-			}
-			else {
-				int size = virtualTextureSize / (1 << (i + 1));
+			//if (i == 0) {
+			//	textureSizes.push_back(textureSize);
+			//	textureFitSizes.push_back(volumeSize);
+			//}
+			//else {
+				int size = virtualTextureSize / (1 << (i));
 
 				textureSizes.push_back(glm::uvec3(size, size, size));
 				textureFitSizes.push_back(glm::vec3(tSize / (i + 1), tSize / (i + 1), tSize / (i + 1)));
-			}
+			//}
 
 			ENG_LOG_WARN("Texture({0}) size: {1}, {2}, {3}", i, textureSizes[i].x, textureSizes[i].y, textureSizes[i].z);
 			ENG_LOG_WARN("Texture({0}) fit size: {1}, {2}, {3}", i, textureFitSizes[i].x, textureFitSizes[i].y, textureFitSizes[i].z);
@@ -485,11 +485,11 @@ namespace Engine {
 		}
 
 		for (int i = 0; i < layers.size(); i++) {
-			std::vector<float> volumeData;
-			volumeData.reserve(textureSizes[i].x * textureSizes[i].y * textureSizes[i].z);
+			std::vector<uint8_t> volumeData;
+			volumeData.reserve(textureSizes[i].x * textureSizes[i].y * textureSizes[i].z * 4);
 
 			glm::uvec3 texSize = textureSizes[i];
-			float* data_ptr = volumeData.data();
+			uint8_t* data_ptr = volumeData.data();
 
 			std::vector<int> iterator;
 			for (int i = 0; i < texSize.z; i++)
@@ -505,13 +505,13 @@ namespace Engine {
 						glm::vec3 point(x, y, z);
 						float noise = noiseGen.Value(point, layer);
 
-						data_ptr[z * texSize.x * texSize.y + y * texSize.x + x] = glm::clamp<float>(noise, 0, 1);
+						data_ptr[(z * texSize.x * texSize.y + y * texSize.x + x)] = (uint8_t)(glm::clamp<float>(noise, 0, 1) * 255);
 					}
 				}
 			});
 
 			Texture3D* texture = new Texture3D(volumeData.data(), textureSizes[i].x, textureSizes[i].y, textureSizes[i].z,
-				TextureFormat::R32_Float, TRILINEAR, TextureWrapper::MIRROR);
+				TextureFormat::R8_UNORM, TRILINEAR, TextureWrapper::MIRROR);
 
 			textures.push_back(texture);
 
