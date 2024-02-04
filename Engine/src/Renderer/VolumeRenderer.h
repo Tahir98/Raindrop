@@ -72,6 +72,8 @@ namespace Engine {
 
 		LineRenderer lineRenderer;
 
+		int splitCount = 1;
+
 	public:
 		//Debug mode
 		bool showPropertiesWindow = true;

@@ -28,17 +28,29 @@ namespace Engine {
 	}
 
 	bool VolumeRenderer::init() {
-		vertices = {
-			glm::vec3(-1,-1,0),
-			glm::vec3(1,-1,0),
-			glm::vec3(1,1,0),
-			glm::vec3(-1,1,0),
-		};
+
+		glm::vec2 origin = glm::vec2(-1, -1);
+	
+		float dist = 2.0f / splitCount;
+
+		for (int y = 0; y < splitCount + 1; y++) {
+			for (int x = 0; x < splitCount + 1; x++) {
+				vertices.push_back(glm::vec3(origin.x + dist * x, origin.y + dist * y, 0));
+			}
+		}
 
 
-		indices = {
-			0,1,2, 0,2,3,
-		};
+		for (int y = 0; y < splitCount; y++) {
+			for (int x = 0; x < splitCount; x++) {
+				indices.push_back(x + y * (splitCount + 1));
+				indices.push_back(x + 1 + (y + 1) * (splitCount + 1));
+				indices.push_back(x + 1 + y * (splitCount + 1));
+
+				indices.push_back(x + y * (splitCount + 1));
+				indices.push_back(x + (y + 1) * (splitCount + 1));
+				indices.push_back(x + 1 + (y + 1) * (splitCount + 1));
+			}
+		}
 
 		//OpenGL objects creation
 		vb = new VertexBuffer(vertices.data(), vertices.size() * sizeof(glm::vec3), GL_STATIC_DRAW);
@@ -160,7 +172,8 @@ namespace Engine {
 		shader->SetUniformMatrix4x4("_CameraToWorld", 1, false, glm::value_ptr(glm::inverse(camera.getViewMatrix())));
 		shader->SetUniformMatrix4x4("_CameraInverseProjection", 1, false, glm::value_ptr(glm::inverse(camera.getProjectionMatrix())));
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (int i = 0; i < splitCount * splitCount; i++)
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (const void*)(i * 6));
 
 		if (showPropertiesWindow) {
 			DrawPropertiesWindow();
@@ -505,7 +518,7 @@ namespace Engine {
 			volumeData.shrink_to_fit();
 		}
 		
-		UpdateVertexData();
+		//UpdateVertexData();
 	}
 
 	void VolumeRenderer::ClearData() {
