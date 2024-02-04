@@ -24,6 +24,8 @@ namespace Engine {
 		uint32_t segment = 10;
 		glm::vec3 rotationAngles;
 		glm::mat4 rotationMatrix;
+
+		OpenGLState rendererState;
 	public:
 		SpherecalSkybox(std::string filePath, glm::vec3 rotation = glm::vec3(0,0,0)) : rotationAngles(rotation){
 			for (int i = 0; i < 2 * segment + 1; i++) {
@@ -83,6 +85,10 @@ namespace Engine {
 			rotationMatrix = glm::rotate(glm::mat4(1.0f), rotationAngles.x, glm::vec3(1, 0, 0));
 			rotationMatrix = glm::rotate(rotationMatrix, rotationAngles.y, glm::vec3(0, 1, 0));
 			rotationMatrix = glm::rotate(rotationMatrix, rotationAngles.z, glm::vec3(0, 0, 1));
+
+			rendererState.depthTestEnabled = true;
+			rendererState.depthMode = DepthMode::LEQUAL;
+			rendererState.cullMode = CullBack;
 		}
 
 		~SpherecalSkybox() {
@@ -93,14 +99,14 @@ namespace Engine {
 		}
 
 		void draw(PerspectiveCamera& camera) {
-			glEnable(GL_DEPTH_TEST);
+			OpenGLUtility::SetOpenGLState(rendererState);
 
 			va.bind();
 			vb->bind();
 			ib->bind();
 			shader->bind();
-			hdri->bind();
 			hdri->setActiveTextureSlot(0);
+			hdri->bind();
 
 			shader->SetUniform2ui("texSize", hdri->getWidth(), hdri->getHeight());
 			shader->SetUniform1i("hdriTex", 0);

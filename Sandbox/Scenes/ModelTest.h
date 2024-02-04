@@ -14,8 +14,8 @@ private:
 	float camSpeed = 100.0;
 	float camSensivity = 0.125f;
 
-	//Engine::SpherecalSkybox skybox;
-	Engine::CubeMapSkybox cubemap;
+	Engine::SpherecalSkybox skybox;
+	//Engine::CubeMapSkybox cubemap;
 	Engine::FrameBuffer fb;
 
 
@@ -37,7 +37,7 @@ private:
 
 public:
 	ModelTest(std::string name, Engine::Window& window) : Scene(name, window), camera(70, 16.0f / 9.0f, 0.1f, 20000),
-		 cubemap("Textures/CubeMap"), fb(800, 600, Engine::Texture, Engine::Texture, Engine::Texture) {
+		 skybox("Textures/spruit_sunrise.jpg"), fb(800, 600, Engine::Texture, Engine::Texture, Engine::Texture) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
 	}
 
@@ -69,7 +69,7 @@ public:
 		fb.bind();
 		fb.clear();
 
-		cubemap.draw(camera);
+		skybox.draw(camera);
 		//sponza->draw(camera, light);
 		pist->draw(camera, light);
 

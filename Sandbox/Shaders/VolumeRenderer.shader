@@ -109,9 +109,9 @@ float SampleDensity(vec3 position) {
 
     if(density < minDensity || density > maxDensity)
         density = 0;
-    else {
-        density = density - minDensity;
-    }
+    //else {
+    //    density = density - minDensity;
+    //}
 
     //float density = texture(densityTex, texCoord).x;
        
@@ -192,9 +192,10 @@ void main() {
         float density = SampleDensity(position);
         density = clamp(density, 0, 1);
         
-        float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
 
         if (density > 0) {
+            float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
+            
             outputColor = BlendFTB(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 0.9));
             if(outputColor.a >= alphaThreshold)
                 break;
