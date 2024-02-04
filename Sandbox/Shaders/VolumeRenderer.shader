@@ -2,34 +2,14 @@
 #version 460 core
 layout(location = 0) in vec3 vpos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-out vec2 screenPos;
-out vec3 cameraViewDir;
-out vec3 worldPos;
-
 void main() {
-	worldPos = (model * vec4(vpos, 1.0f)).xyz;
-	cameraViewDir = (view  * vec4(worldPos, 1.0f)).xyz;
-    
-	vec4 screen_uv = projection * vec4(cameraViewDir, 1.0f);
-	
-	screenPos = (screen_uv.xy / screen_uv.w * -1.0f) + 1;
-    screenPos /= 2.0f;
-	gl_Position = screen_uv;
+	gl_Position = vec4(vpos.xy, 0, 1);
 }
 
 
 
 #fragment shader
 #version 460 core
-
-
-in vec2 screenPos;
-in vec3 cameraViewDir;
-in vec3 worldPos;
 
 uniform int screenWidth;
 uniform int screenHeight;
@@ -65,6 +45,9 @@ uniform float lightAbsorption;
 
 uniform float falloffDistanceH;
 uniform float falloffDistanceV;
+
+uniform mat4 _CameraToWorld;
+uniform mat4 _CameraInverseProjection;
 
 out vec4 outputColor;
 
@@ -165,18 +148,30 @@ float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
     return lightBaseIntensity + intensity * ( 1.0f - lightBaseIntensity);
 }
 
+vec3 GetRayDirection(vec2 uv) {
+    vec3 direction = (_CameraInverseProjection * vec4(uv * 2.0f - 1.0f, 0, 1)).xyz;
+    direction = (_CameraToWorld * vec4(direction, 0)).xyz;
+
+    return normalize(direction);
+}
+
+vec3 GetCameraViewDir(vec2 uv) {
+   return (_CameraInverseProjection * vec4(uv * 2.0f - 1.0f, 0, 1)).xyz;
+}
+
 void main() {
     outputColor = vec4(0, 0, 0, 0);
 
-    vec3 rayDirection = normalize(worldPos - cameraPos);
+    vec2 screen_uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
+
+    vec3 rayDirection = GetRayDirection(screen_uv);
     vec2 rayHit = RayAABBIntersection(boundMin, boundMax, cameraPos, rayDirection);
 
     //Calculate actual depth to limit ray end point
-    vec2 screen_uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
     float depth = texture(depthTex, screen_uv).r;
 
     depth = LinearEyeDepth(depth, zNear, zFar);
-    float cosAngle = dot(normalize(cameraViewDir), vec3(0, 0, -1));
+    float cosAngle = dot(normalize(GetCameraViewDir(screen_uv)), vec3(0, 0, -1));
     depth = depth * (1.0f / cosAngle);
 
     rayHit.y = min(depth - rayHit.x, rayHit.y);

@@ -29,28 +29,15 @@ namespace Engine {
 
 	bool VolumeRenderer::init() {
 		vertices = {
-			glm::vec3(0,0,0),
-			glm::vec3(0,1,0),
+			glm::vec3(-1,-1,0),
+			glm::vec3(1,-1,0),
 			glm::vec3(1,1,0),
-			glm::vec3(1,0,0),
-			glm::vec3(1,0,1),
-			glm::vec3(1,1,1),
-			glm::vec3(0,1,1),
-			glm::vec3(0,0,1)
+			glm::vec3(-1,1,0),
 		};
 
-		for (int i = 0; i < vertices.size(); i++) {
-			vertices[i] += glm::vec3(-0.5f, -0.5f, -0.5f);
-			vertices[i] *= volumeSize;
-		}
 
 		indices = {
 			0,1,2, 0,2,3,
-			3,2,5, 3,5,4,
-			4,5,6, 4,6,7,
-			7,6,1, 7,1,0,
-			7,0,3, 7,3,4,
-			1,6,5, 1,5,2
 		};
 
 		//OpenGL objects creation
@@ -134,12 +121,6 @@ namespace Engine {
 		glActiveTexture(GL_TEXTURE0 + texCount + 1);
 		glBindTexture(GL_TEXTURE_2D, fb.getDepthAttachmentID());
 
-		shader->SetUniformMatrix4x4("model", 1, false, glm::value_ptr(modelMat));
-		shader->SetUniformMatrix4x4("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
-
-		glm::mat4 projection = camera.getProjectionMatrix();
-		shader->SetUniformMatrix4x4("projection", 1, false, glm::value_ptr(projection));
-
 		shader->SetUniform1i("screenWidth", fb.getWidth());
 		shader->SetUniform1i("screenHeight", fb.getHeight());
 
@@ -176,7 +157,10 @@ namespace Engine {
 		shader->SetUniform1f("falloffDistanceH", falloffDistanceHorizontal);
 		shader->SetUniform1f("falloffDistanceV", falloffDistanceVertical);
 
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		shader->SetUniformMatrix4x4("_CameraToWorld", 1, false, glm::value_ptr(glm::inverse(camera.getViewMatrix())));
+		shader->SetUniformMatrix4x4("_CameraInverseProjection", 1, false, glm::value_ptr(glm::inverse(camera.getProjectionMatrix())));
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		if (showPropertiesWindow) {
 			DrawPropertiesWindow();
