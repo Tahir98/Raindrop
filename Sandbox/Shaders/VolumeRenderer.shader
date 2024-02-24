@@ -87,7 +87,12 @@ float SampleDensity(vec3 position) {
         vec3 pos = position + positionOffsets[i];
         vec3 texCoord = (pos - boundMin) / textureFitSizes[i];
 
-        density += texture(textures[i], texCoord).x;
+        float value = texture(textures[i], texCoord).x;
+
+        if(i == 0)
+            density += value;
+        else 
+            density -= value;
     }
 
     if(density < minDensity || density > maxDensity)

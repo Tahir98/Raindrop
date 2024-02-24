@@ -6,7 +6,7 @@
 namespace Engine {
 	//Current noise algorithm implementations
 	enum NoiseType {
-		Perlin2D = 0, Perlin3D = 1, Worley2D = 2, Worley3D = 3
+		Perlin2D = 0, Perlin3D = 1, Worley2D = 2, Worley3D = 3, InverseWorley2D = 4, InverseWorley3D = 5
 	};
 
 	//How to blend with total value of noise in multilayer noise use cases
@@ -23,7 +23,7 @@ namespace Engine {
 		int scale = 1;
 		float normalizedScale = 1;
 		float opacity = 1;
-		int smoothnessLevel = 2;
+		int smoothnessLevel = 1;
 	};
 
 	class NoiseGenerator {
@@ -102,7 +102,7 @@ namespace Engine {
 			return glm::clamp<float>(value + 0.5f, 0, 1);
 		}
 
-		float Worley2D(float x, float y, int smoothnessLevel) {
+		float Worley2D(float x, float y, int smoothnessLevel, bool inverse = false) {
 			glm::vec2 origin = glm::vec2(x, y);
 
 			int x0 = (int)x;
@@ -120,10 +120,15 @@ namespace Engine {
 				}
 			}
 
-			return 1.0f - (interpolate(0, 1, minDistance - 0.5f, smoothnessLevel) + 0.5f);
+			float noise = interpolate(0, 1, minDistance, smoothnessLevel);;
+
+			if (inverse)
+				noise = 1.0f - noise;
+
+			return noise;
 		}
 
-		float Worley3D(float x, float y, float z, int smoothnessLevel) {
+		float Worley3D(float x, float y, float z, int smoothnessLevel, bool inverse = false) {
 			glm::vec3 origin = glm::vec3(x, y, z);
 
 			int x0 = (int)x;
@@ -144,13 +149,12 @@ namespace Engine {
 				}
 			}
 
-			if (smoothnessLevel == 2) {
-				return 1.0f - (interpolate(0, 1, minDistance - 0.5f, smoothnessLevel));
-			}
-			else {
-				return 1.0f - (interpolate(0, 1, minDistance, smoothnessLevel));
-			}
+			float noise = interpolate(0, 1, minDistance, smoothnessLevel);
 
+			if (inverse)
+				noise = 1.0f - noise;
+
+			return noise;
 		}
 
 		float Value(glm::vec3 point, NoiseLayer layer) {
@@ -170,10 +174,16 @@ namespace Engine {
 					noise += Perlin3D(position.x, position.y, position.z, layer.smoothnessLevel) * octaveStrength;
 					break;
 				case NoiseType::Worley2D:
-					noise += Worley2D(position.x, position.y, 0) * octaveStrength;
+					noise += Worley2D(position.x, position.y, layer.smoothnessLevel, false) * octaveStrength;
 					break;
 				case NoiseType::Worley3D:
-					noise += Worley3D(position.x, position.y, position.z, 0) * octaveStrength;
+					noise += Worley3D(position.x, position.y, position.z, layer.smoothnessLevel, false) * octaveStrength;
+					break;
+				case NoiseType::InverseWorley2D:
+					noise += Worley2D(position.x, position.y, layer.smoothnessLevel, true) * octaveStrength;
+					break;
+				case NoiseType::InverseWorley3D:
+					noise += Worley3D(position.x, position.y, position.z, layer.smoothnessLevel, true) * octaveStrength;
 					break;
 				}
 
@@ -204,10 +214,16 @@ namespace Engine {
 						noise += Perlin3D(position.x, position.y, position.z, layers[i].smoothnessLevel) * octaveStrength;
 						break;
 					case NoiseType::Worley2D:
-						noise += Worley2D(position.x, position.y, 0) * octaveStrength;
+						noise += Worley2D(position.x, position.y, layers[i].smoothnessLevel, false) * octaveStrength;
 						break;
 					case NoiseType::Worley3D:
-						noise += Worley3D(position.x, position.y, position.z, 0) * octaveStrength;
+						noise += Worley3D(position.x, position.y, position.z, layers[i].smoothnessLevel, false) * octaveStrength;
+						break;
+					case NoiseType::InverseWorley2D:
+						noise += Worley2D(position.x, position.y, layers[i].smoothnessLevel, true) * octaveStrength;
+						break;
+					case NoiseType::InverseWorley3D:
+						noise += Worley3D(position.x, position.y, position.z, layers[i].smoothnessLevel, true) * octaveStrength;
 						break;
 					}
 

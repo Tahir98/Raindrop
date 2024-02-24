@@ -370,7 +370,7 @@ namespace Engine {
 			ImGui::EndCombo();
 		}
 
-		const char* noise_types[] = {"Perin", "Worley"};
+		const char* noise_types[] = {"Perin", "Worley", "Inverse Worley"};
 		int chosen_type = noiseLayers[selected_layer].type / 2;
 		const char* current_type = noise_types[chosen_type];
 
@@ -457,6 +457,8 @@ namespace Engine {
 		
 		ClearData();
 
+		float maxDimSize = fmax(fmax(volumeSize.x, volumeSize.y), volumeSize.z);
+
 		for (int i = 0; i < noiseLayers.size(); i++) {
 			//if (i == 0) {
 			//	textureSizes.push_back(textureSize);
@@ -466,7 +468,7 @@ namespace Engine {
 				int size = virtualTextureSize / (1 << (i));
 
 				textureSizes.push_back(glm::uvec3(size, size, size));
-				textureFitSizes.push_back(glm::vec3(tSize / (i + 1), tSize / (i + 1), tSize / (i + 1)));
+				textureFitSizes.push_back(glm::vec3(maxDimSize / (i + 1), maxDimSize / (i + 1), maxDimSize / (i + 1)));
 			//}
 
 			ENG_LOG_WARN("Texture({0}) size: {1}, {2}, {3}", i, textureSizes[i].x, textureSizes[i].y, textureSizes[i].z);

@@ -26,8 +26,8 @@ private:
 	bool vsync = false;
 
 	DirectionalLight light;
-	Engine::Model* sponza = nullptr;
-	Engine::Model* pist = nullptr;
+	//Engine::Model* sponza = nullptr;
+	//Engine::Model* pist = nullptr;
 	Engine::Material material;
 	
 	Engine::VolumeRenderer volumeRenderer;
@@ -48,7 +48,7 @@ public:
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
 		//sponza = new Engine::Model("Models/Sponza/sponza.obj");
-		pist = new Engine::Model("Models/Pist/nogaro.obj");
+		//pist = new Engine::Model("Models/Pist/nogaro.obj");
 
 		volumeRenderer.init();
 
@@ -71,7 +71,7 @@ public:
 
 		skybox.draw(camera);
 		//sponza->draw(camera, light);
-		pist->draw(camera, light);
+		//pist->draw(camera, light);
 
 		glFinish();
 		volumeRenderer.draw(camera, fb);
@@ -192,7 +192,7 @@ public:
 		ImGui::End();
 		
 		//sponza->setMaterial(material);
-		pist->setMaterial(material);
+		//pist->setMaterial(material);
 
 		glfwSwapInterval(vsync ? 1 : 0);
 	}
