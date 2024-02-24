@@ -19,6 +19,7 @@ namespace Engine {
 		NoiseType type = NoiseType::Perlin3D;
 		LayerBlending blend = LayerBlending::Add;
 		glm::vec3 offset = glm::vec3(10, 10, 10);
+		int octaveCount = 1;
 		int scale = 1;
 		float normalizedScale = 1;
 		float opacity = 1;
@@ -154,51 +155,66 @@ namespace Engine {
 
 		float Value(glm::vec3 point, NoiseLayer layer) {
 			float noise = 0;
+			float totalOctaveStrength = 0;
 
-			glm::vec3 position = point * (float)layer.normalizedScale + layer.offset;
+			for (int i = 0; i < layer.octaveCount; i++) {
+				float octaveStrength = 1.0f / (pow(2.0f, i + 1.0f)); //1.0, 0.5, 0.25, 0.125,...
 
-			switch (layer.type) {
-			case NoiseType::Perlin2D:
-				noise = Perlin2D(position.x, position.y, layer.smoothnessLevel);
-				break;
-			case NoiseType::Perlin3D:
-				noise = Perlin3D(position.x, position.y, position.z, layer.smoothnessLevel);
-				break;
-			case NoiseType::Worley2D:
-				noise = Worley2D(position.x, position.y, 0);
-				break;
-			case NoiseType::Worley3D:
-				noise = Worley3D(position.x, position.y, position.z, 0);
-				break;
+				glm::vec3 position = point * layer.normalizedScale / octaveStrength + layer.offset;
+
+				switch (layer.type) {
+				case NoiseType::Perlin2D:
+					noise += Perlin2D(position.x, position.y, layer.smoothnessLevel) * octaveStrength;
+					break;
+				case NoiseType::Perlin3D:
+					noise += Perlin3D(position.x, position.y, position.z, layer.smoothnessLevel) * octaveStrength;
+					break;
+				case NoiseType::Worley2D:
+					noise += Worley2D(position.x, position.y, 0) * octaveStrength;
+					break;
+				case NoiseType::Worley3D:
+					noise += Worley3D(position.x, position.y, position.z, 0) * octaveStrength;
+					break;
+				}
+
+				totalOctaveStrength += octaveStrength;
 			}
 
-			return noise * layer.opacity;
+
+			return remap(noise, 0, totalOctaveStrength, 0, 1) * layer.opacity;
 		}
 
 		float Value(glm::vec3 point, std::vector<NoiseLayer> layers) {
 			float totalNoise = 0;
 
 			for (uint8_t i = 0;i < layers.size(); i++) {
-
 				float noise = 0;
-				glm::vec3 position = point * (float)layers[i].normalizedScale + layers[i].offset;
+				float totalOctaveStrength = 0;
+				
+				for (uint8_t j = 0; j < layers[i].octaveCount; j++) {
+					float octaveStrength = 1.0f / (pow(2.0f, j + 1.0f)); //1.0, 0.5, 0.25, 0.125,...
 
-				switch (layers[i].type) {
-				case NoiseType::Perlin2D:
-					noise = Perlin2D(position.x, position.y, layers[i].smoothnessLevel);
-					break;
-				case NoiseType::Perlin3D:
-					noise = Perlin3D(position.x, position.y, position.z, layers[i].smoothnessLevel);
-					break;
-				case NoiseType::Worley2D:
-					noise = Worley2D(position.x, position.y, 0);
-					break;
-				case NoiseType::Worley3D:
-					noise = Worley3D(position.x, position.y, position.z, 0);
-					break;
+					glm::vec3 position = point * layers[i].normalizedScale / octaveStrength + layers[i].offset;
+
+					switch (layers[i].type) {
+					case NoiseType::Perlin2D:
+						noise += Perlin2D(position.x, position.y, layers[i].smoothnessLevel) * octaveStrength;
+						break;
+					case NoiseType::Perlin3D:
+						noise += Perlin3D(position.x, position.y, position.z, layers[i].smoothnessLevel) * octaveStrength;
+						break;
+					case NoiseType::Worley2D:
+						noise += Worley2D(position.x, position.y, 0) * octaveStrength;
+						break;
+					case NoiseType::Worley3D:
+						noise += Worley3D(position.x, position.y, position.z, 0) * octaveStrength;
+						break;
+					}
+
+					totalOctaveStrength += octaveStrength;
 				}
 
-				noise *= layers[i].opacity;
+				noise = remap(noise, 0, totalOctaveStrength, 0, 1) * layers[i].opacity;
 				totalNoise = BlendNoise(totalNoise, noise, layers[i].blend);
 			}
 
@@ -244,39 +260,14 @@ namespace Engine {
 		}
 
 		float dotGridGradient(int ix, int iy, float x, float y) {
-			glm::ivec2 fpos = getFrequencyBasedCoordinate(ix, iy);
-
-			uint32_t seed = (uint32_t)fpos.x;
-			seed = seed << 16;
-			seed += (uint32_t)fpos.y;
-			rng.setSeed(seed);
-			float random = rng.nextFloat();
-
-			glm::vec2 gradient;
-			gradient.x = cosf(random * glm::pi<float>()); gradient.y = sinf(random * glm::pi<float>());
+			glm::vec2 gradient = randomVector(ix, iy);
 
 			glm::vec2 distance = { x - ix , y - iy };
 			return glm::dot(gradient, distance);
 		}
 
 		float dotGridGradient(int ix, int iy, int iz, float x, float y, float z) {
-			glm::ivec3 fpos = getFrequencyBasedCoordinate(ix, iy, iz);
-
-			uint64_t seed = (uint32_t)fpos.x;
-			seed = seed << 24;
-			seed += (uint32_t)fpos.y;
-			seed = seed << 24;
-			seed += (uint32_t)fpos.z;
-
-			rng64.setSeed(seed);
-			float r1 = rng64.nextFloat();
-			float r2 = rng64.nextFloat();
-
-			glm::vec3 gradient;
-			gradient.x = cosf(glm::pi<float>() * r1 * 2.0f) * sinf(glm::pi<float>() * r2);
-			gradient.y = cosf(glm::pi<float>() * r2);
-			gradient.z = sinf(glm::pi<float>() * r1 * 2.0f) * sinf(glm::pi<float>() * r2);
-
+			glm::vec3 gradient = randomVector(ix, iy, iz);
 			glm::vec3 distance = glm::vec3(x - ix, y - iy, z - iz);
 
 			return glm::dot(gradient, distance);
@@ -330,6 +321,41 @@ namespace Engine {
 			return glm::vec3(rng64.nextFloat(), rng64.nextFloat(), rng64.nextFloat());
 		}
 
+		glm::vec2 randomVector(int x, int y) {
+			glm::ivec2 fpos = getFrequencyBasedCoordinate(x, y);
+
+			uint32_t seed = (uint32_t)fpos.x;
+			seed = seed << 16;
+			seed += (uint32_t)fpos.y;
+
+			rng.setSeed(seed);
+			
+			float random = rng.nextFloat();
+
+			return glm::vec2(cosf(random * glm::pi<float>()), sinf(random * glm::pi<float>()));
+		}
+
+		glm::vec3 randomVector(int x, int y, int z) {
+			glm::ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
+
+			uint64_t seed = (uint32_t)fpos.x;
+			seed = seed << 24;
+			seed += (uint32_t)fpos.y;
+			seed = seed << 24;
+			seed += (uint32_t)fpos.z;
+
+			rng64.setSeed(seed);
+			float r1 = rng64.nextFloat();
+			float r2 = rng64.nextFloat();
+
+			glm::vec3 nvector; //Normalized vector
+			nvector.x = cosf(glm::pi<float>() * r1 * 2.0f) * sinf(glm::pi<float>() * r2);
+			nvector.y = cosf(glm::pi<float>() * r2);
+			nvector.z = sinf(glm::pi<float>() * r1 * 2.0f) * sinf(glm::pi<float>() * r2);
+
+			return nvector;
+		}
+
 		glm::ivec2 getFrequencyBasedCoordinate(int x, int y) {
 			int fx = x, fy = y;
 
@@ -359,6 +385,10 @@ namespace Engine {
 			}
 
 			return glm::ivec3(fx, fy, fz);
+		}
+
+		float remap(float originalValue, float originalMin, float originalMax, float newMin, float newMax) {
+			return newMin + (originalValue - originalMin) / (originalMax - originalMin) * (newMax - newMin);
 		}
 	};
 }

@@ -410,6 +410,7 @@ namespace Engine {
 			ImGui::EndCombo();
 		}
 
+		ImGui::SliderInt("Octave count", &noiseLayers[selected_layer].octaveCount, 1, 6);
 		ImGui::DragFloat3("offset", glm::value_ptr(noiseLayers[selected_layer].offset), 0.01, -1000, 1000);
 		ImGui::DragInt("scale", &noiseLayers[selected_layer].scale, 0.1f, 0, 512);
 		ImGui::SliderFloat("opacity", &noiseLayers[selected_layer].opacity, -1, 1);
