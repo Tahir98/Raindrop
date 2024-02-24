@@ -19,7 +19,8 @@ namespace Engine {
 		NoiseType type = NoiseType::Perlin3D;
 		LayerBlending blend = LayerBlending::Add;
 		glm::vec3 offset = glm::vec3(10, 10, 10);
-		float scale = 1;
+		int scale = 1;
+		float normalizedScale = 1;
 		float opacity = 1;
 		int smoothnessLevel = 2;
 	};
@@ -30,12 +31,18 @@ namespace Engine {
 		Xorshift rng;
 		Xorshift64 rng64;
 
+		glm::ivec3 repeatFrequency = glm::ivec3(1, 1, 1);
+		glm::ivec3 repeatOffset = glm::ivec3(0, 0, 0);
+		bool noiseRepeatEnabled = false;
+
 	public:
 		float Perlin2D(float x, float y, int smoothnessLevel) {
-			int x0 = (int)x;
-			int x1 = (int)(x + 1);
-			int y0 = (int)y;
-			int y1 = (int)(y0 + 1);
+			int x0, y0, x1, y1;
+			
+			x0 = (int)x;
+			x1 = (int)(x + 1);
+			y0 = (int)y;
+			y1 = (int)(y0 + 1);
 
 			float sx = x - (float)x0;
 			float sy = y - (float)y0;
@@ -148,7 +155,7 @@ namespace Engine {
 		float Value(glm::vec3 point, NoiseLayer layer) {
 			float noise = 0;
 
-			glm::vec3 position = point * layer.scale + layer.offset;
+			glm::vec3 position = point * (float)layer.normalizedScale + layer.offset;
 
 			switch (layer.type) {
 			case NoiseType::Perlin2D:
@@ -174,7 +181,7 @@ namespace Engine {
 			for (uint8_t i = 0;i < layers.size(); i++) {
 
 				float noise = 0;
-				glm::vec3 position = point * layers[i].scale + layers[i].offset;
+				glm::vec3 position = point * (float)layers[i].normalizedScale + layers[i].offset;
 
 				switch (layers[i].type) {
 				case NoiseType::Perlin2D:
@@ -196,6 +203,18 @@ namespace Engine {
 			}
 
 			return totalNoise;
+		}
+
+		void EnableNoiseRepeat(bool enable) {
+			noiseRepeatEnabled = enable;
+		}
+
+		void SetNoiseRepeatFrequency(glm::ivec3 repeatFrequency) {
+			this->repeatFrequency = repeatFrequency;
+		}
+
+		void SetNoiseRepeatOffset(glm::ivec3 repeatOffset) {
+			this->repeatOffset = repeatOffset;
 		}
 
 	private:
@@ -225,9 +244,11 @@ namespace Engine {
 		}
 
 		float dotGridGradient(int ix, int iy, float x, float y) {
-			uint32_t seed = (uint32_t)ix;
+			glm::ivec2 fpos = getFrequencyBasedCoordinate(ix, iy);
+
+			uint32_t seed = (uint32_t)fpos.x;
 			seed = seed << 16;
-			seed += (uint32_t)iy;
+			seed += (uint32_t)fpos.y;
 			rng.setSeed(seed);
 			float random = rng.nextFloat();
 
@@ -239,11 +260,13 @@ namespace Engine {
 		}
 
 		float dotGridGradient(int ix, int iy, int iz, float x, float y, float z) {
-			uint64_t seed = (uint32_t)ix;
+			glm::ivec3 fpos = getFrequencyBasedCoordinate(ix, iy, iz);
+
+			uint64_t seed = (uint32_t)fpos.x;
 			seed = seed << 24;
-			seed += (uint32_t)iy;
+			seed += (uint32_t)fpos.y;
 			seed = seed << 24;
-			seed += (uint32_t)iz;
+			seed += (uint32_t)fpos.z;
 
 			rng64.setSeed(seed);
 			float r1 = rng64.nextFloat();
@@ -282,9 +305,11 @@ namespace Engine {
 		}
 
 		glm::vec2 randomPoint(int x, int y) {
-			uint32_t seed = x;
+			glm::ivec2 fpos = getFrequencyBasedCoordinate(x, y);
+
+			uint32_t seed = (uint32_t)fpos.x;
 			seed = seed << 16;
-			seed += y;
+			seed += (uint32_t)fpos.y;
 
 			rng.setSeed(seed);
 
@@ -292,15 +317,48 @@ namespace Engine {
 		}
 
 		glm::vec3 randomPoint(int x, int y, int z) {
-			uint64_t seed = (uint32_t)x;
+			glm::ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
+
+			uint64_t seed = (uint32_t)fpos.x;
 			seed = seed << 24;
-			seed += (uint32_t)y;
+			seed += (uint32_t)fpos.y;
 			seed = seed << 24;
-			seed += (uint32_t)z;
+			seed += (uint32_t)fpos.z;
 
 			rng64.setSeed(seed);
 
 			return glm::vec3(rng64.nextFloat(), rng64.nextFloat(), rng64.nextFloat());
+		}
+
+		glm::ivec2 getFrequencyBasedCoordinate(int x, int y) {
+			int fx = x, fy = y;
+
+			if (noiseRepeatEnabled) {
+				int intPart = (int)(x / repeatFrequency.x);
+				fx = x - intPart * repeatFrequency.x + repeatOffset.x;
+
+				intPart = (int)(y / repeatFrequency.y);
+				fy = y - intPart * repeatFrequency.y + repeatOffset.y;
+			}
+
+			return glm::ivec2(fx, fy);
+		}
+
+		glm::ivec3 getFrequencyBasedCoordinate(int x, int y, int z) {
+			int fx = x, fy = y, fz = z;
+
+			if (noiseRepeatEnabled) {
+				int intPart = (int)(x / repeatFrequency.x);
+				fx = x - intPart * repeatFrequency.x + repeatOffset.x;
+
+				intPart = (int)(y / repeatFrequency.y);
+				fy = y - intPart * repeatFrequency.y + repeatOffset.y;
+
+				intPart = (int)(z / repeatFrequency.z);
+				fz = z - intPart * repeatFrequency.z + repeatOffset.z;
+			}
+
+			return glm::ivec3(fx, fy, fz);
 		}
 	};
 }

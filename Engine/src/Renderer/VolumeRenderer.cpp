@@ -325,7 +325,7 @@ namespace Engine {
 		ImGui::NewLine();
 		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
 		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
-		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.01f, 50);
+		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.1f, 50);
 		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
 		ImGui::SliderFloat("Alpha Threshold", &alphaThreshold, 0, 1);
 		ImGui::Separator();
@@ -406,12 +406,12 @@ namespace Engine {
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
 			}
-
+			 
 			ImGui::EndCombo();
 		}
 
 		ImGui::DragFloat3("offset", glm::value_ptr(noiseLayers[selected_layer].offset), 0.01, -1000, 1000);
-		ImGui::DragFloat("scale", &noiseLayers[selected_layer].scale, 0.01f, 0, 512);
+		ImGui::DragInt("scale", &noiseLayers[selected_layer].scale, 0.1f, 0, 512);
 		ImGui::SliderFloat("opacity", &noiseLayers[selected_layer].opacity, -1, 1);
 
 		if (ImGui::Button("Add Layer")) {
@@ -478,7 +478,7 @@ namespace Engine {
 		std::vector<NoiseLayer> layers;
 		for (int i = 0; i < noiseLayers.size(); i++) {
 			layers.push_back(noiseLayers[i]);
-			layers[i].scale /= (virtualTextureSize * (i + 1));
+			layers[i].normalizedScale = (float)layers[i].scale / (textureSizes[i].x);
 		}
 
 		for (int i = 0; i < layers.size(); i++) {
@@ -497,6 +497,9 @@ namespace Engine {
 			//for (int z = 0; z < textureSize.z; z++) {
 			std::for_each(std::execution::par, iterator.begin(), iterator.end(), [texSize, data_ptr, layer](int z) {
 				NoiseGenerator noiseGen;
+				noiseGen.EnableNoiseRepeat(true);
+				noiseGen.SetNoiseRepeatFrequency(glm::vec3(layer.scale, layer.scale, layer.scale));
+				noiseGen.SetNoiseRepeatOffset(layer.offset);
 				for (int y = 0; y < texSize.y; y++) {
 					for (int x = 0; x < texSize.x; x++) {
 						glm::vec3 point(x, y, z);
@@ -508,7 +511,7 @@ namespace Engine {
 			});
 
 			Texture3D* texture = new Texture3D(volumeData.data(), textureSizes[i].x, textureSizes[i].y, textureSizes[i].z,
-				TextureFormat::R8_UNORM, TRILINEAR, TextureWrapper::MIRROR);
+				TextureFormat::R8_UNORM, TRILINEAR, TextureWrapper::REPEAT);
 
 			textures.push_back(texture);
 

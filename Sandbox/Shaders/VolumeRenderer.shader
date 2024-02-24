@@ -177,8 +177,8 @@ void main() {
     rayHit.y = min(depth - rayHit.x, rayHit.y);
     
     float offset = 0;
-    float noise = texture(noiseTex, screen_uv * 64).r;
-    offset += noise * stepSize;
+    float noise = texture(noiseTex, gl_FragCoord.xy / vec2(64, 64)).r;
+    offset -= noise * stepSize;
     vec3 position = cameraPos + rayDirection * rayHit.x;
 
     while (offset < rayHit.y ) {
