@@ -19,11 +19,8 @@ namespace Engine {
 		delete ib;
 		delete shader;
 
-		for (int i = 0; i < textures.size(); i++)
-			delete textures[i];
-
-		textures.clear();
-
+		delete shapeTexture;
+		delete detailTexture;
 		delete noiseTex;
 	}
 
@@ -62,21 +59,7 @@ namespace Engine {
 
 		shader = new Shader("Shaders/VolumeRenderer.shader");
 
-		
-		NoiseLayer layer1;
-		layer1.offset = glm::vec3(120.34,467.66, 53.87);
-		layer1.scale = 3.0f;
-		layer1.opacity = 0.6f;
-
-		NoiseLayer layer2;
-		layer2.offset = glm::vec3(125.34, 46.66, 520.87);
-		layer2.scale = 22.0f;
-		layer2.opacity = 0.2f;
-
-
-		noiseLayers.push_back(layer1);
-		noiseLayers.push_back(layer2);
-
+		AddDefaultNoiseLayers();
 		GenerateVolumeData();
 
 		std::vector<uint8_t> noiseData;
@@ -100,10 +83,8 @@ namespace Engine {
 	void VolumeRenderer::update(float delta) {
 		//ENG_LOG_INFO("Delta time: {0}", delta);
 
-
-		for (int i = 0; i < positionOffsets.size(); i++) {
-			positionOffsets[i] += (animationSpeed * delta) / glm::vec3(i + 1, i + 1, i + 1) * (i % 2 == 0 ? 1.0f : - 1.0f);
-		}
+		shapeTexturePositionOffset += shapeTextureMovementSpeed * delta;
+		detailTexturePositionOffset += detailTextureMovementSpeed * delta;
 	}
 
 	void VolumeRenderer::draw(PerspectiveCamera& camera, FrameBuffer& fb) {
@@ -120,17 +101,16 @@ namespace Engine {
 
 		shader->bind();
 
-		for (int i = 0; i < textures.size(); i++) {
-			textures[i]->setActiveTextureSlot(i);
-			textures[i]->bind();
-		}
+		shapeTexture->setActiveTextureSlot(0);
+		shapeTexture->bind();
 
-		int texCount = textures.size();
+		detailTexture->setActiveTextureSlot(1);
+		detailTexture->bind();
 
-		noiseTex->setActiveTextureSlot(texCount);
+		noiseTex->setActiveTextureSlot(2);
 		noiseTex->bind();
 
-		glActiveTexture(GL_TEXTURE0 + texCount + 1);
+		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, fb.getDepthAttachmentID());
 
 		shader->SetUniform1i("screenWidth", fb.getWidth());
@@ -138,13 +118,10 @@ namespace Engine {
 
 		shader->SetUniform3f("cameraPos", camera.getPosition());
 
-		for (int i = 0; i < texCount; i++) {
-			shader->SetUniform1i("textures[" + std::to_string(i) + "]", i);
-		}
-		shader->SetUniform1i("textureCount", textures.size());
-
-		shader->SetUniform1i("noiseTex", texCount);
-		shader->SetUniform1i("depthTex", texCount + 1);
+		shader->SetUniform1i("shapeTex", 0);
+		shader->SetUniform1i("detailTex", 1);
+		shader->SetUniform1i("noiseTex", 2);
+		shader->SetUniform1i("depthTex", 3);
 
 		shader->SetUniform1f("stepSize", stepSize);
 		shader->SetUniform3f("boundMin", position - volumeSize / 2.0f);
@@ -158,8 +135,14 @@ namespace Engine {
 		shader->SetUniform1f("zNear", camera.getNearPlaneDistance());
 		shader->SetUniform1f("zFar", camera.getFarPlaneDistance());
 
-		shader->SetUniformArray3f("positionOffsets", positionOffsets.size(), positionOffsets.data());
-		shader->SetUniformArray3f("textureFitSizes", textureFitSizes.size(), textureFitSizes.data());
+		shader->SetUniform3f("shapeTexPosOffset", shapeTexturePositionOffset);
+		shader->SetUniform3f("detailTexPosOffset", detailTexturePositionOffset);
+
+		shader->SetUniform3f("shapeTexFitSize", shapeTextureFitSize);
+		shader->SetUniform3f("detailTexFitSize", detailTextureFitSize);
+
+		shader->SetUniform4f("shapeTexWeights", shapeTextureWeights);
+		shader->SetUniform2f("detailTexWeights", detailTextureWeights);
 
 		shader->SetUniform3f("lightDirection", lightDirection);
 		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
@@ -208,29 +191,12 @@ namespace Engine {
 		return rotation;
 	}
 
-	void VolumeRenderer::setNoiseLayers(std::vector<NoiseLayer>& layers) {
-		this->noiseLayers = layers;
-	}
-
-	std::vector<NoiseLayer>& VolumeRenderer::getNoiseLayers() {
-		return noiseLayers;
-	}
-
 	void VolumeRenderer::regenerateVolumeTexture() {
 
 	}
 
 	void VolumeRenderer::recalculateLightData() {
 
-	}
-
-	uint32_t VolumeRenderer::getVirtualTexSize() {
-		return virtualTextureSize;
-	}
-
-	void VolumeRenderer::setVirtualTexSize(uint32_t texSize) {
-		if(texSize > 8 && texSize < 2000)
-			virtualTextureSize = texSize;
 	}
 
 	void VolumeRenderer::setVolumeSize(glm::vec3 volumeSize) {
@@ -310,14 +276,25 @@ namespace Engine {
 		ImGui::Checkbox("Show Bounding Box", &showBoundingBox);
 		ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f);
 		//ImGui::Checkbox("Show Properties Window", &showPropertiesWindow);
-		ImGui::InputInt("Virtual Texture Size", (int*) & virtualTextureSize);
-		ImGui::DragFloat3("Volume Size", glm::value_ptr(volumeSize),0.1f, 0, 2000);
-		ImGui::DragFloat3("Animation Speed", glm::value_ptr(animationSpeed), 0.01f, -100, 100);
-		if(positionOffsets.size() > 0)
-			ImGui::Text("Position Offset (%.1f,%.1f,%.1f)", positionOffsets[0].x, positionOffsets[0].y, positionOffsets[0].z);
+		ImGui::InputInt("Shape Texture Size", (int*) & shapeTextureSize);
+		ImGui::InputInt("Detail Texture Size", (int*)&detailTextureSize);
+
+		ImGui::DragFloat3("Shape Texture Fit Size", glm::value_ptr(shapeTextureFitSize), 10, 10, 10000);
+		ImGui::DragFloat3("Detail Texture Fit Size", glm::value_ptr(detailTextureFitSize), 1, 1, 1000);
+
+		ImGui::DragFloat3("Volume Size", glm::value_ptr(volumeSize), 100, 0, 64000);
+		ImGui::DragFloat3("Shape Texture Speed", glm::value_ptr(shapeTextureMovementSpeed), 0.01f, -100, 100);
+		ImGui::DragFloat3("Detail Texture Speed", glm::value_ptr(detailTextureMovementSpeed), 0.01f, -100, 100);
+
+		ImGui::DragFloat4("Shape Texture Weights", glm::value_ptr(shapeTextureWeights), 0.001f,-1, 5);
+		ImGui::DragFloat2("Detail Texture Weights", glm::value_ptr(detailTextureWeights), 0.001f, -1, 5);
+
+		ImGui::Text("Shape Texture Position (%.1f,%.1f,%.1f)", shapeTexturePositionOffset.x, shapeTexturePositionOffset.y, shapeTexturePositionOffset.z);
+		ImGui::Text("Detail Texture Position (%.1f,%.1f,%.1f)", detailTexturePositionOffset.x, detailTexturePositionOffset.y, detailTexturePositionOffset.z);
+		
 		if (ImGui::Button("Reset Offset")) {
-			for (int i = 0; i < positionOffsets.size(); i++)
-				positionOffsets[i] = glm::vec3(0, 0, 0);
+			shapeTexturePositionOffset = glm::vec3(0, 0, 0);
+			detailTexturePositionOffset = glm::vec3(0, 0, 0);
 		}
 
 		ImGui::Separator();
@@ -325,7 +302,7 @@ namespace Engine {
 		ImGui::NewLine();
 		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
 		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
-		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 0.1f, 50);
+		ImGui::DragFloat("Step Size", &stepSize, 0.1f, 5, 200);
 		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
 		ImGui::SliderFloat("Alpha Threshold", &alphaThreshold, 0, 1);
 		ImGui::Separator();
@@ -336,31 +313,24 @@ namespace Engine {
 		ImGui::SliderFloat("Light Base Intensity", &lightBaseIntensity, 0, 1);
 		ImGui::DragFloat("Light Absorption", &lightAbsorptionCoefficient, 0.01f, 0, 10);
 		
-		ImGui::DragFloat("Falloff Distance Vertical", &falloffDistanceVertical, 0.1, 0, 100);
-		ImGui::DragFloat("Falloff Distance Horizontal", &falloffDistanceHorizontal, 0.1, 0, 100);
+		ImGui::DragFloat("Falloff Distance Vertical", &falloffDistanceVertical, 0.1, 0, 1000);
+		ImGui::DragFloat("Falloff Distance Horizontal", &falloffDistanceHorizontal, 0.1, 0, 1000);
 
 		ImGui::Separator();
 
 		ImGui::NewLine();
 
-		std::vector<std::string> layerNames;
-		for (int i = 0; i < noiseLayers.size(); i++) {
-			layerNames.push_back(std::string("Layer") + std::to_string(i + 1));
-		}
+		std::vector<std::string> textureTypes = { "Shape", "Detail" };
+		static uint32_t selectedTextureType = 0;
 
-		static uint32_t selected_layer = 0;
-		static NoiseLayer tempLayer;
+		const char* current_tex_type = textureTypes[selectedTextureType].c_str();
 
-		const char* l_name = layerNames.data()->c_str();
-		const char* current_name = noiseLayers.size() > 0 ? layerNames[selected_layer].c_str() : nullptr;
-
-		if (ImGui::BeginCombo("Layers", current_name)) {
-			for (uint32_t i = 0; i < layerNames.size(); i++) {
-				bool is_selected = (bool)!strcmp(current_name, layerNames[i].c_str());
-				if (ImGui::Selectable(layerNames[i].c_str(), is_selected)) {
-					current_name = layerNames[i].c_str();
-					selected_layer = i;
-					tempLayer = noiseLayers[selected_layer];
+		if (ImGui::BeginCombo("Texture Type", current_tex_type)) {
+			for (uint32_t i = 0; i < textureTypes.size(); i++) {
+				bool is_selected = (bool)!strcmp(current_tex_type, textureTypes[i].c_str());
+				if (ImGui::Selectable(textureTypes[i].c_str(), is_selected)) {
+					current_tex_type = textureTypes[i].c_str();
+					selectedTextureType = i;
 				}
 
 				if (is_selected)
@@ -370,8 +340,44 @@ namespace Engine {
 			ImGui::EndCombo();
 		}
 
+		std::vector<std::string> layerNames;
+		int layerCount = selectedTextureType == 0 ? 4 : 2;
+
+		for (int i = 0; i < layerCount; i++) {
+			layerNames.push_back(std::string("Layer") + std::to_string(i + 1));
+		}
+
+		static uint32_t selected_layer = 0;
+		static NoiseLayer tempLayer;
+
+		if (selectedTextureType == 1 && selected_layer > 1)
+			selected_layer = 1;
+
+		const char* current_name = layerNames[selected_layer].c_str();
+
+		if (ImGui::BeginCombo("Layers", current_name)) {
+			for (uint32_t i = 0; i < layerNames.size(); i++) {
+				bool is_selected = (bool)!strcmp(current_name, layerNames[i].c_str());
+				if (ImGui::Selectable(layerNames[i].c_str(), is_selected)) {
+					current_name = layerNames[i].c_str();
+					selected_layer = i;
+					if(selectedTextureType == 0)
+						tempLayer = shapeNoiseLayers[selected_layer];
+					else if(selectedTextureType == 1)
+						tempLayer = detailNoiseLayers[selected_layer];
+				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		std::vector<NoiseLayer>* currentLayer = selectedTextureType == 0 ? &shapeNoiseLayers : &detailNoiseLayers;
+
 		const char* noise_types[] = {"Perin", "Worley", "Inverse Worley"};
-		int chosen_type = noiseLayers[selected_layer].type / 2;
+		int chosen_type = (*currentLayer)[selected_layer].type / 2;
 		const char* current_type = noise_types[chosen_type];
 
 		if (ImGui::BeginCombo("Noise Type", current_type)) {
@@ -380,7 +386,7 @@ namespace Engine {
 
 				if (ImGui::Selectable(noise_types[i], is_selected)) {
 					chosen_type = i;
-					noiseLayers[selected_layer].type = (NoiseType)(i * 2 + 1);
+					(*currentLayer)[selected_layer].type = (NoiseType)(i * 2 + 1);
 				}
 
 				if (is_selected)
@@ -390,49 +396,29 @@ namespace Engine {
 			ImGui::EndCombo();
 		}
 
-		const char* blend_modes[] = { "Add", "Subtract", "Multiply", "Divide"};
-		int chosen_mode = (int)noiseLayers[selected_layer].blend;
-		const char* current_mode = blend_modes[chosen_mode];
+		ImGui::SliderInt("Octave count", &(*currentLayer)[selected_layer].octaveCount, 1, 6);
+		ImGui::DragFloat3("offset", glm::value_ptr((*currentLayer)[selected_layer].offset), 0.01, -1000, 1000);
+		ImGui::DragInt("scale", &(*currentLayer)[selected_layer].scale, 0.1f, 0, 512);
+		ImGui::SliderFloat("opacity", &(*currentLayer)[selected_layer].opacity, -1, 1);
 
-		if (ImGui::BeginCombo("Blend Mode", current_mode)) {
-			for (int i = 0; i < IM_ARRAYSIZE(blend_modes); i++) {
-				bool is_selected = (chosen_mode == i);
-
-				if (ImGui::Selectable(blend_modes[i], is_selected)) {
-					chosen_mode = i;
-					noiseLayers[selected_layer].blend = (LayerBlending)i;
-				}
-
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
-			}
-			 
-			ImGui::EndCombo();
-		}
-
-		ImGui::SliderInt("Octave count", &noiseLayers[selected_layer].octaveCount, 1, 6);
-		ImGui::DragFloat3("offset", glm::value_ptr(noiseLayers[selected_layer].offset), 0.01, -1000, 1000);
-		ImGui::DragInt("scale", &noiseLayers[selected_layer].scale, 0.1f, 0, 512);
-		ImGui::SliderFloat("opacity", &noiseLayers[selected_layer].opacity, -1, 1);
-
-		if (ImGui::Button("Add Layer")) {
-			NoiseLayer layers;
-
-			noiseLayers.push_back(layers);
-			selected_layer = noiseLayers.size() - 1;
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button("Delete Layer")) {
-			if (noiseLayers.size() >= 1) {
-				noiseLayers.erase(noiseLayers.begin() + selected_layer);
-				if (noiseLayers.size() >= 1) {
-					if (selected_layer > 0)
-						selected_layer--;
-					tempLayer = noiseLayers[selected_layer];
-				}
-			}
-		}
+		//if (ImGui::Button("Add Layer")) {
+		//	NoiseLayer layers;
+		//
+		//	noiseLayers.push_back(layers);
+		//	selected_layer = noiseLayers.size() - 1;
+		//}
+		//
+		//ImGui::SameLine();
+		//if (ImGui::Button("Delete Layer")) {
+		//	if (noiseLayers.size() >= 1) {
+		//		noiseLayers.erase(noiseLayers.begin() + selected_layer);
+		//		if (noiseLayers.size() >= 1) {
+		//			if (selected_layer > 0)
+		//				selected_layer--;
+		//			tempLayer = noiseLayers[selected_layer];
+		//		}
+		//	}
+		//}
 
 		if (ImGui::Button("Regenerate")) {
 			GenerateVolumeData();
@@ -446,97 +432,132 @@ namespace Engine {
 	}
 
 	void VolumeRenderer::GenerateVolumeData() {
-		uint32_t voxelCount = virtualTextureSize * virtualTextureSize * virtualTextureSize;
-		float fVoxelCount = volumeSize.x * volumeSize.y * volumeSize.z;
-		float tSize = glm::pow(fVoxelCount, 1.0f / 3.0f);
-
-		textureSize.x = (uint32_t)(virtualTextureSize * volumeSize.x / tSize);
-		textureSize.y = (uint32_t)(virtualTextureSize * volumeSize.y / tSize);
-		textureSize.z = (uint32_t)(virtualTextureSize * volumeSize.z / tSize);
-		ENG_LOG_INFO("Volume renderer texture size ({0}, {1}, {2})", textureSize.x, textureSize.y, textureSize.z);
-		
 		ClearData();
 
-		float maxDimSize = fmax(fmax(volumeSize.x, volumeSize.y), volumeSize.z);
-
-		for (int i = 0; i < noiseLayers.size(); i++) {
-			//if (i == 0) {
-			//	textureSizes.push_back(textureSize);
-			//	textureFitSizes.push_back(volumeSize);
-			//}
-			//else {
-				int size = virtualTextureSize / (1 << (i));
-
-				textureSizes.push_back(glm::uvec3(size, size, size));
-				textureFitSizes.push_back(glm::vec3(maxDimSize / (i + 1), maxDimSize / (i + 1), maxDimSize / (i + 1)));
-			//}
-
-			ENG_LOG_WARN("Texture({0}) size: {1}, {2}, {3}", i, textureSizes[i].x, textureSizes[i].y, textureSizes[i].z);
-			ENG_LOG_WARN("Texture({0}) fit size: {1}, {2}, {3}", i, textureFitSizes[i].x, textureFitSizes[i].y, textureFitSizes[i].z);
-
-			positionOffsets.push_back(glm::vec3(0, 0, 0));
+		for (int i = 0; i < shapeNoiseLayers.size(); i++) {
+			shapeNoiseLayers[i].normalizedScale = (float)shapeNoiseLayers[i].scale / shapeTextureSize;
 		}
 
-
-		std::vector<NoiseLayer> layers;
-		for (int i = 0; i < noiseLayers.size(); i++) {
-			layers.push_back(noiseLayers[i]);
-			layers[i].normalizedScale = (float)layers[i].scale / (textureSizes[i].x);
+		for (int i = 0; i < detailNoiseLayers.size(); i++) {
+			detailNoiseLayers[i].normalizedScale = (float)detailNoiseLayers[i].scale / detailTextureSize;
 		}
 
-		for (int i = 0; i < layers.size(); i++) {
-			std::vector<uint8_t> volumeData;
-			volumeData.reserve(textureSizes[i].x * textureSizes[i].y * textureSizes[i].z * 4);
+		std::vector<uint8_t> volumeData;
 
-			glm::uvec3 texSize = textureSizes[i];
-			uint8_t* data_ptr = volumeData.data();
+		//Shape Texture Generation
+		uint32_t stride = shapeNoiseLayers.size();
+		uint32_t data_size = shapeTextureSize * shapeTextureSize * shapeTextureSize * stride;
 
-			std::vector<int> iterator;
-			for (int i = 0; i < texSize.z; i++)
-				iterator.push_back(i);
+		volumeData.reserve(data_size);
 
-			NoiseLayer layer = layers[i];
+		noiseGenerator.EnableNoiseRepeat(true);
 
-			//for (int z = 0; z < textureSize.z; z++) {
-			std::for_each(std::execution::par, iterator.begin(), iterator.end(), [texSize, data_ptr, layer](int z) {
-				NoiseGenerator noiseGen;
-				noiseGen.EnableNoiseRepeat(true);
-				noiseGen.SetNoiseRepeatFrequency(glm::vec3(layer.scale, layer.scale, layer.scale));
-				noiseGen.SetNoiseRepeatOffset(layer.offset);
-				for (int y = 0; y < texSize.y; y++) {
-					for (int x = 0; x < texSize.x; x++) {
-						glm::vec3 point(x, y, z);
-						float noise = noiseGen.Value(point, layer);
+		for (uint32_t i = 0; i < shapeNoiseLayers.size(); i++) {
+			noiseGenerator.SetNoiseRepeatFrequency(glm::ivec3(shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale));
+			noiseGenerator.SetNoiseRepeatOffset(shapeNoiseLayers[i].offset);
 
-						data_ptr[(z * texSize.x * texSize.y + y * texSize.x + x)] = (uint8_t)(glm::clamp<float>(noise, 0, 1) * 255);
+			for (uint32_t z = 0; z < shapeTextureSize; z++) {
+				uint32_t z_offset = z * shapeTextureSize * shapeTextureSize;
+				
+				for (uint32_t y = 0; y < shapeTextureSize; y++) {
+					uint32_t y_offset = y * shapeTextureSize;
+
+					for (uint32_t x = 0; x < shapeTextureSize; x++) {
+						glm::vec3 point = glm::vec3(x, y, z);
+						float noise = noiseGenerator.Value(point, shapeNoiseLayers[i]);
+
+						volumeData[(z_offset + y_offset + x) * stride + i] = (uint8_t)(glm::clamp<float>(noise, 0, 1) * 255);
 					}
 				}
-			});
-
-			Texture3D* texture = new Texture3D(volumeData.data(), textureSizes[i].x, textureSizes[i].y, textureSizes[i].z,
-				TextureFormat::R8_UNORM, TRILINEAR, TextureWrapper::REPEAT);
-
-			textures.push_back(texture);
-
-			ENG_LOG_WARN("Volume Renderer Texture count: {0}", textures.size());
-
-			volumeData.clear();
-			volumeData.shrink_to_fit();
+			}
 		}
-		
-		//UpdateVertexData();
+
+		shapeTexture = new Texture3D(volumeData.data(), shapeTextureSize, shapeTextureSize , shapeTextureSize, 
+			TextureFormat::RGBA8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
+
+		volumeData.clear();
+		volumeData.shrink_to_fit();
+	
+		//Detail Texture Generation
+		stride = detailNoiseLayers.size();
+		data_size = detailTextureSize * detailTextureSize * detailTextureSize * stride;
+
+		volumeData.reserve(data_size);
+
+		noiseGenerator.EnableNoiseRepeat(true);
+
+		for (uint32_t i = 0; i < detailNoiseLayers.size(); i++) {
+			noiseGenerator.SetNoiseRepeatFrequency(glm::ivec3(detailNoiseLayers[i].scale, detailNoiseLayers[i].scale, detailNoiseLayers[i].scale));
+			noiseGenerator.SetNoiseRepeatOffset(detailNoiseLayers[i].offset);
+
+			for (uint32_t z = 0; z < detailTextureSize; z++) {
+				uint32_t z_offset = z * detailTextureSize * detailTextureSize;
+
+				for (uint32_t y = 0; y < detailTextureSize; y++) {
+					uint32_t y_offset = y * detailTextureSize;
+
+					for (uint32_t x = 0; x < detailTextureSize; x++) {
+						glm::vec3 point = glm::vec3(x, y, z);
+						float noise = noiseGenerator.Value(point, detailNoiseLayers[i]);
+
+						volumeData[(z_offset + y_offset + x) * stride + i] = (uint8_t)(glm::clamp<float>(noise, 0, 1) * 255);
+					}
+				}
+			}
+		}
+
+		detailTexture = new Texture3D(volumeData.data(), detailTextureSize, detailTextureSize, detailTextureSize,
+			TextureFormat::RG8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
+
+		volumeData.clear();
+		volumeData.shrink_to_fit();
 	}
 
 	void VolumeRenderer::ClearData() {
-		for (int i = 0; i < textures.size(); i++) {
-			delete textures[i];
-		}
-
-		textures.clear();
-		textureSizes.clear();
-		textureFitSizes.clear();
-		positionOffsets.clear();
+		delete shapeTexture;
+		delete detailTexture;
  	}
+
+	void VolumeRenderer::AddDefaultNoiseLayers() {
+		//Shape Noise Layers
+		NoiseLayer sLayer1;
+		sLayer1.offset = glm::vec3(120.34, 467.66, 53.87);
+		sLayer1.scale = 3.0f;
+
+		NoiseLayer sLayer2;
+		sLayer2.type = NoiseType::Worley3D;
+		sLayer2.offset = glm::vec3(125.34, 46.66, 520.87);
+		sLayer2.scale = 8.0f;
+
+		NoiseLayer sLayer3;
+		sLayer3.type = NoiseType::Worley3D;
+		sLayer3.offset = glm::vec3(125.34, 46.66, 520.87);
+		sLayer3.scale = 12.0f;
+
+		NoiseLayer sLayer4;
+		sLayer4.type = NoiseType::Worley3D;
+		sLayer4.offset = glm::vec3(125.34, 46.66, 520.87);
+		sLayer4.scale = 24.0f;
+
+		shapeNoiseLayers.push_back(sLayer1);
+		shapeNoiseLayers.push_back(sLayer2);
+		shapeNoiseLayers.push_back(sLayer3);
+		shapeNoiseLayers.push_back(sLayer4);
+
+		//Detail Noise Layers
+		NoiseLayer dLayer1;
+		dLayer1.type = NoiseType::Worley3D;
+		dLayer1.offset = glm::vec3(120.34, 467.66, 53.87);
+		dLayer1.scale = 4.0f;
+
+		NoiseLayer dLayer2;
+		dLayer2.type = NoiseType::Worley3D;
+		dLayer2.offset = glm::vec3(120.34, 467.66, 53.87);
+		dLayer2.scale = 6.0f;
+
+		detailNoiseLayers.push_back(dLayer1);
+		detailNoiseLayers.push_back(dLayer2);
+	}
 
 	void VolumeRenderer::UpdateVertexData() {
 		vertices.clear();

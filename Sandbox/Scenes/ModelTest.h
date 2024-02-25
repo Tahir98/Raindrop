@@ -11,7 +11,7 @@ private:
 	Engine::PerspectiveCamera camera;
 	bool isRightClicked = false;
 	glm::vec2 mousePos{};
-	float camSpeed = 100.0;
+	float camSpeed = 500.0;
 	float camSensivity = 0.125f;
 
 	Engine::SpherecalSkybox skybox;

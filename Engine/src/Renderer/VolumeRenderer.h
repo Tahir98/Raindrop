@@ -19,46 +19,56 @@ namespace Engine {
 	private:
 		bool isInitialized = false;
 
-		glm::vec3 position = glm::vec3(0, 20, 0);
+		glm::vec3 position = glm::vec3(0, 1600, 0);
 		glm::vec3 scale = glm::vec3(1, 1, 1);
 		glm::vec3 rotation = glm::vec3(0, 0, 0);
 		glm::mat4 modelMat = glm::mat4(1.0f);
 		
 		OpenGLState rendererState;
 
-		//Cube shape that volume data shown inside
+		//Screen space vertices
 		std::vector<glm::vec3> vertices;
 		std::vector<uint32_t> indices;
 
-		//Opengl objects
+		//OpenGL objects
 		VertexBuffer* vb = nullptr;
 		VertexArray* va = nullptr;
 		IndexBuffer* ib = nullptr;
 		Shader* shader = nullptr;
 
-		//Volume data parameters
-		std::vector<NoiseLayer> noiseLayers;
+		std::vector<NoiseLayer> shapeNoiseLayers;
+		std::vector<NoiseLayer> detailNoiseLayers;
 		NoiseGenerator noiseGenerator;
 
-		uint32_t virtualTextureSize = 256;
-		glm::uvec3 textureSize = glm::uvec3(128, 128, 128);
-		glm::vec3 volumeSize = glm::vec3(1000, 75, 1000);
+		glm::vec3 volumeSize = glm::vec3(32000, 1000, 32000);
+		
+		uint32_t shapeTextureSize = 128;
+		uint32_t detailTextureSize = 32;
 
-		//Volume data textures
-		std::vector<Texture3D*> textures;
-		std::vector<glm::uvec3> textureSizes;
-		std::vector<glm::vec3> positionOffsets;
-		std::vector<glm::vec3> textureFitSizes;
+		glm::vec3 shapeTextureFitSize = glm::vec3(15000, 15000, 15000);
+		glm::vec3 detailTextureFitSize = glm::vec3(1200, 1200, 1200);
+		
+		glm::vec3 shapeTextureMovementSpeed = glm::vec3(0, 0, 0);
+		glm::vec3 detailTextureMovementSpeed = glm::vec3(0, 0, 0);
+
+		glm::vec3 shapeTexturePositionOffset = glm::vec3(0, 0, 0);
+		glm::vec3 detailTexturePositionOffset = glm::vec3(0, 0, 0);
+
+		Texture3D* shapeTexture = nullptr;
+		Texture3D* detailTexture = nullptr;
 		Texture2D* noiseTex = nullptr; //For stochastic jittering
+
+		glm::vec4 shapeTextureWeights = glm::vec4(0.65f, 0.32f, 0.22f, 0.10f);
+		glm::vec2 detailTextureWeights = glm::vec2(0.20f, 0.12f);
 
 		//Rendering parameters
 		float minDensity = 0;
 		float maxDensity = 1;
-		float stepSize = 5.0f; //It determines quality
+		float stepSize = 40.0f; //It determines quality
 		float opacity = 0.6f;
 		float alphaThreshold = 0.98f; 
 
-		float lightMarchStepSize = 2;
+		float lightMarchStepSize = 100;
 		float lightBaseIntensity = 0.2f;
 		float lightAbsorptionCoefficient = 2.0f;
 
@@ -95,14 +105,8 @@ namespace Engine {
 		glm::vec3 getScale();
 		glm::vec3 getRotation();
 
-		void setNoiseLayers(std::vector<NoiseLayer>& layers);
-		std::vector<NoiseLayer>& getNoiseLayers();
-
 		void regenerateVolumeTexture();
 		void recalculateLightData();
-
-		uint32_t getVirtualTexSize();
-		void setVirtualTexSize(uint32_t texSize);
 
 		void setVolumeSize(glm::vec3 volumeSize);
 		glm::vec3 getVolumeSize();
@@ -135,5 +139,6 @@ namespace Engine {
 		void GenerateVolumeData();
 		void UpdateVertexData();
 		void ClearData();
+		void AddDefaultNoiseLayers();
 	};
 }
