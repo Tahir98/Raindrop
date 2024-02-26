@@ -89,6 +89,29 @@ float remap(float originalValue, float originalMin, float originalMax, float new
 	return newMin + (originalValue - originalMin) / (originalMax - originalMin) * (newMax - newMin);
 }
 
+float SampleBaseDensity(vec3 position) {
+    vec3 baseTexCoord = (position + shapeTexPosOffset - boundMin) / shapeTexFitSize;
+    vec4 baseDensity = texture(shapeTex, baseTexCoord);  
+    //vec4 normalizedShapeWeights = shapeTexWeights / length(shapeTexWeights); 
+
+    baseDensity *= shapeTexWeights;
+    float shapeFBM = baseDensity.x + baseDensity.y + baseDensity.z + baseDensity.w;
+
+    float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
+    edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
+
+    float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
+    edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
+
+    float edgeWeightZ = min((position.z - boundMin.z) * 4, boundMax.z - position.z);
+    edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
+
+    float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
+
+    float density = clamp(shapeFBM * edgeWeight, minDensity, maxDensity);
+    return remap(density, minDensity, maxDensity, 0, 1);
+}
+
 float SampleDensity(vec3 position) {
     vec3 baseTexCoord = (position + shapeTexPosOffset - boundMin) / shapeTexFitSize;
     vec4 baseDensity = texture(shapeTex, baseTexCoord);  
@@ -122,7 +145,7 @@ float SampleDensity(vec3 position) {
 
     float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
 
-    float density = shapeFBM - detailFBM;
+    float density = clamp((shapeFBM - detailFBM), minDensity, maxDensity);
     return remap(density, minDensity, maxDensity, 0, 1) * edgeWeight; 
 }
 
@@ -135,25 +158,25 @@ float LinearEyeDepth(float d,float n, float f) {
 float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
     float intensity = 1;
 
-    //vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
-    //
-    //if(rayHit.y > 0) {
-    //    float offset = noise * lightMarchStepSize;
-    //    
-    //    while(offset < rayHit.y) {
-    //        vec3 position = rayPos + rayDir * (rayHit.y - offset); 
-    //
-    //        float density = SampleDensity(position) * opacity;
-    //        intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -0.01f);
-    //
-    //        if(intensity < 0.01f)
-    //            break;
-    //
-    //        offset += lightMarchStepSize;
-    //    }
-    //}
+    vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
+    
+    if(rayHit.y > 0) {
+        float offset = noise * lightMarchStepSize * -1.0f;
+        
+        while(offset < rayHit.y) {
+            vec3 position = rayPos + rayDir * (rayHit.y - offset); 
+    
+            float density = SampleBaseDensity(position) * opacity;
+            intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -0.01f);
+    
+            if(intensity < 0.01f)
+                break;
+    
+            offset += lightMarchStepSize;
+        }
+    }
 
-    intensity = (rayPos.y - boundMin.y) / (boundMax.y - boundMin.y);
+    //intensity = (rayPos.y - boundMin.y) / (boundMax.y - boundMin.y);
 
     return lightBaseIntensity + intensity * ( 1.0f - lightBaseIntensity);
 }
@@ -196,7 +219,6 @@ void main() {
 
         float density = SampleDensity(position);
         density = clamp(density, 0, 1);
-        
 
         if (density > 0) {
             float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
