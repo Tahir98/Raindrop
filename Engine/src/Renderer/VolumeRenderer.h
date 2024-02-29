@@ -58,19 +58,21 @@ namespace Engine {
 		Texture3D* detailTexture = nullptr;
 		Texture2D* noiseTex = nullptr; //For stochastic jittering
 
-		glm::vec4 shapeTextureWeights = glm::vec4(0.65f, 0.32f, 0.22f, 0.10f);
-		glm::vec2 detailTextureWeights = glm::vec2(0.20f, 0.12f);
+		glm::vec4 shapeTextureWeights = glm::vec4(0.65f, 0.20f, 0.17f, 0.09f);
+		glm::vec2 detailTextureWeights = glm::vec2(0.09f, 0.07f);
 
 		//Rendering parameters
 		float minDensity = 0;
 		float maxDensity = 1;
 		float stepSize = 40.0f; //It determines quality
 		float opacity = 0.6f;
-		float alphaThreshold = 0.98f; 
 
-		float lightMarchStepSize = 100;
+		float lightMarchStepSize = 50;
 		float lightBaseIntensity = 0.2f;
-		float lightAbsorptionCoefficient = 2.0f;
+		float lightAbsorptionCloud = 10.0f;
+		float lightAbsorptionSun = 1.0f;
+		float transmittanceThreshold = 0.01f;
+		float lightEnergyCoefficient = 7.5;
 
 		float falloffDistanceVertical = 25;
 		float falloffDistanceHorizontal = 100;

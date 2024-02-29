@@ -28,8 +28,7 @@ uniform vec3 boundMax;
 
 uniform float minDensity;
 uniform float maxDensity;
-uniform float alphaThreshold;
-uniform float opacity;
+uniform float transmittanceThreshold;
 
 uniform float zNear;
 uniform float zFar;
@@ -46,13 +45,17 @@ uniform vec2 detailTexWeights;
 uniform vec3 lightDirection;
 uniform float lightMarchStepSize;
 uniform float lightBaseIntensity;
-uniform float lightAbsorption;
+uniform float lightAbsorptionSun;
+uniform float lightAbsorptionCloud;
+uniform float lightEnergyCoefficient;
 
 uniform float falloffDistanceH;
 uniform float falloffDistanceV;
 
 uniform mat4 _CameraToWorld;
 uniform mat4 _CameraInverseProjection;
+
+const float PI = 3.145f;
 
 out vec4 outputColor;
 
@@ -103,7 +106,7 @@ float SampleBaseDensity(vec3 position) {
     float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
     edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
 
-    float edgeWeightZ = min((position.z - boundMin.z) * 4, boundMax.z - position.z);
+    float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
     edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
 
     float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
@@ -137,10 +140,10 @@ float SampleDensity(vec3 position) {
     float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
     edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
 
-    float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
+    float edgeWeightY = min((position.y - boundMin.y) / 4, boundMax.y - position.y);
     edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
 
-    float edgeWeightZ = min((position.z - boundMin.z) * 4, boundMax.z - position.z);
+    float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
     edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
 
     float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
@@ -159,24 +162,29 @@ float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
     float intensity = 1;
 
     vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
-    
+    float totalDensity = 0;
+
     if(rayHit.y > 0) {
         float offset = noise * lightMarchStepSize * -1.0f;
         
         while(offset < rayHit.y) {
             vec3 position = rayPos + rayDir * (rayHit.y - offset); 
     
-            float density = SampleBaseDensity(position) * opacity;
-            intensity = intensity * exp(lightMarchStepSize * lightAbsorption * density * -0.01f);
+            float density = SampleBaseDensity(position);
+            //intensity = intensity * exp(lightMarchStepSize * lightAbsorptionSun * density * -0.001f);
     
-            if(intensity < 0.01f)
-                break;
+            totalDensity += density;
+
+            //if(intensity < 0.01f)
+            //    break;
     
             offset += lightMarchStepSize;
         }
     }
 
     //intensity = (rayPos.y - boundMin.y) / (boundMax.y - boundMin.y);
+
+    intensity = exp(totalDensity * lightAbsorptionSun * -0.1f);
 
     return lightBaseIntensity + intensity * ( 1.0f - lightBaseIntensity);
 }
@@ -192,9 +200,15 @@ vec3 GetCameraViewDir(vec2 uv) {
    return (_CameraInverseProjection * vec4(uv * 2.0f - 1.0f, 0, 1)).xyz;
 }
 
-void main() {
-    outputColor = vec4(0, 0, 0, 0);
+float phaseFunc(float cosAngle, float g) {
+    float invPI = 1.0f / (4.0f * PI);
+    float g_sqr = g * g;
+    float denom = 1.0f + g_sqr + 2.0f * g * cosAngle * sqrt(cosAngle);
 
+    return invPI * (1.0f - g_sqr) / denom;
+}
+
+void main() {
     vec2 screen_uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
 
     vec3 rayDirection = GetRayDirection(screen_uv);
@@ -214,6 +228,9 @@ void main() {
     offset -= noise * stepSize;
     vec3 position = cameraPos + rayDirection * rayHit.x;
 
+    float transmittance = 1;
+    float lightEnergy = 0;
+
     while (offset < rayHit.y ) {
         position = cameraPos + rayDirection * (rayHit.x + offset);
 
@@ -223,14 +240,19 @@ void main() {
         if (density > 0) {
             float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
             
-            outputColor = BlendFTB(outputColor, vec4(intensity, intensity, intensity, density * opacity * stepSize * 0.06));
-            if(outputColor.a >= alphaThreshold)
+            lightEnergy += density * intensity * transmittance * stepSize * lightEnergyCoefficient * 0.01f;
+            transmittance = transmittance * exp(-density * stepSize * lightAbsorptionCloud * 0.01f);
+
+            if(transmittance <= transmittanceThreshold)
                 break;
         }
     
         offset += stepSize;
     }
-    
-     outputColor.rgb *= (1.0f / outputColor.a);
-     outputColor.a /= alphaThreshold; 
+        
+    transmittance = clamp(transmittance / (1.0f - transmittanceThreshold), 0, 1);
+
+    lightEnergy /= (1.0f - transmittance);
+
+    outputColor = vec4(lightEnergy, lightEnergy, lightEnergy, 1.0f - transmittance); 
 }

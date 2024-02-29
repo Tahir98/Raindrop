@@ -129,8 +129,6 @@ namespace Engine {
 
 		shader->SetUniform1f("minDensity", minDensity);
 		shader->SetUniform1f("maxDensity", maxDensity);
-		shader->SetUniform1f("alphaThreshold", alphaThreshold);
-		shader->SetUniform1f("opacity", opacity);
 		
 		shader->SetUniform1f("zNear", camera.getNearPlaneDistance());
 		shader->SetUniform1f("zFar", camera.getFarPlaneDistance());
@@ -147,7 +145,10 @@ namespace Engine {
 		shader->SetUniform3f("lightDirection", lightDirection);
 		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
 		shader->SetUniform1f("lightBaseIntensity", lightBaseIntensity);
-		shader->SetUniform1f("lightAbsorption", lightAbsorptionCoefficient);
+		shader->SetUniform1f("lightAbsorptionSun", lightAbsorptionSun);
+		shader->SetUniform1f("lightAbsorptionCloud", lightAbsorptionCloud);
+		shader->SetUniform1f("transmittanceThreshold", transmittanceThreshold);
+		shader->SetUniform1f("lightEnergyCoefficient", lightEnergyCoefficient);
 
 		shader->SetUniform1f("falloffDistanceH", falloffDistanceHorizontal);
 		shader->SetUniform1f("falloffDistanceV", falloffDistanceVertical);
@@ -248,7 +249,7 @@ namespace Engine {
 	}
 
 	void VolumeRenderer::setLightAbsorptionCoefficient(float absorption) {
-		lightAbsorptionCoefficient = absorption;
+		lightAbsorptionCloud = absorption;
 	}
 
 	float VolumeRenderer::getLightMarchStepSize() {
@@ -260,7 +261,7 @@ namespace Engine {
 	}
 
 	float VolumeRenderer::getLightAbsorptionCoefficient() {
-		return lightAbsorptionCoefficient;
+		return lightAbsorptionSun;
 	}
 
 	void VolumeRenderer::setLightDirection(glm::vec3 direction) {
@@ -302,17 +303,19 @@ namespace Engine {
 		ImGui::NewLine();
 		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
 		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
-		ImGui::DragFloat("Step Size", &stepSize, 0.1f, 5, 200);
+		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 5, 200);
 		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
-		ImGui::SliderFloat("Alpha Threshold", &alphaThreshold, 0, 1);
 		ImGui::Separator();
 
 		ImGui::NewLine();
 		ImGui::SliderFloat3("Light Direction", glm::value_ptr(lightDirection), -1, 1);
-		ImGui::DragFloat("Light March Step Size", &lightMarchStepSize, 0.01f, 0.001f, 50);
+		ImGui::DragFloat("Light March Step Size", &lightMarchStepSize, 0.01f, 5, 200);
 		ImGui::SliderFloat("Light Base Intensity", &lightBaseIntensity, 0, 1);
-		ImGui::DragFloat("Light Absorption", &lightAbsorptionCoefficient, 0.01f, 0, 10);
-		
+		ImGui::DragFloat("Light Absorption Cloud", &lightAbsorptionCloud, 0.001f, 0, 20);
+		ImGui::DragFloat("Light Absorption Sun", &lightAbsorptionSun, 0.001f, 0, 10);
+		ImGui::SliderFloat("Transmittance Threshold", &transmittanceThreshold, 0, 1);
+		ImGui::DragFloat("Light Energy Coefficient", &lightEnergyCoefficient, 0.01, 0, 10);
+
 		ImGui::DragFloat("Falloff Distance Vertical", &falloffDistanceVertical, 0.1, 0, 1000);
 		ImGui::DragFloat("Falloff Distance Horizontal", &falloffDistanceHorizontal, 0.1, 0, 1000);
 
@@ -549,11 +552,13 @@ namespace Engine {
 		dLayer1.type = NoiseType::Worley3D;
 		dLayer1.offset = glm::vec3(120.34, 467.66, 53.87);
 		dLayer1.scale = 4.0f;
+		dLayer1.octaveCount = 3;
 
 		NoiseLayer dLayer2;
 		dLayer2.type = NoiseType::Worley3D;
 		dLayer2.offset = glm::vec3(120.34, 467.66, 53.87);
 		dLayer2.scale = 6.0f;
+		dLayer2.octaveCount = 3;
 
 		detailNoiseLayers.push_back(dLayer1);
 		detailNoiseLayers.push_back(dLayer2);
