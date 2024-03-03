@@ -27,7 +27,7 @@ private:
 
 	DirectionalLight light;
 	//Engine::Model* sponza = nullptr;
-	//Engine::Model* pist = nullptr;
+	Engine::Model* pist = nullptr;
 	Engine::Material material;
 	
 	Engine::VolumeRenderer volumeRenderer;

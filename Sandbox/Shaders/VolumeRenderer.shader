@@ -26,8 +26,7 @@ uniform float stepSize;
 uniform vec3 boundMin;
 uniform vec3 boundMax;
 
-uniform float minDensity;
-uniform float maxDensity;
+uniform float coverage;
 uniform float transmittanceThreshold;
 
 uniform float zNear;
@@ -36,14 +35,14 @@ uniform float zFar;
 uniform vec3 shapeTexPosOffset;
 uniform vec3 detailTexPosOffset;
 
-uniform vec3 shapeTexFitSize;
-uniform vec3 detailTexFitSize;
+uniform float shapeTexFitSize;
+uniform float detailTexFitSize;
 
 uniform vec4 shapeTexWeights;
 uniform vec2 detailTexWeights;
 
 uniform vec3 lightDirection;
-uniform float lightMarchStepSize;
+uniform int lightMarchStepCount;
 uniform float lightBaseIntensity;
 uniform float lightAbsorptionSun;
 uniform float lightAbsorptionCloud;
@@ -92,18 +91,11 @@ float remap(float originalValue, float originalMin, float originalMax, float new
 	return newMin + (originalValue - originalMin) / (originalMax - originalMin) * (newMax - newMin);
 }
 
-float SampleBaseDensity(vec3 position) {
-    vec3 baseTexCoord = (position + shapeTexPosOffset - boundMin) / shapeTexFitSize;
-    vec4 baseDensity = texture(shapeTex, baseTexCoord);  
-    //vec4 normalizedShapeWeights = shapeTexWeights / length(shapeTexWeights); 
-
-    baseDensity *= shapeTexWeights;
-    float shapeFBM = baseDensity.x + baseDensity.y + baseDensity.z + baseDensity.w;
-
+float CalculateEdgeWeight(vec3 position) {
     float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
     edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
 
-    float edgeWeightY = min(position.y - boundMin.y, boundMax.y - position.y);
+    float edgeWeightY = min(position.y - boundMin.y, (boundMax.y - position.y) / 4);
     edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
 
     float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
@@ -111,80 +103,70 @@ float SampleBaseDensity(vec3 position) {
 
     float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
 
-    float density = clamp(shapeFBM * edgeWeight, minDensity, maxDensity);
-    return remap(density, minDensity, maxDensity, 0, 1);
+    return edgeWeight;
 }
 
-float SampleDensity(vec3 position) {
-    vec3 baseTexCoord = (position + shapeTexPosOffset - boundMin) / shapeTexFitSize;
+float SampleBaseDensity(vec3 position) {
+    vec3 baseTexCoord = (position - shapeTexPosOffset - boundMin) / shapeTexFitSize;
     vec4 baseDensity = texture(shapeTex, baseTexCoord);  
-    //vec4 normalizedShapeWeights = shapeTexWeights / length(shapeTexWeights); 
 
     baseDensity *= shapeTexWeights;
     float shapeFBM = baseDensity.x + baseDensity.y + baseDensity.z + baseDensity.w;
 
-    //float shapeFBM = dot(baseDensity, normalizedShapeWeights);
+    float edgeWeight = CalculateEdgeWeight(position);
+
+    float density = clamp(shapeFBM * edgeWeight, 1.0f - coverage, 1);
+    return remap(density, 1.0f - coverage, 1, 0, 1);
+}
+
+float SampleDensity(vec3 position) {
+    vec3 baseTexCoord = (position - shapeTexPosOffset - boundMin) / shapeTexFitSize;
+    vec4 baseDensity = texture(shapeTex, baseTexCoord);  
+
+    baseDensity *= shapeTexWeights;
+    float shapeFBM = baseDensity.x + baseDensity.y + baseDensity.z + baseDensity.w;
 
     if(shapeFBM <= 0)
         return 0;
 
-    vec3 detailTexCoord = (position + shapeTexPosOffset + detailTexPosOffset - boundMin) / detailTexFitSize;
+    vec3 detailTexCoord = (position - shapeTexPosOffset - detailTexPosOffset - boundMin) / detailTexFitSize;
     vec2 detailDensity = texture(detailTex, detailTexCoord).rg;  
-    //vec2 normalizedDetailShapeWeights = detailTexWeights / length(detailTexWeights); 
 
     detailDensity *= detailTexWeights;
     float detailFBM = detailDensity.x + detailDensity.y;
 
-    //float detailFBM = dot(detailDensity, normalizedDetailShapeWeights);
+    float edgeWeight = CalculateEdgeWeight(position);
 
-    float edgeWeightX = min(position.x - boundMin.x, boundMax.x - position.x);
-    edgeWeightX = clamp(edgeWeightX / falloffDistanceH, 0 , 1);
-
-    float edgeWeightY = min((position.y - boundMin.y) / 4, boundMax.y - position.y);
-    edgeWeightY = clamp(edgeWeightY / falloffDistanceV, 0 , 1);
-
-    float edgeWeightZ = min(position.z - boundMin.z, boundMax.z - position.z);
-    edgeWeightZ = clamp(edgeWeightZ / falloffDistanceH, 0 , 1);
-
-    float edgeWeight = min(edgeWeightX, edgeWeightZ) * edgeWeightY;
-
-    float density = clamp((shapeFBM - detailFBM), minDensity, maxDensity);
-    return remap(density, minDensity, maxDensity, 0, 1) * edgeWeight; 
+    float density = clamp((shapeFBM - detailFBM), 1.0f - coverage, 1);
+    return remap(density, 1.0f - coverage , 1, 0, 1) * edgeWeight; 
 }
-
 //d : deth, f : farplane, n : nearplane 
 float LinearEyeDepth(float d,float n, float f) {
     d = d * 2.0f - 1.0f;
     return 2.0f * f * n / (-d * (f - n) +  (f + n));
 }
 
-float CalculateLightIntensity(vec3 rayPos, vec3 rayDir, float noise) {
+float CalculateLightIntensity(vec3 rayPos, vec3 rayDir) {
     float intensity = 1;
 
     vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
     float totalDensity = 0;
 
     if(rayHit.y > 0) {
-        float offset = noise * lightMarchStepSize * -1.0f;
+        float lightMarchStepSize = rayHit.y / float(lightMarchStepCount);
+        float offset = 0;
         
-        while(offset < rayHit.y) {
-            vec3 position = rayPos + rayDir * (rayHit.y - offset); 
+        for(int i = 0; i < lightMarchStepCount; i++) {
+             vec3 position = rayPos + rayDir * (offset); 
     
-            float density = SampleBaseDensity(position);
-            //intensity = intensity * exp(lightMarchStepSize * lightAbsorptionSun * density * -0.001f);
+            float density = SampleDensity(position);
     
-            totalDensity += density;
-
-            //if(intensity < 0.01f)
-            //    break;
-    
+            totalDensity += density * lightMarchStepSize;
             offset += lightMarchStepSize;
         }
     }
 
-    //intensity = (rayPos.y - boundMin.y) / (boundMax.y - boundMin.y);
-
-    intensity = exp(totalDensity * lightAbsorptionSun * -0.1f);
+    intensity = exp(totalDensity * lightAbsorptionSun *  -0.01f);
 
     return lightBaseIntensity + intensity * ( 1.0f - lightBaseIntensity);
 }
@@ -231,6 +213,10 @@ void main() {
     float transmittance = 1;
     float lightEnergy = 0;
 
+    float phaseVal = phaseFunc(dot(rayDirection, lightDirection * -1.0f), -1);
+
+    float energyCoefficient = lightEnergyCoefficient / lightAbsorptionCloud;
+
     while (offset < rayHit.y ) {
         position = cameraPos + rayDirection * (rayHit.x + offset);
 
@@ -238,9 +224,9 @@ void main() {
         density = clamp(density, 0, 1);
 
         if (density > 0) {
-            float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f), noise);
+            float intensity = CalculateLightIntensity(position, normalize(lightDirection * -1.0f));
             
-            lightEnergy += density * intensity * transmittance * stepSize * lightEnergyCoefficient * 0.01f;
+            lightEnergy += density * intensity * transmittance * stepSize * energyCoefficient * 0.1f;
             transmittance = transmittance * exp(-density * stepSize * lightAbsorptionCloud * 0.01f);
 
             if(transmittance <= transmittanceThreshold)

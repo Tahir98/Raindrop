@@ -45,8 +45,8 @@ namespace Engine {
 		uint32_t shapeTextureSize = 128;
 		uint32_t detailTextureSize = 32;
 
-		glm::vec3 shapeTextureFitSize = glm::vec3(15000, 15000, 15000);
-		glm::vec3 detailTextureFitSize = glm::vec3(1200, 1200, 1200);
+		float shapeTextureFitSize = 15000;
+		float detailTextureFitSize = 1200;
 		
 		glm::vec3 shapeTextureMovementSpeed = glm::vec3(0, 0, 0);
 		glm::vec3 detailTextureMovementSpeed = glm::vec3(0, 0, 0);
@@ -62,22 +62,17 @@ namespace Engine {
 		glm::vec2 detailTextureWeights = glm::vec2(0.09f, 0.07f);
 
 		//Rendering parameters
-		float minDensity = 0;
-		float maxDensity = 1;
+		float coverage = 0.5f;
 		float stepSize = 40.0f; //It determines quality
-		float opacity = 0.6f;
-
-		float lightMarchStepSize = 50;
+		int32_t lightMarchStepCount = 10;
 		float lightBaseIntensity = 0.2f;
 		float lightAbsorptionCloud = 10.0f;
 		float lightAbsorptionSun = 1.0f;
 		float transmittanceThreshold = 0.01f;
 		float lightEnergyCoefficient = 7.5;
 
-		float falloffDistanceVertical = 25;
+		float falloffDistanceVertical = 100;
 		float falloffDistanceHorizontal = 100;
-
-		glm::vec3 animationSpeed = glm::vec3(0, 0, 0);
 
 		glm::vec3 lightDirection = glm::vec3(0, -1, 0);
 		glm::vec2 screenSize = glm::vec2(1600, 900);
@@ -89,7 +84,7 @@ namespace Engine {
 	public:
 		//Debug mode
 		bool showPropertiesWindow = true;
-		bool showBoundingBox = true;
+		bool showBoundingBox = false;
 	public:
 		VolumeRenderer();
 		~VolumeRenderer();
@@ -108,26 +103,24 @@ namespace Engine {
 		glm::vec3 getRotation();
 
 		void regenerateVolumeTexture();
-		void recalculateLightData();
 
 		void setVolumeSize(glm::vec3 volumeSize);
 		glm::vec3 getVolumeSize();
 
-		void setMinDensity(float density);
-		void setMaxDensity(float density);
-		float getMinDensity();
-		float getMaxDensity();
+		void setShapeTextureFitSize(float size);
+		float getShapeTextureFitSize();
+
+		void setDetailTextureFitSize(float size);
+		float getDetailTextureFitSize();
 
 		void setStepSize(float stepSize);
 		float getStepSize();
 
-		void setOpacity(float opacity);
-		float getOpacity();
+		void setLightMarchStepCount(int32_t count);
+		int32_t getLightMarchStepCount();
 
-		void setLightMarchStepSize(float stepSize);
 		void setLightBaseIntensity(float baseIntensity);
 		void setLightAbsorptionCoefficient(float absorption);
-		float getLightMarchStepSize();
 		float getLightBaseIntensity();
 		float getLightAbsorptionCoefficient();
 

@@ -127,8 +127,7 @@ namespace Engine {
 		shader->SetUniform3f("boundMin", position - volumeSize / 2.0f);
 		shader->SetUniform3f("boundMax", position + volumeSize / 2.0f);
 
-		shader->SetUniform1f("minDensity", minDensity);
-		shader->SetUniform1f("maxDensity", maxDensity);
+		shader->SetUniform1f("coverage", coverage);
 		
 		shader->SetUniform1f("zNear", camera.getNearPlaneDistance());
 		shader->SetUniform1f("zFar", camera.getFarPlaneDistance());
@@ -136,14 +135,14 @@ namespace Engine {
 		shader->SetUniform3f("shapeTexPosOffset", shapeTexturePositionOffset);
 		shader->SetUniform3f("detailTexPosOffset", detailTexturePositionOffset);
 
-		shader->SetUniform3f("shapeTexFitSize", shapeTextureFitSize);
-		shader->SetUniform3f("detailTexFitSize", detailTextureFitSize);
+		shader->SetUniform1f("shapeTexFitSize", shapeTextureFitSize);
+		shader->SetUniform1f("detailTexFitSize", detailTextureFitSize);
 
 		shader->SetUniform4f("shapeTexWeights", shapeTextureWeights);
 		shader->SetUniform2f("detailTexWeights", detailTextureWeights);
 
 		shader->SetUniform3f("lightDirection", lightDirection);
-		shader->SetUniform1f("lightMarchStepSize", lightMarchStepSize);
+		shader->SetUniform1i("lightMarchStepCount", lightMarchStepCount);
 		shader->SetUniform1f("lightBaseIntensity", lightBaseIntensity);
 		shader->SetUniform1f("lightAbsorptionSun", lightAbsorptionSun);
 		shader->SetUniform1f("lightAbsorptionCloud", lightAbsorptionCloud);
@@ -196,10 +195,6 @@ namespace Engine {
 
 	}
 
-	void VolumeRenderer::recalculateLightData() {
-
-	}
-
 	void VolumeRenderer::setVolumeSize(glm::vec3 volumeSize) {
 		this->volumeSize = volumeSize;
 	}
@@ -208,20 +203,20 @@ namespace Engine {
 		return volumeSize;
 	}
 
-	void VolumeRenderer::setMinDensity(float density) {
-		minDensity = density;
+	void VolumeRenderer::setShapeTextureFitSize(float size) {
+		shapeTextureFitSize = size;
 	}
 
-	void VolumeRenderer::setMaxDensity(float density) {
-		maxDensity = density;
+	float VolumeRenderer::getShapeTextureFitSize() {
+		return shapeTextureFitSize;
 	}
 
-	float VolumeRenderer::getMinDensity() {
-		return minDensity;
+	void VolumeRenderer::setDetailTextureFitSize(float size) {
+		detailTextureFitSize = size;
 	}
 
-	float VolumeRenderer::getMaxDensity() {
-		return maxDensity;
+	float VolumeRenderer::getDetailTextureFitSize() {
+		return detailTextureFitSize;
 	}
 
 	void VolumeRenderer::setStepSize(float stepSize) {
@@ -232,16 +227,12 @@ namespace Engine {
 		return stepSize;
 	}
 
-	void VolumeRenderer::setOpacity(float opacity) {
-		this->opacity;
+	void VolumeRenderer::setLightMarchStepCount(int32_t count) {
+		lightMarchStepCount = glm::clamp<int32_t>(count, 1, 50);
 	}
 
-	float VolumeRenderer::getOpacity() {
-		return opacity;
-	}
-
-	void VolumeRenderer::setLightMarchStepSize(float stepSize) {
-		lightMarchStepSize = stepSize;
+	int32_t VolumeRenderer::getLightMarchStepCount() {
+		return 0;
 	}
 
 	void VolumeRenderer::setLightBaseIntensity(float baseIntensity) {
@@ -250,10 +241,6 @@ namespace Engine {
 
 	void VolumeRenderer::setLightAbsorptionCoefficient(float absorption) {
 		lightAbsorptionCloud = absorption;
-	}
-
-	float VolumeRenderer::getLightMarchStepSize() {
-		return lightMarchStepSize;
 	}
 
 	float VolumeRenderer::getLightBaseIntensity() {
@@ -280,8 +267,8 @@ namespace Engine {
 		ImGui::InputInt("Shape Texture Size", (int*) & shapeTextureSize);
 		ImGui::InputInt("Detail Texture Size", (int*)&detailTextureSize);
 
-		ImGui::DragFloat3("Shape Texture Fit Size", glm::value_ptr(shapeTextureFitSize), 10, 10, 10000);
-		ImGui::DragFloat3("Detail Texture Fit Size", glm::value_ptr(detailTextureFitSize), 1, 1, 1000);
+		ImGui::DragFloat("Shape Texture Fit Size", &shapeTextureFitSize, 10, 10, 20000);
+		ImGui::DragFloat("Detail Texture Fit Size", &detailTextureFitSize, 10,10, 10000);
 
 		ImGui::DragFloat3("Volume Size", glm::value_ptr(volumeSize), 100, 0, 64000);
 		ImGui::DragFloat3("Shape Texture Speed", glm::value_ptr(shapeTextureMovementSpeed), 0.01f, -100, 100);
@@ -301,15 +288,9 @@ namespace Engine {
 		ImGui::Separator();
 		
 		ImGui::NewLine();
-		ImGui::SliderFloat("Min Density", &minDensity, 0, 1);
-		ImGui::SliderFloat("Max Density", &maxDensity, 0, 1);
+		ImGui::SliderFloat("Coverage", &coverage, 0, 1);
 		ImGui::DragFloat("Step Size", &stepSize, 0.01f, 5, 200);
-		ImGui::SliderFloat("Opacity", &opacity, 0, 1);
-		ImGui::Separator();
-
-		ImGui::NewLine();
-		ImGui::SliderFloat3("Light Direction", glm::value_ptr(lightDirection), -1, 1);
-		ImGui::DragFloat("Light March Step Size", &lightMarchStepSize, 0.01f, 5, 200);
+		ImGui::DragInt("Light March Step Count", &lightMarchStepCount, 0.25f, 1, 50);
 		ImGui::SliderFloat("Light Base Intensity", &lightBaseIntensity, 0, 1);
 		ImGui::DragFloat("Light Absorption Cloud", &lightAbsorptionCloud, 0.001f, 0, 20);
 		ImGui::DragFloat("Light Absorption Sun", &lightAbsorptionSun, 0.001f, 0, 10);
@@ -319,6 +300,7 @@ namespace Engine {
 		ImGui::DragFloat("Falloff Distance Vertical", &falloffDistanceVertical, 0.1, 0, 1000);
 		ImGui::DragFloat("Falloff Distance Horizontal", &falloffDistanceHorizontal, 0.1, 0, 1000);
 
+		ImGui::SliderFloat3("Light Direction", glm::value_ptr(lightDirection), -1, 1);
 		ImGui::Separator();
 
 		ImGui::NewLine();
