@@ -152,7 +152,7 @@ namespace Engine {
 
 			}
 			else if (type == Compute) {
-				vs_id = glCreateShader(GL_COMPUTE_SHADER);
+				cs_id = glCreateShader(GL_COMPUTE_SHADER);
 
 				const char* source4 = cs_string.c_str();
 
@@ -228,6 +228,19 @@ namespace Engine {
 
 	void Shader::unbind() {
 		glUseProgram(0);
+	}
+
+	bool Shader::isCompute() {
+		return cs_id >= 0;
+	}
+
+	void Shader::DispatchCompute(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) {
+		if (isCompute()) {
+			bind();
+			glDispatchCompute(threadGroupX, threadGroupY, threadGroupZ);
+
+			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		}
 	}
 
 	void Shader::SetUniform1f(std::string uname, float v) {

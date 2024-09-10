@@ -54,7 +54,7 @@ uniform float falloffDistanceV;
 uniform mat4 _CameraToWorld;
 uniform mat4 _CameraInverseProjection;
 
-const float PI = 3.145f;
+const float PI = 3.1415926535f;
 
 out vec4 outputColor;
 
@@ -150,7 +150,7 @@ float CalculateLightIntensity(vec3 rayPos, vec3 rayDir) {
     float intensity = 1;
 
     vec2 rayHit = RayAABBIntersection(boundMin, boundMax, rayPos, rayDir);
-    float totalDensity = 0;
+    float totalDensity = 0;     
 
     if(rayHit.y > 0) {
         float lightMarchStepSize = rayHit.y / float(lightMarchStepCount);
@@ -207,7 +207,7 @@ void main() {
     
     float offset = 0;
     float noise = texture(noiseTex, gl_FragCoord.xy / vec2(64, 64)).r;
-    offset -= noise * stepSize;
+    offset += noise * stepSize;
     vec3 position = cameraPos + rayDirection * rayHit.x;
 
     float transmittance = 1;

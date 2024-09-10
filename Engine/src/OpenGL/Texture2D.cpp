@@ -292,6 +292,10 @@ namespace Engine {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	uint32_t Texture2D::getID() {
+		return id;
+	}
+
 	void Texture2D::setActiveTextureSlot(int slot) {
 		glActiveTexture(GL_TEXTURE0 + slot);
 	}

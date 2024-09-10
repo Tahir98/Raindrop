@@ -3,6 +3,7 @@
 #include "Scenes/VolumeRendering.h"
 #include "Scenes/TextureTest.h"
 #include "Scenes/ModelTest.h"
+#include "Scenes/ComputeShaderTest.h"
 
 class SandboxApp : public Engine::Application {
 public:
@@ -17,7 +18,7 @@ public:
 	void run() override {
 		Engine::Window window("App", 1600, 900, false, false, true);
 	
-		ModelTest scene("Texture Test", window);
+		ComputeShaderTest scene("Compute Shader Test", window);
 		//VolumeRendering scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);

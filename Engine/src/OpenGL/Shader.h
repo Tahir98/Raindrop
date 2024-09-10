@@ -30,6 +30,10 @@ namespace Engine {
 		void bind();
 		void unbind();
 
+		bool isCompute();
+
+		void DispatchCompute(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ);
+
 		void SetUniform1f(std::string uname, float v);
 		void SetUniform2f(std::string uname, float v1, float v2);
 		void SetUniform2f(std::string uname, glm::vec2 v);
