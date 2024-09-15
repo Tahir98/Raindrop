@@ -1,0 +1,489 @@
+//#compute shader
+#version 460 core 
+#extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_EXT_gpu_shader5 : enable
+//#extension GL_ARB_gpu_shader_fp64 : enable
+
+/**************** Uniforms *********************/
+layout(rgba8, binding = 0) uniform image2D _NoiseTex2D;
+layout(rgba8, binding = 1) uniform image3D _NoiseTex3D;
+
+struct NoiseLayer {
+	int type;
+	int blend ;
+	vec3 offset;
+	int octaveCount ;
+	int scale;
+	float normalizedScale;
+	float opacity;
+	int smoothnessLevel;
+};
+
+uniform bool _NoiseRepeatEnabled;
+uniform ivec3 _RepeatFrequency;
+uniform ivec3 _RepeatOffset;
+
+uniform NoiseLayer _Layer;
+
+uniform uvec3 _TexSize;
+uniform bool _WriteTo2DTex;
+
+uniform uint _ChannelIndex;
+////////////////////////////////////////////////
+
+/* Constants and functions below are used to convert signed and unsigned integers to
+		32 bit and 64 bit floating points, range[0,1)
+		https://www.doornik.com/research/randomdouble.pdf
+*/
+
+#ifndef M_RAN_INVM32
+#define M_RAN_INVM32 2.32830643653869628906e-010
+#endif 
+
+#ifndef M_RAN_INVM52
+#define M_RAN_INVM52 2.22044604925031308085e-016
+#endif 
+
+#ifndef PI
+#define PI 3.1415926535897
+#endif
+
+//uint to float converter
+float Ran32Flt1(uint uiRan) {
+	return float((int(uiRan * M_RAN_INVM32 + 0.5)));
+}
+
+//2 int to 1 double converter
+double Ran32Dbl1(int iRan1, int iRan2) {
+	return (int64_t(iRan1) * int64_t(M_RAN_INVM32) + int64_t(0.5 + M_RAN_INVM52 / 2) +
+		int64_t((iRan2) & 0x000FFFFF) * int64_t(M_RAN_INVM52));
+}
+
+//https://en.wikipedia.org/wiki/Xorshift
+uint xorshift32_uint(uint seed) { //32bit implementation
+	uint x = seed;
+
+	x ^= x << 13;
+	x ^= x >> 17;
+	x ^= x << 5;
+
+	return x;
+} 
+
+int xorshift32_int(uint seed) { //32bit implementation
+	return int(xorshift32_uint(seed));
+} 
+
+float xorshift32_float(uint seed) { //32bit implementation
+	return Ran32Flt1(xorshift32_uint(seed)); //Normalized
+} 
+
+uint64_t xorshift64_uint64(uint64_t seed) { //64bit implementation
+	uint64_t x = seed;
+	
+	x ^= x << 13;
+	x ^= x >> 7;
+	x ^= x << 17;
+
+	return x;
+}
+
+int64_t xorshift64_int64(uint64_t seed) { //64bit implementation
+	return int64_t(xorshift64_uint64(seed));
+} 
+
+double xorshift64_double(uint64_t seed) { //64bit implementation
+	int64_t value = xorshift64_int64(seed);
+
+	int rand1 = int(value);
+	int rand2 = int(value >> 32);
+
+	return Ran32Dbl1(rand1, rand2); //Normalized
+} 
+
+uint lcs32_uint(uint seed) {
+	uint64_t m = 2147483647; //2^31 - 1
+	uint64_t a = 16807;
+
+	return uint((seed * a) % m);
+}
+
+int lcs32_int(uint seed) { //32bit implementation
+	return int(lcs32_uint(seed));
+} 
+
+float lcs32_float(uint seed) { //32bit implementation
+	return Ran32Flt1(lcs32_uint(seed)); //Normalized
+} 
+
+/////////////////////////////////////////////////////////////
+
+ivec2 getFrequencyBasedCoordinate(int x, int y) {
+	int fx = x;
+	int fy = y;
+
+	if (_NoiseRepeatEnabled) {
+		int intPart = int(x / _RepeatFrequency.x);
+		fx = x - intPart * _RepeatFrequency.x + _RepeatOffset.x;
+
+		intPart = int(y / _RepeatFrequency.y);
+		fy = y - intPart * _RepeatFrequency.y + _RepeatOffset.y;
+	}
+
+	return ivec2(fx, fy);
+}
+
+ivec3 getFrequencyBasedCoordinate(int x, int y, int z) {
+	int fx = x;
+	int fy = y;
+	int fz = z;
+
+	if (_NoiseRepeatEnabled) {
+		int intPart = int(x / _RepeatFrequency.x);
+		fx = x - intPart * _RepeatFrequency.x + _RepeatOffset.x;
+
+		intPart = int(y / _RepeatFrequency.y);
+		fy = y - intPart * _RepeatFrequency.y + _RepeatOffset.y;
+
+		intPart = int(z / _RepeatFrequency.z);
+		fz = z - intPart * _RepeatFrequency.z + _RepeatOffset.z;
+	}
+
+	return ivec3(fx, fy, fz);
+}
+
+float remap(float originalValue, float originalMin, float originalMax, float newMin, float newMax) {
+	return newMin + (originalValue - originalMin) / (originalMax - originalMin) * (newMax - newMin);
+}
+
+//////////////////////////////////////////////////////////////
+
+vec2 randomPoint(int x, int y) {
+	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
+
+	uint seed = uint(fpos.x);
+	seed = seed << 16;
+	seed += uint(fpos.y);
+
+	uint seed2 = xorshift32_uint(seed);
+
+	return vec2(xorshift32_float(seed), xorshift32_float(seed2));
+}
+
+vec3 randomPoint(int x, int y, int z) {
+	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
+
+	uint64_t seed = uint(fpos.x);
+	seed = seed << 24;
+	seed += uint(fpos.y);
+	seed = seed << 24;
+	seed += uint(fpos.z);
+
+	uint64_t seed2 = xorshift64_uint64(seed); 
+	uint64_t seed3 = xorshift64_uint64(seed2); 
+
+	float xf = float(xorshift64_double(seed));
+	float yf = float(xorshift64_double(seed2));
+	float zf = float(xorshift64_double(seed3));
+
+	return vec3(xf, yf, zf);
+}
+
+vec2 randomVector(int x, int y) {
+	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
+
+	//uint seed = uint(fpos.x);
+	//seed = seed << 16;
+	//seed += uint(fpos.y);
+	
+	uint seed = (x + 19) * (y + 7);
+
+	float random = lcs32_float(seed);
+
+	return vec2(cos(random * PI * 2.0f), sin(random * PI * 2.0f));
+}
+
+vec3 randomVector(int x, int y, int z) {
+	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
+
+	uint64_t seed = uint(fpos.x);
+	seed = seed << 24;
+	seed += uint(fpos.y);
+	seed = seed << 24;
+	seed += uint(fpos.z);
+
+	uint64_t seed2 = xorshift64_uint64(seed); 
+
+	float r1 = float(xorshift64_double(seed));
+	float r2 = float(xorshift64_double(seed2));
+
+
+	vec3 nvector; //Normalized vector
+	nvector.x = cos(PI * r1 * 2.0f) * sin(PI * r2);
+	nvector.y = cos(PI * r2);			  
+	nvector.z = sin(PI * r1 * 2.0f) * sin(PI * r2);
+
+	return nvector;
+}
+
+////////////////////////////////////////////////////////////////////
+
+float dotGridGradient(int ix, int iy, float x, float y) {
+	vec2 gradient = randomVector(ix, iy);
+
+	vec2 dist = vec2(x - ix , y - iy);
+	return dot(gradient, dist);
+}
+
+float dotGridGradient(int ix, int iy, int iz, float x, float y, float z) {
+	vec3 gradient = randomVector(ix, iy, iz);
+	vec3 dist = vec3(x - ix, y - iy, z - iz);
+
+	return dot(gradient, dist);
+}
+
+float interpolate(float a0, float a1, float w, int smoothness) {
+	if (w < 0) w = 0;
+	else if (w > 1.0f) w = 1.0f;
+
+	switch (smoothness) {
+	case 0:
+		return (a1 - a0) * w + a0;
+		break;
+	case 1:
+		return (a1 - a0) * (3.0f - w * 2.0f) * w * w + a0;
+		break;
+	case 2:
+		return (a1 - a0) * ((w * (w * 6.0f - 15.0f) + 10.0f) * w * w * w) + a0;
+		break;
+	default:
+		return (a1 - a0) * ((w * (w * 6.0 - 15.0f) + 10.0f) * w * w * w) + a0;
+		break;
+	}
+
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+float Perlin2D(float x, float y, int smoothnessLevel) {
+
+	int x0 = int(x);
+	int x1 = int(x + 1);
+	int y0 = int(y);
+	int y1 = int(y0 + 1);
+
+	float sx = x - float(x0);
+	float sy = y - float(y0);
+
+	float n0, n1, n2, n3, ix0, ix1, value;
+
+	n0 = dotGridGradient(x0, y0, x, y);
+	n1 = dotGridGradient(x1, y0, x, y);
+	ix0 = interpolate(n0, n1, sx, smoothnessLevel);
+
+	n2 = dotGridGradient(x0, y1, x, y);
+	n3 = dotGridGradient(x1, y1, x, y);
+	ix1 = interpolate(n2, n3, sx, smoothnessLevel);
+
+	value = interpolate(ix0, ix1, sy, smoothnessLevel);
+
+	return clamp(value + 0.5f, 0, 1);
+}
+
+float Perlin3D(float x, float y, float z, int smoothnessLevel) {
+	int x0 = int(x);
+	int x1 = int(x + 1);
+	int y0 = int(y);
+	int y1 = int(y0 + 1);
+	int z0 = int(z);
+	int z1 = int(z0 + 1);
+
+	float sx = x - float(x0);
+	float sy = y - float(y0);
+	float sz = z - float(z0);
+
+	float n0, n1, n2, n3, ix0, ix1, iy0, iy1, value;
+
+	n0 = dotGridGradient(x0, y0, z0, x, y, z);
+	n1 = dotGridGradient(x1, y0, z0, x, y, z);
+	ix0 = interpolate(n0, n1, sx, smoothnessLevel);
+
+	n2 = dotGridGradient(x0, y1, z0, x, y, z);
+	n3 = dotGridGradient(x1, y1, z0, x, y, z);
+	ix1 = interpolate(n2, n3, sx, smoothnessLevel);
+
+	iy0 = interpolate(ix0, ix1, sy, smoothnessLevel);
+
+	n0 = dotGridGradient(x0, y0, z1, x, y, z);
+	n1 = dotGridGradient(x1, y0, z1, x, y, z);
+	ix0 = interpolate(n0, n1, sx, smoothnessLevel);
+
+	n2 = dotGridGradient(x0, y1, z1, x, y, z);
+	n3 = dotGridGradient(x1, y1, z1, x, y, z);
+	ix1 = interpolate(n2, n3, sx, smoothnessLevel);
+
+	iy1 = interpolate(ix0, ix1, sy, smoothnessLevel);
+
+	value = interpolate(iy0, iy1, sz, smoothnessLevel);
+
+	return clamp(value + 0.5f, 0, 1);
+}
+
+float Worley2D(float x, float y, int smoothnessLevel, bool inverse = false) {
+	vec2 origin = vec2(x, y);
+
+	int x0 = int(x);
+	int y0 = int(y);
+
+	float minDistance = 1;
+
+	for (int y1 = -1; y1 <= 1; y1++) {
+		for (int x1 = -1; x1 <= 1; x1++) {
+			vec2 point = vec2(x0 + x1, y0 + y1) + randomPoint(x0 + x1, y0 + y1);
+			float distance = length(point - origin);
+
+			if (minDistance > distance)
+				minDistance = distance;
+		}
+	}
+
+	float noise = interpolate(0, 1, minDistance, smoothnessLevel);;
+
+	if (inverse)
+		noise = 1.0f - noise;
+
+	return noise;
+}
+
+float Worley3D(float x, float y, float z, int smoothnessLevel, bool inverse = false) {
+	vec3 origin = vec3(x, y, z);
+
+	int x0 = int(x);
+	int y0 = int(y);
+	int z0 = int(z);
+
+	float minDistance = 1;
+
+	for (int z1 = -1; z1 <= 1; z1++) {
+		for (int y1 = -1; y1 <= 1; y1++) {
+			for (int x1 = -1; x1 <= 1; x1++) {
+				vec3 point = vec3(x0 + x1, y0 + y1, z0 + z1) + randomPoint(x0 + x1, y0 + y1, z0 + z1);
+				float distance = length(point - origin);
+
+				if (minDistance > distance)
+					minDistance = distance;
+			}
+		}
+	}
+
+	float noise = interpolate(0, 1, minDistance, smoothnessLevel);
+
+	if (inverse)
+		noise = 1.0f - noise;
+
+	return noise;
+}
+
+float Value(vec3 point, NoiseLayer layer) {
+	float noise = 0;
+	float totalOctaveStrength = 0;
+
+	for (int i = 0; i < layer.octaveCount; i++) {
+		float octaveStrength = 1.0f / (pow(2.0f, i + 1.0f)); //1.0, 0.5, 0.25, 0.125,...
+
+		vec3 position = vec3(point.x * layer.normalizedScale / octaveStrength, point.y * layer.normalizedScale / octaveStrength, point.z * layer.normalizedScale / octaveStrength) + layer.offset;
+
+		switch (layer.type) {
+		case 0:
+			noise += Perlin2D(position.x, position.y, layer.smoothnessLevel) * octaveStrength;
+			break;
+		case 1:
+			noise += Perlin3D(position.x, position.y, position.z, layer.smoothnessLevel) * octaveStrength;
+			break;
+		case 2:
+			noise += Worley2D(position.x, position.y, layer.smoothnessLevel, false) * octaveStrength;
+			break;
+		case 3:
+			noise += Worley3D(position.x, position.y, position.z, layer.smoothnessLevel, false) * octaveStrength;
+			break;
+		case 4:
+			noise += Worley2D(position.x, position.y, layer.smoothnessLevel, true) * octaveStrength;
+			break;
+		case 5:
+			noise += Worley3D(position.x, position.y, position.z, layer.smoothnessLevel, true) * octaveStrength;
+			break;
+		}
+
+		totalOctaveStrength += octaveStrength;
+	}
+
+
+	return remap(noise, 0, totalOctaveStrength, 0, 1) * layer.opacity;
+}
+
+void Generate2DNoise(uvec2 id) {
+	vec3 point = vec3(id.x, id.y, 1);
+	float noise = Value(point, _Layer);
+	
+	vec4 data = imageLoad(_NoiseTex2D, ivec2(id));
+	data.w = 1;
+
+	switch (_ChannelIndex) {
+		case 0:
+			data.x = noise;
+			break;
+		case 1:
+			data.y = noise;
+			break;
+		case 2:
+			data.z = noise;
+			break;
+		case 3:
+			data.w = noise;
+			break;
+	}
+
+	imageStore(_NoiseTex2D, ivec2(id), data);
+}
+
+void Generate3DNoise(uvec3 id) {
+	vec3 point = vec3(id);
+	float noise = Value(point, _Layer);
+	
+	vec4 data = imageLoad(_NoiseTex3D, ivec3(id));
+	
+	switch (_ChannelIndex) {
+		case 0:
+			data.x = noise;
+			break;
+		case 1:
+			data.y = noise;
+			break;
+		case 2:
+			data.z = noise;
+			break;
+		case 3:
+			data.w = noise;
+			break;
+	}
+
+	imageStore(_NoiseTex3D, ivec3(id), data);
+}
+
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 1) in;
+void main() {
+	uvec3 id = gl_GlobalInvocationID;
+
+	if(_WriteTo2DTex) {		
+		if(any(greaterThanEqual(id.xy, _TexSize.xy)))
+			return;
+
+		Generate2DNoise(uvec2(id.x, id.y));
+	}
+	//else {
+	//	if(any(greaterThanEqual(id, _TexSize)))
+	//		return;
+	//	Generate3DNoise(id);
+	//}
+}

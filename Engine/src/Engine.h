@@ -60,6 +60,7 @@
 
 //Noise Generators
 #include "Noise/NoiseGenerator.h"
+#include "Noise/NoiseGeneratorGPU.h"
 
 //Utility
 #include "Utility.h"

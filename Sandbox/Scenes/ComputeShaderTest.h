@@ -8,6 +8,10 @@ private:
 
 	//Engine::Texture2D* imageTex = nullptr;
 
+	Engine::Texture2D* customTex = nullptr;
+
+	Engine::NoiseGeneratorGPU noiseGenerator;
+
 public:
 	ComputeShaderTest(std::string name, Engine::Window& window) : Scene(name, window) {
 		APP_LOG_INFO("Scene constructor is called, name: {0}, id: {1}", name, id);
@@ -22,9 +26,19 @@ public:
 
 		fb = new Engine::FrameBuffer(800, 600, Engine::AttachmentType::Texture, Engine::AttachmentType::Texture);
 
-		computeShader = new Engine::Shader("Shaders/TestCompute.shader");
+		computeShader = new Engine::Shader("Shaders/TestCompute.comp");
 
 		//imageTex = new Engine::Texture2D("Textures/rooitou_park.jpg");
+
+		customTex = new Engine::Texture2D(1024,1024, Engine::RGBA8_UNORM);
+
+		Engine::NoiseLayer layer;
+		layer.type = Engine::NoiseType::Perlin2D;
+		layer.offset = glm::vec3(125.34, 46.66, 520.87);
+		layer.scale = 8.0f;
+		layer.normalizedScale = (float)layer.scale / customTex->getWidth();
+
+		noiseGenerator.GenerateNoise(*customTex, layer);
 	}
 
 	void OnUpdate(float delta) override {
@@ -32,14 +46,6 @@ public:
 
 		fb->bind();
 		fb->clear();
-
-		uint32_t texID = fb->getColorAttachmentID();
-		glBindImageTexture(0, texID, 0, false, 0, GL_WRITE_ONLY, GL_RGBA8);
-		
-		uint32_t width = fb->getWidth();
-		uint32_t height = fb->getHeight();
-
-		computeShader->DispatchCompute(width/ 4, height / 4, 1);
 
 		fb->unbind();
 
@@ -54,7 +60,7 @@ public:
 			ImVec2 size = ImGui::GetWindowSize();
 		}
 
-		ImGui::Image((ImTextureID)fb->getColorAttachmentID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)customTex->getID(), PanelSize, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 	}
 

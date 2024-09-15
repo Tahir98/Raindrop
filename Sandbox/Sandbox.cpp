@@ -19,7 +19,8 @@ public:
 		Engine::Window window("App", 1600, 900, false, false, true);
 	
 		ComputeShaderTest scene("Compute Shader Test", window);
-		//VolumeRendering scene("Volume Rendering", window);
+		
+		//ModelTest scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);
 
