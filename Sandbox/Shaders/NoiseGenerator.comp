@@ -1,8 +1,8 @@
 //#compute shader
 #version 460 core 
 #extension GL_ARB_gpu_shader_int64 : enable
-#extension GL_EXT_gpu_shader5 : enable
-//#extension GL_ARB_gpu_shader_fp64 : enable
+#extension GL_ARB_gpu_shader_fp64 : enable
+#extension GL_ARB_gpu_shader5 : enable
 
 /**************** Uniforms *********************/
 layout(rgba8, binding = 0) uniform image2D _NoiseTex2D;
@@ -50,13 +50,13 @@ uniform uint _ChannelIndex;
 
 //uint to float converter
 float Ran32Flt1(uint uiRan) {
-	return float((int(uiRan * M_RAN_INVM32 + 0.5)));
+	return float(int(uiRan) * M_RAN_INVM32 + 0.5);
 }
 
 //2 int to 1 double converter
 double Ran32Dbl1(int iRan1, int iRan2) {
-	return (int64_t(iRan1) * int64_t(M_RAN_INVM32) + int64_t(0.5 + M_RAN_INVM52 / 2) +
-		int64_t((iRan2) & 0x000FFFFF) * int64_t(M_RAN_INVM52));
+	return double(int64_t(iRan1) *  double(M_RAN_INVM32) + (0.5 + M_RAN_INVM52 / 2) +
+		int64_t((iRan2) & 0x000FFFFF) * double(M_RAN_INVM52));
 }
 
 //https://en.wikipedia.org/wiki/Xorshift
@@ -161,10 +161,7 @@ float remap(float originalValue, float originalMin, float originalMax, float new
 vec2 randomPoint(int x, int y) {
 	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
 
-	uint seed = uint(fpos.x);
-	seed = seed << 16;
-	seed += uint(fpos.y);
-
+	uint seed = (fpos.x + 9) * (fpos.y + 17) * 65535 + 21; 
 	uint seed2 = xorshift32_uint(seed);
 
 	return vec2(xorshift32_float(seed), xorshift32_float(seed2));
@@ -173,11 +170,7 @@ vec2 randomPoint(int x, int y) {
 vec3 randomPoint(int x, int y, int z) {
 	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
 
-	uint64_t seed = uint(fpos.x);
-	seed = seed << 24;
-	seed += uint(fpos.y);
-	seed = seed << 24;
-	seed += uint(fpos.z);
+	uint64_t seed = (fpos.x + 9) * (fpos.y + 17) * (fpos.z + 51) * 2147483647 + 47;
 
 	uint64_t seed2 = xorshift64_uint64(seed); 
 	uint64_t seed3 = xorshift64_uint64(seed2); 
@@ -192,13 +185,9 @@ vec3 randomPoint(int x, int y, int z) {
 vec2 randomVector(int x, int y) {
 	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
 
-	//uint seed = uint(fpos.x);
-	//seed = seed << 16;
-	//seed += uint(fpos.y);
-	
-	uint seed = (x + 19) * (y + 7);
+	uint seed = (fpos.x + 9) * (fpos.y + 17) * 65535 + 21; 
 
-	float random = lcs32_float(seed);
+	float random = xorshift32_float(seed);
 
 	return vec2(cos(random * PI * 2.0f), sin(random * PI * 2.0f));
 }
@@ -206,12 +195,7 @@ vec2 randomVector(int x, int y) {
 vec3 randomVector(int x, int y, int z) {
 	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
 
-	uint64_t seed = uint(fpos.x);
-	seed = seed << 24;
-	seed += uint(fpos.y);
-	seed = seed << 24;
-	seed += uint(fpos.z);
-
+	uint64_t seed = (fpos.x + 9) * (fpos.y + 17) * (fpos.z + 51) * 2147483647 + 47;
 	uint64_t seed2 = xorshift64_uint64(seed); 
 
 	float r1 = float(xorshift64_double(seed));
@@ -219,9 +203,9 @@ vec3 randomVector(int x, int y, int z) {
 
 
 	vec3 nvector; //Normalized vector
-	nvector.x = cos(PI * r1 * 2.0f) * sin(PI * r2);
+	nvector.x = cos(PI * r1 * 2.0f) * sin(PI * r2 * 2.0f);
 	nvector.y = cos(PI * r2);			  
-	nvector.z = sin(PI * r1 * 2.0f) * sin(PI * r2);
+	nvector.z = sin(PI * r1 * 2.0f) * sin(PI * r2 * 2.0f);
 
 	return nvector;
 }
@@ -392,7 +376,7 @@ float Value(vec3 point, NoiseLayer layer) {
 	for (int i = 0; i < layer.octaveCount; i++) {
 		float octaveStrength = 1.0f / (pow(2.0f, i + 1.0f)); //1.0, 0.5, 0.25, 0.125,...
 
-		vec3 position = vec3(point.x * layer.normalizedScale / octaveStrength, point.y * layer.normalizedScale / octaveStrength, point.z * layer.normalizedScale / octaveStrength) + layer.offset;
+		vec3 position =  point * layer.normalizedScale / octaveStrength + layer.offset;
 
 		switch (layer.type) {
 		case 0:
@@ -481,9 +465,9 @@ void main() {
 
 		Generate2DNoise(uvec2(id.x, id.y));
 	}
-	//else {
-	//	if(any(greaterThanEqual(id, _TexSize)))
-	//		return;
-	//	Generate3DNoise(id);
-	//}
+	else {
+		if(any(greaterThanEqual(id, _TexSize)))
+			return;
+		Generate3DNoise(id);
+	}
 }
