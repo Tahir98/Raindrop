@@ -284,6 +284,16 @@ namespace Engine {
 		}
 	}
 
+	void Texture2D::Resize(uint32_t width, uint32_t height) {
+		this->width = width;
+		this->height = height;
+
+		bind();
+
+		glTexImage2D(GL_TEXTURE_2D, 0, TextureUtility::GetOpenGLInternalFormat(format), width, height, 0,
+			TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), nullptr);
+	}
+
 	void Texture2D::bind() {
 		glBindTexture(GL_TEXTURE_2D, id);
 	}

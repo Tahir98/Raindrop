@@ -156,6 +156,17 @@ namespace Engine {
 		}
 	}
 
+	void Texture3D::Resize(uint32_t width, uint32_t height, uint32_t depth) {
+		this->width = width;
+		this->height = height;
+		this->depth = depth;
+
+		bind();
+
+		glTexImage3D(GL_TEXTURE_3D, 0, TextureUtility::GetOpenGLInternalFormat(format), width, height, depth, 0,
+			TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), nullptr);
+	}
+
 	void Texture3D::bind() {
 		glBindTexture(GL_TEXTURE_3D, id);
 	}

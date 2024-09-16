@@ -30,6 +30,8 @@ namespace Engine {
 
 		void SetData(void* data, uint32_t size, uint32_t startIndex = 0);
 
+		void Resize(uint32_t width);
+
 		void bind();
 		void unbind();
 		void setActiveTextureSlot(int slot = 0);

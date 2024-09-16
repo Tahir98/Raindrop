@@ -139,6 +139,15 @@ namespace Engine {
         }
     }
 
+    void Texture1D::Resize(uint32_t width) {
+        this->width = width;
+
+        bind();
+
+        glTexImage1D(GL_TEXTURE_1D, 0, TextureUtility::GetOpenGLInternalFormat(format), width, 0,
+            TextureUtility::GetOpenGLBaseFormat(format), TextureUtility::GetOpenGLPixelDataType(format), nullptr);
+    }
+
     void Texture1D::bind() {
         glBindTexture(GL_TEXTURE_1D, id);
     }
