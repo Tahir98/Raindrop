@@ -48,6 +48,7 @@ namespace Engine {
 			shader->SetUniform1i("_Layer.scale", layer.scale);
 			shader->SetUniform1f("_Layer.normalizedScale", layer.normalizedScale);
 			shader->SetUniform1f("_Layer.opacity", layer.opacity);
+			shader->SetUniform1f("_Layer.coverage", layer.coverage);
 			shader->SetUniform1i("_Layer.smoothnessLevel", layer.smoothnessLevel);
 		
 			glm::uvec3 texSize = glm::uvec3(noiseTex.getWidth(), noiseTex.getHeight(), 1);

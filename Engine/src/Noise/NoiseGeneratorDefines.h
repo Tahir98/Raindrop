@@ -22,6 +22,7 @@ namespace Engine {
 		int scale = 1;
 		float normalizedScale = 1;
 		float opacity = 1;
+		float coverage = 1;
 		int smoothnessLevel = 1;
 	};
 }

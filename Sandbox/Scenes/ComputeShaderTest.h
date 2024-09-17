@@ -101,6 +101,7 @@ public:
 		ImGui::SliderInt("Octave count", &layer.octaveCount, 1, 6);
 		ImGui::DragInt("scale", &layer.scale, 0.1f, 0, 512);
 		ImGui::SliderFloat("opacity", &layer.opacity, 0, 1);
+		ImGui::SliderFloat("coverage", &layer.coverage, 0, 1);
 		ImGui::SliderInt("Smoothness Level", &layer.smoothnessLevel, 0, 2);
 
 		layer.normalizedScale = (float)layer.scale / customTex->getWidth();

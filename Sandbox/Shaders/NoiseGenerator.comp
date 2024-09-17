@@ -1,8 +1,8 @@
 //#compute shader
 #version 460 core 
-#extension GL_ARB_gpu_shader_int64 : enable
-#extension GL_ARB_gpu_shader_fp64 : enable
-#extension GL_ARB_gpu_shader5 : enable
+//#extension GL_ARB_gpu_shader_int64 : enable
+//#extension GL_ARB_gpu_shader_fp64 : enable
+//#extension GL_ARB_gpu_shader5 : enable
 
 /**************** Uniforms *********************/
 layout(rgba8, binding = 0) uniform image2D _NoiseTex2D;
@@ -16,6 +16,7 @@ struct NoiseLayer {
 	int scale;
 	float normalizedScale;
 	float opacity;
+	float coverage;
 	int smoothnessLevel;
 };
 
@@ -40,10 +41,6 @@ uniform uint _ChannelIndex;
 #define M_RAN_INVM32 2.32830643653869628906e-010
 #endif 
 
-#ifndef M_RAN_INVM52
-#define M_RAN_INVM52 2.22044604925031308085e-016
-#endif 
-
 #ifndef PI
 #define PI 3.1415926535897
 #endif
@@ -53,68 +50,45 @@ float Ran32Flt1(uint uiRan) {
 	return float(int(uiRan) * M_RAN_INVM32 + 0.5);
 }
 
-//2 int to 1 double converter
-double Ran32Dbl1(int iRan1, int iRan2) {
-	return double(int64_t(iRan1) *  double(M_RAN_INVM32) + (0.5 + M_RAN_INVM52 / 2) +
-		int64_t((iRan2) & 0x000FFFFF) * double(M_RAN_INVM52));
+
+//https://www.researchgate.net/publication/5142825_Xorshift_RNGs
+uint xorshift64_uint(uint x, uint y) {
+	//[8, 9, 22]
+	uint t = x ^ (x << 8);
+	x = y;
+
+	y = (y ^ (y >> 22)) ^ (t ^ (t >> 9));
+
+	return y;
 }
 
-//https://en.wikipedia.org/wiki/Xorshift
-uint xorshift32_uint(uint seed) { //32bit implementation
-	uint x = seed;
-
-	x ^= x << 13;
-	x ^= x >> 17;
-	x ^= x << 5;
-
-	return x;
-} 
-
-int xorshift32_int(uint seed) { //32bit implementation
-	return int(xorshift32_uint(seed));
-} 
-
-float xorshift32_float(uint seed) { //32bit implementation
-	return Ran32Flt1(xorshift32_uint(seed)); //Normalized
-} 
-
-uint64_t xorshift64_uint64(uint64_t seed) { //64bit implementation
-	uint64_t x = seed;
-	
-	x ^= x << 13;
-	x ^= x >> 7;
-	x ^= x << 17;
-
-	return x;
+int xorshift64_int(uint x, uint y) {
+	return int(xorshift64_uint(x, y));
 }
 
-int64_t xorshift64_int64(uint64_t seed) { //64bit implementation
-	return int64_t(xorshift64_uint64(seed));
-} 
-
-double xorshift64_double(uint64_t seed) { //64bit implementation
-	int64_t value = xorshift64_int64(seed);
-
-	int rand1 = int(value);
-	int rand2 = int(value >> 32);
-
-	return Ran32Dbl1(rand1, rand2); //Normalized
-} 
-
-uint lcs32_uint(uint seed) {
-	uint64_t m = 2147483647; //2^31 - 1
-	uint64_t a = 16807;
-
-	return uint((seed * a) % m);
+float xorshift64_float(uint x, uint y) {
+	return Ran32Flt1(xorshift64_uint(x,y));
 }
 
-int lcs32_int(uint seed) { //32bit implementation
-	return int(lcs32_uint(seed));
-} 
+uint xorshift96_uint(uint x, uint y, uint z) {
+	//[13, 19, 3]
+	uint t = x ^ (x << 13);
+	x = y;
+	y = z;
 
-float lcs32_float(uint seed) { //32bit implementation
-	return Ran32Flt1(lcs32_uint(seed)); //Normalized
-} 
+	z = (z ^ (z >> 3)) ^ (t ^ (t >> 19));
+
+	return z;
+}
+
+int xorshift96_int(uint x, uint y, uint z) {
+	return int(xorshift96_uint(x, y, z));
+}
+
+float xorshift96_float(uint x, uint y, uint z) {
+	return Ran32Flt1(xorshift96_uint(x, y, z));
+}
+
 
 /////////////////////////////////////////////////////////////
 
@@ -161,23 +135,29 @@ float remap(float originalValue, float originalMin, float originalMax, float new
 vec2 randomPoint(int x, int y) {
 	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
 
-	uint seed = (fpos.x + 9) * (fpos.y + 17) * 65535 + 21; 
-	uint seed2 = xorshift32_uint(seed);
+	uint seed = (fpos.x + 7) * (fpos.y + 19) + 48271; 
+	uint ux = 181243323U * (seed ^ (seed >> 30)) + 1;
+	uint uy = 181243323U * (ux ^ (ux >> 30)) + 2;
 
-	return vec2(xorshift32_float(seed), xorshift32_float(seed2));
+	uint rseed = xorshift64_uint(ux, uy); 
+
+	return vec2(Ran32Flt1(rseed), xorshift64_float(uy, rseed));
 }
 
 vec3 randomPoint(int x, int y, int z) {
 	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
 
-	uint64_t seed = (fpos.x + 9) * (fpos.y + 17) * (fpos.z + 51) * 2147483647 + 47;
+	uint seed = (fpos.x + 7) * (fpos.y + 19) * (fpos.z + 49) + 48271; 
+	uint ux = 181243323U * (seed ^ (seed >> 30)) + 1;
+	uint uy = 181243323U * (ux ^ (ux >> 30)) + 2;
+	uint uz = 181243323U * (uy ^ (uy >> 30)) + 3;
 
-	uint64_t seed2 = xorshift64_uint64(seed); 
-	uint64_t seed3 = xorshift64_uint64(seed2); 
+	uint rseed = xorshift96_uint(ux, uy, uz); 
+	uint rseed2 = xorshift96_uint(fpos.y, fpos.z, rseed);
 
-	float xf = float(xorshift64_double(seed));
-	float yf = float(xorshift64_double(seed2));
-	float zf = float(xorshift64_double(seed3));
+	float xf = Ran32Flt1(rseed);
+	float yf = Ran32Flt1(rseed2);
+	float zf = xorshift96_float(fpos.z, rseed, rseed2);
 
 	return vec3(xf, yf, zf);
 }
@@ -185,9 +165,11 @@ vec3 randomPoint(int x, int y, int z) {
 vec2 randomVector(int x, int y) {
 	ivec2 fpos = getFrequencyBasedCoordinate(x, y);
 
-	uint seed = (fpos.x + 9) * (fpos.y + 17) * 65535 + 21; 
+	uint seed = (fpos.x + 7) * (fpos.y + 19) * 48271 + 37; 
+	uint ux = 181243323U * (seed ^ (seed >> 30)) + 1;
+	uint uy = 181243323U * (ux ^ (ux >> 30)) + 2;
 
-	float random = xorshift32_float(seed);
+	float random = xorshift64_float(ux, uy);
 
 	return vec2(cos(random * PI * 2.0f), sin(random * PI * 2.0f));
 }
@@ -195,12 +177,15 @@ vec2 randomVector(int x, int y) {
 vec3 randomVector(int x, int y, int z) {
 	ivec3 fpos = getFrequencyBasedCoordinate(x, y, z);
 
-	uint64_t seed = (fpos.x + 9) * (fpos.y + 17) * (fpos.z + 51) * 2147483647 + 47;
-	uint64_t seed2 = xorshift64_uint64(seed); 
+	uint seed = (fpos.x + 7) * (fpos.y + 19) * (fpos.z + 49) + 48271; 
+	uint ux = 181243323U * (seed ^ (seed >> 30)) + 1;
+	uint uy = 181243323U * (ux ^ (ux >> 30)) + 2;
+	uint uz = 181243323U * (uy ^ (uy >> 30)) + 3;
 
-	float r1 = float(xorshift64_double(seed));
-	float r2 = float(xorshift64_double(seed2));
+	uint rseed = xorshift96_uint(ux, uy, uz); 
 
+	float r1 = Ran32Flt1(rseed);
+	float r2 = xorshift96_float(uy, uz, rseed);
 
 	vec3 nvector; //Normalized vector
 	nvector.x = cos(PI * r1 * 2.0f) * sin(PI * r2 * 2.0f);
@@ -402,14 +387,16 @@ float Value(vec3 point, NoiseLayer layer) {
 		totalOctaveStrength += octaveStrength;
 	}
 
+	noise = remap(noise, 0, totalOctaveStrength, 0, 1); 
+	noise = clamp(noise, 1.0f - layer.coverage, 1);
 
-	return remap(noise, 0, totalOctaveStrength, 0, 1) * layer.opacity;
+	return remap(noise, 1.0f - layer.coverage, 1, 0, 1) * layer.opacity;
 }
 
 void Generate2DNoise(uvec2 id) {
 	vec3 point = vec3(id.x, id.y, 1);
 	float noise = Value(point, _Layer);
-	
+
 	vec4 data = imageLoad(_NoiseTex2D, ivec2(id));
 	data.w = 1;
 
@@ -434,7 +421,7 @@ void Generate2DNoise(uvec2 id) {
 void Generate3DNoise(uvec3 id) {
 	vec3 point = vec3(id);
 	float noise = Value(point, _Layer);
-	
+
 	vec4 data = imageLoad(_NoiseTex3D, ivec3(id));
 	
 	switch (_ChannelIndex) {
