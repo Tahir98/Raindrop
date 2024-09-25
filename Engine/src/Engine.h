@@ -16,6 +16,7 @@
 //OpenGL Classes
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/Shader.h"
+#include "OpenGL/ComputeShader.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/FrameBuffer.h"

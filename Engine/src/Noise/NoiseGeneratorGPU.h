@@ -13,10 +13,10 @@ namespace Engine {
 		glm::ivec3 repeatOffset = glm::ivec3(0, 0, 0);
 		bool noiseRepeatEnabled = false;
 
-		Shader* shader;
+		ComputeShader* computeShader;
 	public:
 		NoiseGeneratorGPU() {
-			shader = new Shader("Shaders/NoiseGenerator.comp");
+			computeShader = new ComputeShader("Shaders/NoiseGenerator.comp");
 		}
 
 		void EnableNoiseRepeat(bool enable) {
@@ -32,30 +32,30 @@ namespace Engine {
 		}
 
 		void GenerateNoise(Texture2D& noiseTex, NoiseLayer layer) {
-			shader->bind();
+			computeShader->bind();
 			
 			glBindImageTexture(0, noiseTex.getID(), 0, false, 0, GL_READ_WRITE, GL_RGBA8);
 
-			shader->SetUniform1i("_NoiseTex2D", 0);
-			shader->SetUniform1i("_NoiseRepeatEnabled", noiseRepeatEnabled);
-			shader->SetUniform3i("_RepeatFrequency", repeatFrequency);
-			shader->SetUniform3i("_RepeatOffset", repeatOffset);
+			computeShader->SetUniform1i("_NoiseTex2D", 0);
+			computeShader->SetUniform1i("_NoiseRepeatEnabled", noiseRepeatEnabled);
+			computeShader->SetUniform3i("_RepeatFrequency", repeatFrequency);
+			computeShader->SetUniform3i("_RepeatOffset", repeatOffset);
 
-			shader->SetUniform1i("_Layer.type", layer.type);
-			shader->SetUniform1i("_Layer.blend", layer.blend);
-			shader->SetUniform3f("_Layer.offset", layer.offset);
-			shader->SetUniform1i("_Layer.octaveCount", layer.octaveCount);
-			shader->SetUniform1i("_Layer.scale", layer.scale);
-			shader->SetUniform1f("_Layer.normalizedScale", layer.normalizedScale);
-			shader->SetUniform1f("_Layer.opacity", layer.opacity);
-			shader->SetUniform1f("_Layer.coverage", layer.coverage);
-			shader->SetUniform1i("_Layer.smoothnessLevel", layer.smoothnessLevel);
+			computeShader->SetUniform1i("_Layer.type", layer.type);
+			computeShader->SetUniform1i("_Layer.blend", layer.blend);
+			computeShader->SetUniform3f("_Layer.offset", layer.offset);
+			computeShader->SetUniform1i("_Layer.octaveCount", layer.octaveCount);
+			computeShader->SetUniform1i("_Layer.scale", layer.scale);
+			computeShader->SetUniform1f("_Layer.normalizedScale", layer.normalizedScale);
+			computeShader->SetUniform1f("_Layer.opacity", layer.opacity);
+			computeShader->SetUniform1f("_Layer.coverage", layer.coverage);
+			computeShader->SetUniform1i("_Layer.smoothnessLevel", layer.smoothnessLevel);
 		
 			glm::uvec3 texSize = glm::uvec3(noiseTex.getWidth(), noiseTex.getHeight(), 1);
-			shader->SetUniform3ui("_TexSize", texSize);
-			shader->SetUniform1i("_WriteTo2DTex", (int)true);
-			shader->SetUniform1ui("_ChannelIndex", 0);
-			shader->DispatchCompute(texSize.x / 4, texSize.y / 4, 1);
+			computeShader->SetUniform3ui("_TexSize", texSize);
+			computeShader->SetUniform1i("_WriteTo2DTex", (int)true);
+			computeShader->SetUniform1ui("_ChannelIndex", 0);
+			computeShader->DispatchCompute(texSize.x / 4, texSize.y / 4, 1);
 		}
 	};
 }

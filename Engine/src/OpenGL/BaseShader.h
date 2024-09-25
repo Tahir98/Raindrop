@@ -7,25 +7,21 @@
 #include <unordered_map>
 
 namespace Engine {
-	class ShaderVariant {
+	class BaseShader {
 	public:
 		enum ShaderType {
 			None = -1, Vertex = 0, Fragment = 1, Geometry = 2, Tessellation = 3, Compute = 4
 		};
 
-	private:
+	protected:
 		uint32_t id = -1;
-		uint32_t vs_id = -1, fs_id = -1;
-
-		uint32_t gs_id = -1, ts_id = -1, cs_id = -1;
 
 		std::vector<ShaderType> shaderTypes;
 
 		std::unordered_map<std::string, int> uniforms;
-
 	public:
-		ShaderVariant(const std::string filePath);
-		~ShaderVariant();
+		BaseShader();
+		~BaseShader();
 
 		void bind();
 		void unbind();
@@ -85,7 +81,7 @@ namespace Engine {
 		void SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const float* array);
 		void SetUniformMatrix4x4(std::string uname, int32_t count, bool transpose, const glm::mat4* array);
 
-	private:
+	protected:
 		bool InShaderTypeList(ShaderType type);
 	};
 

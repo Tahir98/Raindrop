@@ -1,8 +1,6 @@
 //#compute shader
+
 #version 460 core 
-//#extension GL_ARB_gpu_shader_int64 : enable
-//#extension GL_ARB_gpu_shader_fp64 : enable
-//#extension GL_ARB_gpu_shader5 : enable
 
 /**************** Uniforms *********************/
 layout(rgba8, binding = 0) uniform image2D _NoiseTex2D;

@@ -4,7 +4,7 @@
 class ComputeShaderTest : public Engine::Scene {
 private:
 	Engine::FrameBuffer* fb = nullptr;
-	Engine::Shader* computeShader = nullptr;
+	Engine::ComputeShader* computeShader = nullptr;
 
 	//Engine::Texture2D* imageTex = nullptr;
 
@@ -27,7 +27,7 @@ public:
 
 		fb = new Engine::FrameBuffer(800, 600, Engine::AttachmentType::Texture, Engine::AttachmentType::Texture);
 
-		computeShader = new Engine::Shader("Shaders/TestCompute.comp");
+		computeShader = new Engine::ComputeShader("Shaders/TestCompute.comp");
 
 		//imageTex = new Engine::Texture2D("Textures/rooitou_park.jpg");
 
