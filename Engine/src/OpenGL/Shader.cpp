@@ -71,7 +71,10 @@ namespace Engine {
 			}
 		}
 
-		id = glCreateProgram();
+		ShaderVariant* sv = new ShaderVariant();
+
+		sv->id = glCreateProgram();
+
 		int success;
 
 		for (ShaderType type : shaderTypes) {
@@ -95,7 +98,7 @@ namespace Engine {
 					free(message);
 				}
 
-				glAttachShader(id, vs_id);
+				glAttachShader(sv->id, vs_id);
 
 			}
 			else if (type == Fragment) {
@@ -118,7 +121,7 @@ namespace Engine {
 					free(message);
 				}
 
-				glAttachShader(id, fs_id);
+				glAttachShader(sv->id, fs_id);
 
 			}
 			else if (type == Geometry) {
@@ -141,32 +144,32 @@ namespace Engine {
 					free(message);
 				}
 
-				glAttachShader(id, gs_id);
+				glAttachShader(sv->id, gs_id);
 
 			}
 		}
 
-		glLinkProgram(id);
+		glLinkProgram(sv->id);
 
-		glGetProgramiv(id, GL_LINK_STATUS, &success);
+		glGetProgramiv(sv->id, GL_LINK_STATUS, &success);
 		if (!success) {
 			int length;
-			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
+			glGetProgramiv(sv->id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*)malloc(length);
-			glGetProgramInfoLog(id, length, &length, message);
+			glGetProgramInfoLog(sv->id, length, &length, message);
 
 			ENG_LOG_ERROR("FAILED TO LINK SHADER(PROGRAM): {0}", message);
 			free(message);
 		}
 
-		glValidateProgram(id);
+		glValidateProgram(sv->id);
 
-		glGetProgramiv(id, GL_VALIDATE_STATUS, &success);
+		glGetProgramiv(sv->id, GL_VALIDATE_STATUS, &success);
 		if (!success) {
 			int length;
-			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
+			glGetProgramiv(sv->id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*)malloc(length);
-			glGetProgramInfoLog(id, length, &length, message);
+			glGetProgramInfoLog(sv->id, length, &length, message);
 
 			ENG_LOG_ERROR("FAILED TO VALIDATE SHADER(PROGRAM): {0}", message);
 			free(message);
@@ -180,12 +183,27 @@ namespace Engine {
 		if (gs_id != -1)
 			glDeleteShader(gs_id);
 
-		ENG_LOG_INFO("Shader is created, id: {0}", id);
+		shaderVariants.push_back(sv);
+		SetCurrentVariantIndex(0);
+
+		ENG_LOG_INFO("Shader is created, variant id: {0}", sv->id);
 	}
 
 	Shader::~Shader() {
-		glDeleteProgram(id);
+		for (int32_t i = 0; i < shaderVariants.size(); i++) {
+			glDeleteProgram(shaderVariants[i]->id);
 
-		ENG_LOG_INFO("Shader is deleted, id: {0}", id);
+			ENG_LOG_INFO("Shader is deleted, variant id: {0}", shaderVariants[i]->id);
+
+			delete shaderVariants[i];
+		}
+	}
+
+	void Shader::bind() {
+		glUseProgram(currentVariant->id);
+	}
+
+	void Shader::unbind() {
+		glUseProgram(0);
 	}
 }

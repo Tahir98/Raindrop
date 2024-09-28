@@ -7,24 +7,29 @@
 #include <unordered_map>
 
 namespace Engine {
+	class ShaderVariant {
+	public:
+		uint32_t id = -1;
+		std::unordered_map<std::string, int> uniforms;
+	};
+
 	class BaseShader {
 	public:
 		enum ShaderType {
 			None = -1, Vertex = 0, Fragment = 1, Geometry = 2, Tessellation = 3, Compute = 4
 		};
-
 	protected:
-		uint32_t id = -1;
+		uint32_t currentVariantIndex = 0;
+		
+		ShaderVariant* currentVariant = nullptr;
+		std::vector<ShaderVariant*> shaderVariants;
 
 		std::vector<ShaderType> shaderTypes;
 
-		std::unordered_map<std::string, int> uniforms;
+		void SetCurrentVariantIndex(uint32_t index);
 	public:
 		BaseShader();
 		~BaseShader();
-
-		void bind();
-		void unbind();
 
 		void SetUniform1f(std::string uname, float v);
 		void SetUniform2f(std::string uname, float v1, float v2);

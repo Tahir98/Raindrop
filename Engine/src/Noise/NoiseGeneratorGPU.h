@@ -53,9 +53,8 @@ namespace Engine {
 		
 			glm::uvec3 texSize = glm::uvec3(noiseTex.getWidth(), noiseTex.getHeight(), 1);
 			computeShader->SetUniform3ui("_TexSize", texSize);
-			computeShader->SetUniform1i("_WriteTo2DTex", (int)true);
 			computeShader->SetUniform1ui("_ChannelIndex", 0);
-			computeShader->DispatchCompute(texSize.x / 4, texSize.y / 4, 1);
+			computeShader->DispatchCompute(0, texSize.x / 4, texSize.y / 4, 1);
 		}
 	};
 }

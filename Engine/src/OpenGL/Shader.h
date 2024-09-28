@@ -11,6 +11,9 @@ namespace Engine {
 	public:
 		Shader(const std::string filePath);
 		~Shader();
+
+		void bind();
+		void unbind();
 	};
 
 }
