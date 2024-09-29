@@ -35,6 +35,7 @@ namespace Engine {
 		void bind();
 		void unbind();
 		void setActiveTextureSlot(int slot = 0);
+		uint32_t getID();
 
 		uint32_t getWidth();
 		uint32_t getBBP();

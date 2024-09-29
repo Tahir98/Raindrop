@@ -1,6 +1,9 @@
 #pragma kernel GenerateNoise2D
 #pragma kernel GenerateNoise3D
 
+#pragma kernel GenerateNoise2DMultiLayer
+#pragma kernel GenerateNoise3DMultiLayer
+
 #version 460 core 
 
 /**************** Uniforms *********************/
@@ -9,7 +12,7 @@ layout(rgba8, binding = 1) uniform image3D _NoiseTex3D;
 
 struct NoiseLayer {
 	int type;
-	int blend ;
+	int blend;
 	vec3 offset;
 	int octaveCount ;
 	int scale;
@@ -23,7 +26,12 @@ uniform bool _NoiseRepeatEnabled;
 uniform ivec3 _RepeatFrequency;
 uniform ivec3 _RepeatOffset;
 
+//Single Layer
 uniform NoiseLayer _Layer;
+
+//Multi Layer
+uniform NoiseLayer _Layers[10];
+uniform uint _LayerCount;
 
 uniform uvec3 _TexSize;
 uniform bool _WriteTo2DTex;
@@ -392,8 +400,32 @@ float Value(vec3 point, NoiseLayer layer) {
 	return remap(noise, 1.0f - layer.coverage, 1, 0, 1) * layer.opacity;
 }
 
-void GenerateNoise2D(uint thread_x = 4, uint thread_y = 4, uint thread_z = 1) {
+float blendNoise(float totalNoise, float noise, int blend) {
+	float newNoise = 0;
 	
+	switch (blend) {
+	case 0:
+		newNoise = totalNoise + noise;
+		break;
+	case 1:
+		newNoise = totalNoise - noise;
+		break;
+	case 2:
+		newNoise = totalNoise * noise;
+		break;
+	case 3:
+		if(noise != 0)
+			newNoise = totalNoise / noise;
+		break;
+	default:
+		newNoise = totalNoise + noise;
+		break;
+	}
+	
+	return newNoise;
+}
+
+void GenerateNoise2D(uint thread_x = 4, uint thread_y = 4, uint thread_z = 1) {
 	uvec3 id = gl_GlobalInvocationID;
 
 	if(any(greaterThanEqual(id.xy, _TexSize.xy)))
@@ -424,17 +456,16 @@ void GenerateNoise2D(uint thread_x = 4, uint thread_y = 4, uint thread_z = 1) {
 }
 
 void GenerateNoise3D(uint thread_x = 4, uint thread_y = 4, uint thread_z = 4) {
-	
 	uvec3 id = gl_GlobalInvocationID;
 
 	if(any(greaterThanEqual(id, _TexSize)))
 		return;
-		
-	vec3 point = vec3(id);
+
+	vec3 point = vec3(id.x, id.y, id.z);
 	float noise = Value(point, _Layer);
 
-	vec4 data = imageLoad(_NoiseTex3D, ivec3(id));
-	
+	vec4 data = imageLoad(_NoiseTex3D, ivec3(id.xyz));
+
 	switch (_ChannelIndex) {
 		case 0:
 			data.x = noise;
@@ -447,6 +478,80 @@ void GenerateNoise3D(uint thread_x = 4, uint thread_y = 4, uint thread_z = 4) {
 			break;
 		case 3:
 			data.w = noise;
+			break;
+	}
+
+	imageStore(_NoiseTex3D, ivec3(id.xyz), data);
+}
+
+void GenerateNoise2DMultiLayer(uint thread_x = 4, uint thread_y = 4, uint thread_z = 1) {
+	
+	uvec3 id = gl_GlobalInvocationID;
+
+	if(any(greaterThanEqual(id.xy, _TexSize.xy)))
+		return;
+
+	vec3 point = vec3(id.x, id.y, 1);
+
+	float totalNoise = 0;
+
+	for(int i = 0; i < _LayerCount; i++) {
+		float noise = Value(point, _Layers[i]);
+	
+		totalNoise = blendNoise(totalNoise, noise, _Layers[i].blend);
+	}
+
+	vec4 data = imageLoad(_NoiseTex2D, ivec2(id.xy));
+	data.w = 1;
+
+	switch (_ChannelIndex) {
+		case 0:
+			data.x = totalNoise;
+			break;
+		case 1:
+			data.y = totalNoise;
+			break;
+		case 2:
+			data.z = totalNoise;
+			break;
+		case 3:
+			data.w = totalNoise;
+			break;
+	}
+
+	imageStore(_NoiseTex2D, ivec2(id.xy), data);
+}
+
+void GenerateNoise3DMultiLayer(uint thread_x = 4, uint thread_y = 4, uint thread_z = 4) {
+	
+	uvec3 id = gl_GlobalInvocationID;
+
+	if(any(greaterThanEqual(id, _TexSize)))
+		return;
+		
+	vec3 point = vec3(id);
+	float totalNoise = 0;
+
+	for(int i = 0; i < _LayerCount; i++) {
+		float noise = Value(point, _Layers[i]);
+	
+		totalNoise = blendNoise(totalNoise, noise, _Layers[i].blend);
+	}
+
+	vec4 data = imageLoad(_NoiseTex3D, ivec3(id));
+	
+	switch (_ChannelIndex) {
+		case 0:
+			data.x = totalNoise;
+			break;
+		case 1:
+			data.y = totalNoise;
+			break;
+		case 2:
+			data.z = totalNoise;
+			break;
+		case 3:
+			data.w = totalNoise;
 			break;
 	}
 

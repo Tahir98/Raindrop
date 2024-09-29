@@ -43,7 +43,9 @@ namespace Engine {
 			bool kernelFunctionFound = false;
 
 			for (int j = shaderStartIndex; j < allLines.size(); j++) {
-				if (allLines[j].find(kernelNames[i]) != std::string::npos) {
+				int index = allLines[j].find(kernelNames[i]);
+
+				if (index != std::string::npos && (allLines[j][index + kernelNames[i].length()] == ' ' || allLines[j][index + kernelNames[i].length()] == '(')) {
 					kernelFunctionFound = true;
 
 					int parenthesisBeginIndex = allLines[j].find_first_of("(") + 1;
@@ -93,8 +95,6 @@ namespace Engine {
 				}
 			}
 
-			ENG_LOG_INFO(cs_string);
-
 
 			if (!kernelFunctionFound) {
 				ENG_LOG_ERROR("Kernel Not Found, name : {0}", kernelNames[i]);
@@ -120,7 +120,8 @@ namespace Engine {
 				char* message = (char*)malloc(length);
 				glGetShaderInfoLog(cs_id, length, &length, message);
 
-				ENG_LOG_ERROR("FAILED TO COMPILE COMPUTE SHADER: {0}", message);
+				ENG_LOG_ERROR("FAILED TO COMPILE COMPUTE SHADER (Variant: {1}): {0}", message, i);
+				ENG_LOG_WARN(cs_string);
 
 				free(message);
 			}
@@ -187,7 +188,39 @@ namespace Engine {
 		glUseProgram(0);
 	}
 
-	void ComputeShader::DispatchCompute(uint32_t kernelIndex, uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) {
+	int ComputeShader::GetKernelIndex(std::string kernelName) {
+		for (uint32_t i = 0; i < kernelNames.size(); i++) {
+			if (kernelName.compare(kernelNames[i]) == 0)
+				return i;
+		}
+
+		return -1;
+	}
+
+	bool ComputeShader::EnableKernel(std::string kernelName) {
+		int kernelIndex = GetKernelIndex(kernelName);
+
+		if (kernelIndex >= 0) {
+			SetCurrentVariantIndex(kernelIndex);
+			return true;
+		}
+		else {
+			ENG_LOG_ERROR("Kernel not found: {0}", kernelName);
+		}
+
+		return false;
+	}
+
+	bool ComputeShader::EnableKernel(int kernelIndex) {
+		if (kernelIndex >= 0 && kernelIndex < kernelNames.size()) {
+			SetCurrentVariantIndex(kernelIndex);
+			return true;
+		}
+
+		return false;
+	}
+
+	void ComputeShader::DispatchCompute(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) {
 		bind();
 		glDispatchCompute(threadGroupX, threadGroupY, threadGroupZ);
 

@@ -9,6 +9,7 @@
 #include "OpenGL/FrameBuffer.h"
 
 #include "Noise/NoiseGenerator.h"
+#include "Noise/NoiseGeneratorGPU.h"
 
 #include "Camera/PerspectiveCamera.h"
 
@@ -39,6 +40,7 @@ namespace Engine {
 		std::vector<NoiseLayer> shapeNoiseLayers;
 		std::vector<NoiseLayer> detailNoiseLayers;
 		NoiseGenerator noiseGenerator;
+		NoiseGeneratorGPU noiseGeneratorGPU;
 
 		glm::vec3 volumeSize = glm::vec3(32000, 1000, 32000);
 		
@@ -81,6 +83,7 @@ namespace Engine {
 
 		int splitCount = 1;
 
+		bool computeDataOnGPU = true;
 	public:
 		//Debug mode
 		bool showPropertiesWindow = true;
@@ -132,6 +135,7 @@ namespace Engine {
 		void DrawBoundingBox(PerspectiveCamera& camera);
 
 		void GenerateVolumeData();
+		void GenerateVolumeDataGPU();
 		void UpdateVertexData();
 		void ClearData();
 		void AddDefaultNoiseLayers();

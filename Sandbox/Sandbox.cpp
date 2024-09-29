@@ -18,9 +18,9 @@ public:
 	void run() override {
 		Engine::Window window("App", 1600, 900, false, false, true);
 	
-		ComputeShaderTest scene("Compute Shader Test", window);
+		//ComputeShaderTest scene("Compute Shader Test", window);
 		
-		//ModelTest scene("Volume Rendering", window);
+		ModelTest scene("Volume Rendering", window);
 
 		Engine::SceneManager::pushScene(&scene);
 

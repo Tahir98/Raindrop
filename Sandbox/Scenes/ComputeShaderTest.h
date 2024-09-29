@@ -48,7 +48,7 @@ public:
 		fb->bind();
 		fb->clear();
 
-		noiseGenerator.GenerateNoise(*customTex, layer);
+		noiseGenerator.GenerateNoise2D(*customTex, layer, 0);
 		DrawImGui(delta);
 
 		fb->unbind();

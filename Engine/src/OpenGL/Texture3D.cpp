@@ -179,6 +179,10 @@ namespace Engine {
 		glActiveTexture(GL_TEXTURE0 + slot);
 	}
 
+	uint32_t Texture3D::getID() {
+		return id;
+	}
+
 	uint32_t Texture3D::getWidth() {
 		return width;
 	}

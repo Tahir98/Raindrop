@@ -13,7 +13,12 @@ namespace Engine {
 		void bind();
 		void unbind();
 
-		void DispatchCompute(uint32_t kernelIndex, uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ);
+		int GetKernelIndex(std::string kernelName);
+
+		bool EnableKernel(std::string kernelName);
+		bool EnableKernel(int kernelIndex);
+
+		void DispatchCompute(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ);
 	};
 
 }

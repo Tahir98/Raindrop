@@ -26,7 +26,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -49,7 +50,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -71,7 +73,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -93,7 +96,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -115,7 +119,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -137,7 +142,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -159,7 +165,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -180,7 +187,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -201,7 +209,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -222,7 +231,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -243,7 +253,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -264,7 +275,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -285,7 +297,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -306,7 +319,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -327,7 +341,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -348,7 +363,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -369,7 +385,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -390,7 +407,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -411,7 +429,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -432,7 +451,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -453,7 +473,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -474,7 +495,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -495,7 +517,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -516,7 +539,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -537,7 +561,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -558,7 +583,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -579,7 +605,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -600,7 +627,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -621,7 +649,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -642,7 +671,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -663,7 +693,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -684,7 +715,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -705,7 +737,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -726,7 +759,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -747,7 +781,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -768,7 +803,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -789,7 +825,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -810,7 +847,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -831,7 +869,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -852,7 +891,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -873,7 +913,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -894,7 +935,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -915,7 +957,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -936,7 +979,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -957,7 +1001,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -978,7 +1023,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -999,7 +1045,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}
@@ -1020,7 +1067,8 @@ namespace Engine {
 				currentVariant->uniforms[uname] = location;
 			}
 			else {
-				ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
+				if (logUniformErrors)
+					ENG_LOG_ERROR("Uniform location is not found, name: {0}", uname);
 				return;
 			}
 		}

@@ -18,6 +18,9 @@ namespace Engine {
 		enum ShaderType {
 			None = -1, Vertex = 0, Fragment = 1, Geometry = 2, Tessellation = 3, Compute = 4
 		};
+
+		bool logUniformErrors = false;
+
 	protected:
 		uint32_t currentVariantIndex = 0;
 		

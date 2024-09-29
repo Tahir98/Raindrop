@@ -60,7 +60,11 @@ namespace Engine {
 		shader = new Shader("Shaders/VolumeRenderer.shader");
 
 		AddDefaultNoiseLayers();
-		GenerateVolumeData();
+
+		if(computeDataOnGPU)
+			GenerateVolumeDataGPU();
+		else 
+			GenerateVolumeData();
 
 		std::vector<uint8_t> noiseData;
 		Xorshift rng((uint32_t)2356);
@@ -406,7 +410,10 @@ namespace Engine {
 		//}
 
 		if (ImGui::Button("Regenerate")) {
-			GenerateVolumeData();
+			if (computeDataOnGPU)
+				GenerateVolumeDataGPU();
+			else
+				GenerateVolumeData();
 		}
 
 		ImGui::End();
@@ -496,6 +503,45 @@ namespace Engine {
 
 		volumeData.clear();
 		volumeData.shrink_to_fit();
+	}
+
+	void VolumeRenderer::GenerateVolumeDataGPU() {
+		ClearData();
+
+		//Creating textures
+		shapeTexture = new Texture3D(nullptr, shapeTextureSize, shapeTextureSize, shapeTextureSize,
+			TextureFormat::RGBA8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
+
+		detailTexture = new Texture3D(nullptr, detailTextureSize, detailTextureSize, detailTextureSize,
+			TextureFormat::RG8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
+
+		//Normalizing scales
+		for (int i = 0; i < shapeNoiseLayers.size(); i++) {
+			shapeNoiseLayers[i].normalizedScale = (float)shapeNoiseLayers[i].scale / shapeTextureSize;
+		}
+		
+		for (int i = 0; i < detailNoiseLayers.size(); i++) {
+			detailNoiseLayers[i].normalizedScale = (float)detailNoiseLayers[i].scale / detailTextureSize;
+		}
+
+		
+		//Writing noise data to textures
+		noiseGeneratorGPU.EnableNoiseRepeat(false);
+		for (uint32_t i = 0; i < shapeNoiseLayers.size(); i++) {
+			noiseGeneratorGPU.SetNoiseRepeatFrequency(glm::ivec3(shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale));
+			noiseGeneratorGPU.SetNoiseRepeatOffset(shapeNoiseLayers[i].offset);
+
+			noiseGeneratorGPU.GenerateNoise3D(*shapeTexture, shapeNoiseLayers[i], i);
+		}
+
+
+		//noiseGenerator.EnableNoiseRepeat(false);
+		//for (uint32_t i = 0; i < detailNoiseLayers.size(); i++) {
+		//	noiseGeneratorGPU.SetNoiseRepeatFrequency(glm::ivec3(detailNoiseLayers[i].scale, detailNoiseLayers[i].scale, detailNoiseLayers[i].scale));
+		//	noiseGeneratorGPU.SetNoiseRepeatOffset(detailNoiseLayers[i].offset);
+		//
+		//	noiseGeneratorGPU.GenerateNoise3D(*detailTexture, detailNoiseLayers[i], i);
+		//}
 	}
 
 	void VolumeRenderer::ClearData() {
