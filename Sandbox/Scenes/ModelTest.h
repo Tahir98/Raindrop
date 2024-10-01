@@ -19,7 +19,7 @@ private:
 	Engine::FrameBuffer fb;
 
 
-	float frameTime;
+	float frameTime = 0;
 	int frameCounter = 0;
 	float fps = 165;
 	float frameTimeLimit = 0.120f; //ms
@@ -56,6 +56,8 @@ public:
 		lineRenderer.setLineWidth(5);
 		lineRenderer.enableDepthTest();
 		lineRenderer.setColor(Colors::Blue);
+
+		glfwSwapInterval(0);
 	}
 
 	void OnUpdate(float delta) override {
@@ -167,10 +169,9 @@ public:
 
 			frameCounter = 0;
 			frameTime = 0;
-
 		}
 
-		ImGui::Begin("Setting");
+		ImGui::Begin("Settings");
 		ImGui::Checkbox("Vsync", &vsync);
 		ImGui::Text("Frame time: %.2fms, fps: %.2f", 1000.0f / fps, fps);
 		ImGui::NewLine();

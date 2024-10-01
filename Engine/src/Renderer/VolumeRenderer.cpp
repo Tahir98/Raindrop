@@ -509,10 +509,10 @@ namespace Engine {
 		ClearData();
 
 		//Creating textures
-		shapeTexture = new Texture3D(nullptr, shapeTextureSize, shapeTextureSize, shapeTextureSize,
+		shapeTexture = new Texture3D(shapeTextureSize, shapeTextureSize, shapeTextureSize,
 			TextureFormat::RGBA8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
 
-		detailTexture = new Texture3D(nullptr, detailTextureSize, detailTextureSize, detailTextureSize,
+		detailTexture = new Texture3D(detailTextureSize, detailTextureSize, detailTextureSize,
 			TextureFormat::RG8_UNORM, TextureFilter::TRILINEAR, TextureWrapper::REPEAT);
 
 		//Normalizing scales
@@ -526,7 +526,7 @@ namespace Engine {
 
 		
 		//Writing noise data to textures
-		noiseGeneratorGPU.EnableNoiseRepeat(false);
+		noiseGeneratorGPU.EnableNoiseRepeat(true);
 		for (uint32_t i = 0; i < shapeNoiseLayers.size(); i++) {
 			noiseGeneratorGPU.SetNoiseRepeatFrequency(glm::ivec3(shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale, shapeNoiseLayers[i].scale));
 			noiseGeneratorGPU.SetNoiseRepeatOffset(shapeNoiseLayers[i].offset);
@@ -535,13 +535,13 @@ namespace Engine {
 		}
 
 
-		//noiseGenerator.EnableNoiseRepeat(false);
-		//for (uint32_t i = 0; i < detailNoiseLayers.size(); i++) {
-		//	noiseGeneratorGPU.SetNoiseRepeatFrequency(glm::ivec3(detailNoiseLayers[i].scale, detailNoiseLayers[i].scale, detailNoiseLayers[i].scale));
-		//	noiseGeneratorGPU.SetNoiseRepeatOffset(detailNoiseLayers[i].offset);
-		//
-		//	noiseGeneratorGPU.GenerateNoise3D(*detailTexture, detailNoiseLayers[i], i);
-		//}
+		noiseGenerator.EnableNoiseRepeat(true);
+		for (uint32_t i = 0; i < detailNoiseLayers.size(); i++) {
+			noiseGeneratorGPU.SetNoiseRepeatFrequency(glm::ivec3(detailNoiseLayers[i].scale, detailNoiseLayers[i].scale, detailNoiseLayers[i].scale));
+			noiseGeneratorGPU.SetNoiseRepeatOffset(detailNoiseLayers[i].offset);
+		
+			noiseGeneratorGPU.GenerateNoise3D(*detailTexture, detailNoiseLayers[i], i);
+		}
 	}
 
 	void VolumeRenderer::ClearData() {

@@ -34,7 +34,6 @@ uniform NoiseLayer _Layers[10];
 uniform uint _LayerCount;
 
 uniform uvec3 _TexSize;
-uniform bool _WriteTo2DTex;
 
 uniform uint _ChannelIndex;
 ////////////////////////////////////////////////
@@ -523,7 +522,6 @@ void GenerateNoise2DMultiLayer(uint thread_x = 4, uint thread_y = 4, uint thread
 }
 
 void GenerateNoise3DMultiLayer(uint thread_x = 4, uint thread_y = 4, uint thread_z = 4) {
-	
 	uvec3 id = gl_GlobalInvocationID;
 
 	if(any(greaterThanEqual(id, _TexSize)))

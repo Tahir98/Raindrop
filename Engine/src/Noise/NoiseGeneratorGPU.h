@@ -62,7 +62,16 @@ namespace Engine {
 			computeShader->EnableKernel("GenerateNoise3D");
 			computeShader->bind();
 
-			glBindImageTexture(1, noiseTex.getID(), 0, false, 0, GL_READ_WRITE, GL_RGBA8);
+
+			uint32_t format = 0;
+			if (noiseTex.getTextureFormat() == TextureFormat::RGBA8_UNORM)
+				format = GL_RGBA8;
+			else if(noiseTex.getTextureFormat() == TextureFormat::RG8_UNORM)
+				format = GL_RG8;
+			else if (noiseTex.getTextureFormat() == TextureFormat::R8_UNORM)
+				format = GL_R8;
+
+			glBindImageTexture(1, noiseTex.getID(), 0, false, 0, GL_READ_WRITE, format);
 
 			computeShader->SetUniform1i("_NoiseTex3D", 1);
 			computeShader->SetUniform1i("_NoiseRepeatEnabled", noiseRepeatEnabled);

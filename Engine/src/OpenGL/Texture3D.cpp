@@ -2,7 +2,7 @@
 
 namespace Engine {
 	Texture3D::Texture3D(uint32_t width, uint32_t height, uint32_t depth, TextureFormat format) : width(width), height(height), depth(depth), format(format) {
-		glGenTextures(1, &id);
+		glCreateTextures(GL_TEXTURE_3D, 1, &id);
 		glBindTexture(GL_TEXTURE_3D, id);
 
 		SetTextureFilter(filter);
@@ -19,7 +19,7 @@ namespace Engine {
 	}
 
 	Texture3D::Texture3D(uint32_t width, uint32_t height, uint32_t depth, TextureFormat format, TextureFilter filter) : width(width), height(height), depth(depth), format(format), filter(filter) {
-		glGenTextures(1, &id);
+		glCreateTextures(GL_TEXTURE_3D, 1, &id);
 		glBindTexture(GL_TEXTURE_3D, id);
 
 		SetTextureFilter(filter);
@@ -36,7 +36,7 @@ namespace Engine {
 	}
 
 	Texture3D::Texture3D(uint32_t width, uint32_t height, uint32_t depth, TextureFormat format, TextureFilter filter, TextureWrapper wrapper) : width(width), height(height), depth(depth), format(format), filter(filter), wrapper(wrapper) {
-		glGenTextures(1, &id);
+		glCreateTextures(GL_TEXTURE_3D, 1, &id);
 		glBindTexture(GL_TEXTURE_3D, id);
 
 		SetTextureFilter(filter);
@@ -54,7 +54,7 @@ namespace Engine {
 
 	Texture3D::Texture3D(void* data, uint32_t width, uint32_t height, uint32_t depth, TextureFormat format) : width(width), height(height), depth(depth), format(format) {
 		if (data) {
-			glGenTextures(1, &id);
+			glCreateTextures(GL_TEXTURE_3D, 1, &id);
 			glBindTexture(GL_TEXTURE_3D, id);
 
 			SetTextureFilter(filter);
@@ -76,7 +76,7 @@ namespace Engine {
 
 	Texture3D::Texture3D(void* data, uint32_t width, uint32_t height, uint32_t depth, TextureFormat format, TextureFilter filter) : width(width), height(height), depth(depth), format(format), filter(filter) {
 		if (data) {
-			glGenTextures(1, &id);
+			glCreateTextures(GL_TEXTURE_3D, 1, &id);
 			glBindTexture(GL_TEXTURE_3D, id);
 
 			SetTextureFilter(filter);
@@ -98,7 +98,7 @@ namespace Engine {
 
 	Texture3D::Texture3D(void* data, uint32_t width, uint32_t height, uint32_t depth, TextureFormat format, TextureFilter filter, TextureWrapper wrapper) : width(width), height(height), depth(depth), format(format), filter(filter), wrapper(wrapper) {
 		if (data) {
-			glGenTextures(1, &id);
+			glCreateTextures(GL_TEXTURE_3D, 1, &id);
 			glBindTexture(GL_TEXTURE_3D, id);
 
 			SetTextureFilter(filter);
