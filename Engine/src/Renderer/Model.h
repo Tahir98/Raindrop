@@ -17,19 +17,36 @@ namespace Engine {
 		std::unordered_map<std::string, int> texturePaths;
 
 		Shader* shader = nullptr;
+	
+		glm::vec3 position = glm::vec3(0, 0, 0);
+		glm::vec3 scale = glm::vec3(1, 1, 1);
+		glm::vec3 rotation = glm::vec3(0, 0, 0);
 	public:
 		Model(std::string path);
 		~Model();
 
 		void draw(Camera& camera, DirectionalLight& light);
 		void setMaterial(Material material);
+
+		void setPosition(glm::vec3 position);
+		void setPosition(float x, float y, float z);
+
+		void setScale(glm::vec3 scale);
+		void setScale(float x, float y, float z);
+
+		void setRotation(glm::vec3 rotation);
+		void setRotation(float x, float y, float z);
+
+		glm::vec3 getPosition();
+		glm::vec3 getScale();
+		glm::vec3 getRotation();
 	private:
 		void loadModel(std::string path);
 		void processNode(aiNode* node, const aiScene* scene);
 		Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<TextureDef>* loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
-		TextureType getTexuteType(std::string typeStr);
+		TextureType getTextureType(std::string typeStr);
 	};
 
 }

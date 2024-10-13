@@ -11,7 +11,7 @@ private:
 	Engine::PerspectiveCamera camera;
 	bool isRightClicked = false;
 	glm::vec2 mousePos{};
-	float camSpeed = 500.0;
+	float camSpeed = 10;
 	float camSensivity = 0.125f;
 
 	Engine::SpherecalSkybox skybox;
@@ -26,7 +26,7 @@ private:
 	bool vsync = false;
 
 	DirectionalLight light;
-	//Engine::Model* sponza = nullptr;
+	Engine::Model* sponza = nullptr;
 	//Engine::Model* pist = nullptr;
 	Engine::Material material;
 	
@@ -47,7 +47,10 @@ public:
 
 	void OnCreate() override {
 		APP_LOG_INFO("Scene OnCreate method is called, name: {0}, id: {1}", name, id);
-		//sponza = new Engine::Model("Models/Sponza/sponza.obj");
+		sponza = new Engine::Model("Models/Sponza/sponza.obj");
+
+		sponza->setScale(0.01f, 0.01f, 0.01f);
+
 		//pist = new Engine::Model("Models/Pist/nogaro.obj");
 
 		volumeRenderer.init();
@@ -72,7 +75,7 @@ public:
 		fb.clear();
 
 		skybox.draw(camera);
-		//sponza->draw(camera, light);
+		sponza->draw(camera, light);
 		//pist->draw(camera, light);
 
 		glFinish();
@@ -175,13 +178,15 @@ public:
 		ImGui::Checkbox("Vsync", &vsync);
 		ImGui::Text("Frame time: %.2fms, fps: %.2f", 1000.0f / fps, fps);
 		ImGui::NewLine();
+
+		ImGui::DragFloat("Camera Speed", &camSpeed, 0.1f);
+
 		ImGui::Separator();
 		ImGui::Text("Material properties");
 		ImGui::ColorEdit4("color", &material.color.x);
-		ImGui::SliderFloat("ambient", &material.ambient, 0, 1);
-		ImGui::SliderFloat("diffuse", &material.diffuse, 0, 1);
+		ImGui::SliderFloat("roughness", &material.roughness, 0, 1);
+		ImGui::SliderFloat("metallic", &material.metallic, 0, 1);
 		ImGui::SliderFloat("specular", &material.specular, 0, 1);
-		ImGui::SliderFloat("shininess", &material.shininess, 1, 250);
 
 		ImGui::Separator();
 		ImGui::NewLine();
@@ -192,7 +197,7 @@ public:
 
 		ImGui::End();
 		
-		//sponza->setMaterial(material);
+		sponza->setMaterial(material);
 		//pist->setMaterial(material);
 
 		glfwSwapInterval(vsync ? 1 : 0);

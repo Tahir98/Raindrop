@@ -3,13 +3,12 @@
 #include "Color.h"
 
 namespace Engine {
-	//Bling-Phon lighting material
+	//PBR Material
 	struct Material {
 		Color color = Colors::White;
-		float ambient = 0.3f;
-		float diffuse = 0.5f;
-		float specular = 0.7f;
-		float shininess = 200;
+		float roughness = 0.2f;
+		float metallic = 0.0f;
+		float specular = 1.0f;
 	};
 
 }

@@ -41,10 +41,9 @@ namespace Engine {
 
 			shader->SetUniform3f("cameraPos", camera.getPosition());
 			shader->SetUniform4f("material.color", material.color);
-			shader->SetUniform1f("material.ambient", material.ambient);
-			shader->SetUniform1f("material.diffuse", material.diffuse);
+			shader->SetUniform1f("material.roughness", material.roughness);
+			shader->SetUniform1f("material.metallic", material.metallic);
 			shader->SetUniform1f("material.specular", material.specular);
-			shader->SetUniform1f("material.shininess", material.shininess);
 
 			shader->SetUniform3f("light.direction", light.direction);
 			shader->SetUniform4f("light.color", light.color);

@@ -5,7 +5,7 @@ namespace Engine {
 	Model::Model(std::string path) : filePath(path) {
 		auto startTime = std::chrono::system_clock::now();
 
-		shader = new Shader("Shaders/model.shader");
+		shader = new Shader("Shaders/ModelPBR.shader");
 		loadModel(path);
 
 		for (int i = 0; i < meshes.size(); i++) {
@@ -38,6 +38,66 @@ namespace Engine {
 		for (int i = 0; i < meshes.size(); i++) {
 			meshes[i]->setMaterial(material);
 		}
+	}
+
+	void Model::setPosition(glm::vec3 position) {
+		this->position = position;
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setPosition(position);
+		}
+	}
+
+	void Model::setPosition(float x, float y, float z) {
+		position = glm::vec3(x, y, z);
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setPosition(position);
+		}
+	}
+
+	void Model::setScale(glm::vec3 scale) {
+		this->scale = scale;
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setScale(scale);
+		}
+	}
+
+	void Model::setScale(float x, float y, float z) {
+		scale = glm::vec3(x, y, z);
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setScale(scale);
+		}
+	}
+
+	void Model::setRotation(glm::vec3 rotation) {
+		this->rotation = rotation;
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setRotation(rotation);
+		}
+	}
+
+	void Model::setRotation(float x, float y, float z) {
+		rotation = glm::vec3(x, y, z);
+
+		for (int i = 0; i < meshes.size(); i++) {
+			meshes[i]->setRotation(rotation);
+		}
+	}
+
+	glm::vec3 Model::getPosition() {
+		return position;
+	}
+
+	glm::vec3 Model::getScale() {
+		return scale;
+	}
+
+	glm::vec3 Model::getRotation() {
+		return rotation;
 	}
 
 	void Model::loadModel(std::string path) {
@@ -124,7 +184,7 @@ namespace Engine {
 
 			if (!textureFound) {
 				TextureDef textureDef;
-				textureDef.type = getTexuteType(typeName);
+				textureDef.type = getTextureType(typeName);
 
 				TextureFilter filter = TextureFilter::BILINEAR;
 				TextureWrapper wrapMode = TextureWrapper::REPEAT;
@@ -142,7 +202,7 @@ namespace Engine {
 
 		return mesh_textures;
 	}
-	TextureType Model::getTexuteType(std::string typeStr) {
+	TextureType Model::getTextureType(std::string typeStr) {
 		if (typeStr.compare("texture_diffuse") == 0) {
 			return TextureType::DIFFUSE;
 		}
